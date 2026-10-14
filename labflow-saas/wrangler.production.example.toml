@@ -10,3 +10,7 @@ bucket_name = "REEMPLAZAR_POR_BUCKET_REAL"
 SITE_URL = "https://REEMPLAZAR_DOMINIO"
 # EMAIL_FROM: remitente verificado opcional.
 # RESEND_API_KEY: configurar como secreto, nunca en este archivo.
+
+# SAAS_ADMIN_AUTH: JSON de credenciales independientes, cargar como secreto.
+# Generar con scripts/admin-credentials.mjs; ver docs/phase-one-auth.md.
+# Las cabeceras externas y SAAS_TEST_OPERATOR nunca conceden acceso.

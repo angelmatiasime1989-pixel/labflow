@@ -4,6 +4,9 @@
   "type": "module",
   "scripts": {
     "build": "bash scripts/build.sh",
-    "validate": "node scripts/validate-artifact.mjs"
+    "validate": "node scripts/validate-artifact.mjs",
+    "test": "node scripts/saas-test.mjs && node --test scripts/security-test.mjs && node scripts/regression-test.mjs",
+    "test:security": "node --test scripts/security-test.mjs",
+    "test:regression": "node scripts/regression-test.mjs"
   }
 }

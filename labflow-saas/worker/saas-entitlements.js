@@ -23,3 +23,6 @@ const SAAS_PACKAGES=[
 function packagesSaas(catalog){return SAAS_PACKAGES.map(p=>({...p,modules:selectedModulesSaas(p.modules||catalog.filter(m=>m.status==='ready').map(m=>m.id),catalog)}));}
 function membershipSaas(id,catalog){const p=packagesSaas(catalog).find(p=>p.id===id);if(!p)fail('Selecciona una membresía: Básico, Medio o Avanzado');return p;}
 function migrateMembershipSaas(c,catalog){return packagesSaas(catalog).find(p=>(c.modules||[]).every(id=>p.modules.includes(id)))?.id||'advanced';}
+
+// Licensing applies to every record-access check, including privileged tenant roles.
+const accessBeforeSaas=rowAccessible;rowAccessible=function(s,u,m,r){return licensedSaas(s,m)&&see(u,m)&&accessBeforeSaas(s,u,m,r);};

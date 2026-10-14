@@ -6,6 +6,4 @@ compatibility_date = "2026-10-13"
 binding = "BUCKET"
 bucket_name = "labflow-saas-local"
 
-[vars]
-# SOLO prueba local, nunca desplegar.
-SAAS_TEST_OPERATOR = "local-export-admin"
+# Provision SAAS_ADMIN_AUTH using a private local secrets file; no bypass identity.

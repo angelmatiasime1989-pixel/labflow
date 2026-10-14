@@ -40,7 +40,7 @@ Desde la carpeta del proyecto:
 npx wrangler@4 dev --config wrangler.local.toml --local --port 8787
 ```
 
-Abre `http://localhost:8787/` en ese mismo equipo. El SaaS usa `/admin/` para el proveedor y `/laboratorio/<identificador>/` para clientes. El ejemplo local activa una identidad de prueba `SAAS_TEST_OPERATOR` que ya existe en el código; no modifica su autenticación. El bucket emulado empieza vacío y Wrangler mantiene su estado localmente. El original carga los datos demo incluidos. El SaaS crea su registro de proveedor vacío y cada cliente recibe las credenciales establecidas en su alta.
+Abre `http://localhost:8787/` en ese mismo equipo. El SaaS usa `/admin/` para el proveedor y `/laboratorio/<identificador>/` para clientes. El panel del proveedor requiere credenciales independientes mediante `SAAS_ADMIN_AUTH`; consulta `labflow-saas/docs/phase-one-auth.md`. Las cabeceras de Sites y `SAAS_TEST_OPERATOR` ya no autentican, tampoco en local. El bucket emulado empieza vacío y Wrangler mantiene su estado localmente. El original carga los datos demo incluidos. El SaaS crea su registro de proveedor vacío y cada cliente recibe las credenciales establecidas en su alta.
 
 Las cookies existentes son Secure. Usa localhost o HTTPS; acceder por HTTP mediante una IP en otro equipo puede impedir que el navegador conserve la sesión. No se cambiaron cookies para esta exportación.
 
@@ -51,15 +51,15 @@ Wrangler no se instaló ni se levantó durante esta tarea. Se verificaron ensamb
 | Elemento | Qué requiere fuera del entorno actual |
 |---|---|
 | Hosting privado y audiencia de ChatGPT/Sites | Sustituir por hosting y controles propios. `.openai/hosting.json` conserva la configuración original, pero no configura un VPS. |
-| Identidad del proveedor SaaS | El gateway recibe `oai-authenticated-user-id` y opcionalmente nombre de un entorno confiable. Fuera de Sites se necesita un proxy o proveedor de identidad autenticado que elimine las cabeceras del visitante y añada la identidad verificada. Sin identidad, el panel devuelve 401. |
-| Propietario del panel | Su ID queda en `saas/platform-v1.json`. Al migrar datos debe conservarse una identidad compatible o planificarse explícitamente su migración; esta copia no lo cambia. |
+| Identidad del proveedor SaaS | Usuario y contraseña propios; aprovisionamiento externo mediante `SAAS_ADMIN_AUTH`. Las cabeceras de identidad externas se ignoran. Requiere HTTPS y configuración segura del secreto. |
+| Propietario del panel | El antiguo ID de Sites se conserva en `saas/platform-v1.json` como dato histórico, sin autorizar acceso. Las credenciales independientes no se guardan en registros exportables. |
 | Runtime Worker | El backend exporta `default.fetch(request, env, ctx)`. No es Express, PHP ni un servidor Node autónomo. Necesita Workers o un adaptador compatible, que no se ha reconstruido en esta exportación. |
 | BUCKET | Binding de almacenamiento R2 o compatible, con get/json/arrayBuffer, put condicional por ETag, delete y list. Debe preservar concurrencia e aislamiento. Obligatorio para estado, documentos y sesiones. |
 | Correo Resend | Opcional: `RESEND_API_KEY`, `EMAIL_FROM` verificado, `SITE_URL` y conexión a `https://api.resend.com/emails`. Sin configurar no envía correos. Claves y cuentas no están incluidas. |
 | Referencias legales/técnicas | Enlaces a SAT, NIST y otras fuentes; no son copias locales de esos contenidos ni se garantiza disponibilidad sin conexión. |
 | API OpenAI | No se identificó una integración de ejecución con la API de OpenAI en este código. Codex es el entorno de desarrollo de destino. |
 
-**Nunca publiques `wrangler.local.toml` ni SAAS_TEST_OPERATOR en producción.** La configuración de ejemplo de producción lo omite. Antes de abrir el SaaS al público, implementa identidad confiable para el panel. Las rutas de laboratorio mantienen su autenticación propia con usuario, contraseña y sesiones almacenadas.
+**Nunca publiques la configuración local en producción.** La identidad administrativa de prueba fue eliminada. Antes de abrir el SaaS al público, configura las credenciales independientes del proveedor. Las rutas de laboratorio mantienen su autenticación propia con usuario, contraseña y sesiones almacenadas.
 
 El ejemplo `wrangler.production.example.toml` requiere sustituir dominio/bucket y configurar secretos externamente. No ejecuta una migración ni está listo para publicar sin completar identidad y datos. Para GoDaddy/VPS hace falta runtime compatible o adaptador; copiar el ZIP a cPanel no basta.
 
