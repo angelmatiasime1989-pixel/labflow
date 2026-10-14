@@ -1,0 +1,11 @@
+name = "labflow-saas-export-local"
+main = "worker/index.js"
+compatibility_date = "2026-10-13"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "labflow-saas-local"
+
+[vars]
+# SOLO prueba local, nunca desplegar.
+SAAS_TEST_OPERATOR = "local-export-admin"

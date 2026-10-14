@@ -1,0 +1,19 @@
+// Pure calculations: no invented measurements; empty denominator yields no data.
+function kpiMonthRange(month){const [y,m]=month.split('-').map(Number);return{start:month+'-01',end:new Date(Date.UTC(y,m,0)).toISOString().slice(0,10)};}
+function kpiValue(s,k,start,end,currentMonth){const cutoff=start.slice(0,7)===currentMonth?s.today:end;const inPeriod=d=>d&&d.slice(0,10)>=start&&d.slice(0,10)<=cutoff;let n=0,d=0,value=null,snapshot=false;
+ switch(k.source){
+ case 'Vigencia de equipos':{snapshot=true;if(start.slice(0,7)!==currentMonth)return{value:null,n:0,d:0,snapshot,reason:'Se mide el estado actual; no hay corte histórico guardado'};const rows=s.equipment.filter(x=>x.status!=='Obsoleto');d=rows.length;n=rows.filter(x=>x.status==='Apto'&&(x.calibrationRequired===false||x.due>=s.today)&&(!x.verificationDue||x.verificationDue>=s.today)&&(!x.validUntil||x.validUntil>=s.today)).length;break;}
+ case 'Entrega a tiempo':{const rows=s.services.filter(x=>inPeriod(x.due)&&x.status!=='Cancelada');d=rows.length;const completed=x=>s.audit.filter(a=>a.module==='services'&&a.recordId===x.id&&['Entregado','Cerrado'].includes(a.after?.status)).map(a=>a.at).sort()[0]||x.deliveredAt||x.closedAt;n=rows.filter(x=>['Entregado','Cerrado'].includes(x.status)&&completed(x)&&completed(x).slice(0,10)<=x.due).length;break;}
+ case 'Conversión comercial':{const rows=s.quotes.filter(x=>inPeriod(x.createdAt)&&['Aceptada','Rechazada'].includes(x.status));d=rows.length;n=rows.filter(x=>x.status==='Aceptada').length;break;}
+ case 'Cierre de acciones':{const rows=s.quality.filter(x=>inPeriod(x.due));d=rows.length;n=rows.filter(x=>x.status==='Cerrado').length;break;}
+ case 'Ciclo de compra':{const rows=s.purchases.filter(x=>inPeriod(x.approvedAt)&&x.createdAt&&['Autorizada','Recibida'].includes(x.status));d=rows.length;n=rows.reduce((a,x)=>a+Math.max(0,(Date.parse(x.approvedAt)-Date.parse(x.createdAt))/86400000),0);value=d?n/d:null;break;}
+ case 'Auditorías realizadas':{const rows=s.audits.filter(x=>inPeriod(x.due));d=rows.length;n=rows.filter(x=>x.status==='Autorizado'&&x.results&&x.managementNotice).length;break;}
+ case 'Controles conformes':{const rows=s.controls.filter(x=>inPeriod(x.due)&&x.status==='Autorizado');d=rows.length;n=rows.filter(x=>['Conforme','Aceptable'].includes(x.outcome)).length;break;}
+ case 'Encuestas de satisfacción':{const rows=(s.surveyResponses||[]).filter(x=>inPeriod(x.responseDate||x.createdAt)&&x.status==='Recibida');n=rows.reduce((a,x)=>a+x.scores.reduce((a,b)=>a+b,0),0);d=rows.length*25;break;}
+ case 'Captura manual':{const row=s.kpiMeasurements.filter(x=>x.kpiId===k.id&&x.status==='Autorizado'&&x.periodStart===start&&x.periodEnd===end).sort((a,b)=>b.id-a.id)[0];if(!row)return{value:null,n:0,d:0,snapshot:false,reason:'Sin medición autorizada para este mes'};n=row.numerator;d=row.denominator;value=k.unit==='%'?(d>0?n/d*100:null):row.value;return{value,n,d,snapshot:false,reason:value===null?'Sin datos':''};}
+ }
+ if(k.source!=='Ciclo de compra')value=d?n/d*100:null;
+ return{value:value===null?null:Math.round(value*100)/100,n,d,snapshot,reason:d?'':'Sin registros aplicables al periodo'};
+}
+function kpiColor(k,value){if(value===null||value===undefined)return'none';const good=k.direction==='Menor es mejor'?value<=k.target:value>=k.target;if(good)return'good';const near=k.direction==='Menor es mejor'?value<=k.target*1.1:value>=k.target*.9;return near?'warn':'bad';}
+function kpiPeriods(s,day){const currentMonth=day.slice(0,7),months=[];for(let i=5;i>=0;i--){const dt=new Date(day.slice(0,7)+'-01T12:00:00Z');dt.setUTCMonth(dt.getUTCMonth()-i);const month=dt.toISOString().slice(0,7),{start,end}=kpiMonthRange(month);months.push({month,start,end,items:(s.kpis||[]).filter(k=>k.status!=='Obsoleto').map(k=>{const v=kpiValue({...s,today:day},k,start,end,currentMonth);return{id:k.id,...v,color:kpiColor(k,v.value)};})});}return months;}

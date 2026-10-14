@@ -1,0 +1,17 @@
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+let closed=0,messages=[],fail=false;
+const c=vm.createContext({Date,current:"dashboard",META:{},closeModal:()=>closed++,$:()=>null,toast:m=>messages.push(m),mutate:async()=>{if(fail)throw Error('No enviado');return {receipt:{sent:true,folio:'DOC-1',recipient:'María · Calidad'}};}});
+vm.runInContext(await readFile('worker/v33-ui.js','utf8'),c);
+await vm.runInContext("mutate('documents',1,'submit')",c);
+assert.equal(closed,1);assert.match(messages.at(-1),/Envío exitoso.*María/);
+vm.runInContext("toast('Documento actualizado')",c);assert.match(messages.at(-1),/María/);vm.runInContext("toast('Error de conexión')",c);assert.equal(messages.at(-1),'Error de conexión');
+fail=true;await assert.rejects(vm.runInContext("mutate('documents',1,'submit')",c));assert.equal(closed,1);
+const server=await readFile('worker/server.js','utf8');
+const fn=server.slice(server.indexOf('function submissionReceipt33'),server.indexOf('export default app;'));
+const d=vm.createContext({rolePermissions:()=>({view:[],edit:[],approve:[]}),approvalInbox:(s,u)=>u.role==='Calidad'?[{module:'documents',id:1}]:[]});vm.runInContext(fn,d);
+const receipt=vm.runInContext("submissionReceipt33({users:[{name:'Calidad Uno',role:'Calidad',active:true},{name:'Inactivo',role:'Calidad',active:false},{name:'Técnico',role:'Técnico'}]},'documents',{id:1,status:'Pendiente de Calidad',folio:'DOC-1'},{action:'submit'})",d);
+assert.equal(receipt.recipient,'Calidad Uno');assert.equal(receipt.sent,true);
+assert.equal(vm.runInContext("submissionReceipt33({users:[]},'vacations',{id:1,status:'Pendiente de jefe directo'},{send:true}).recipient",d),'jefe directo');
+console.log('PASS confirmed submission closes capture, names recipient, keeps success confirmation; failed submission stays open; active approvers and area fallback.');
