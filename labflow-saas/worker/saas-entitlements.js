@@ -1,4 +1,5 @@
 const SAAS_MODULES=[
+{id:'civilProtection',name:'Protección civil',group:'Protección civil',icon:'shield',description:'Programas internos, terceros acreditados, cotizaciones, capacitación y simulacros.',requires:['commercial','settings']},
 {id:'commercial',name:'Comercial',group:'Comercial',icon:'briefcase',description:'Clientes, cotizaciones, tarifas y ventas.',requires:['technical','quality','settings']},
 {id:'operations',name:'Operación',group:'Operación',icon:'workflow',description:'Servicios, programación, informes y entregas.',requires:['commercial','technical','quality','hr','settings']},
 {id:'technical',name:'Técnica',group:'Técnica',icon:'gauge',description:'Métodos, equipos, trazabilidad y resultados.',requires:['quality','settings']},

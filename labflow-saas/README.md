@@ -34,3 +34,10 @@ The test covers operator authorization, registration, tenant isolation, module r
 ## Despliegue independiente en VPS
 
 El adaptador Node y almacenamiento local para VPS de GoDaddy están en `vps/`. Consulta [instalación, transferencia R2, respaldos y reversión](docs/vps-godaddy.md). Workers/R2 continúa disponible; no se ejecuta ninguna migración automáticamente.
+
+## Protección civil · Avanzado
+
+El plan Avanzado incluye control de Programas Internos de Protección Civil para
+terceros acreditados y un cotizador por superficies, sustancias, capacitación y
+simulacros. Consulta [alcance, estados, permisos y cálculo](docs/civil-protection.md).
+La demo Avanzado contiene un ejemplo ficticio; Básico y Medio no incluyen PC.
