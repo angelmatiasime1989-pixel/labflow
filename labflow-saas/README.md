@@ -30,3 +30,7 @@ npm test
 ```
 
 The test covers operator authorization, registration, tenant isolation, module revocation, dependency closure, suspension, password resets, scoped cookies, future-module safeguards and console checkboxes.
+
+## Despliegue independiente en VPS
+
+El adaptador Node y almacenamiento local para VPS de GoDaddy están en `vps/`. Consulta [instalación, transferencia R2, respaldos y reversión](docs/vps-godaddy.md). Workers/R2 continúa disponible; no se ejecuta ninguna migración automáticamente.

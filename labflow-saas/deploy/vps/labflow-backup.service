@@ -1,0 +1,12 @@
+[Unit]
+Description=LabFlow verified backup to independent storage
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+UMask=0077
+Environment=LABFLOW_CONFIG=/etc/labflow/vps.env
+Environment=BACKUP_DIR=/mnt/respaldo/labflow
+Environment=BACKUP_MOUNT=/mnt/respaldo
+ExecStart=/bin/bash /opt/labflow/labflow-saas/deploy/vps/backup.sh

@@ -1,0 +1,13 @@
+.git
+.wrangler
+node_modules
+dist
+.dev.vars*
+.env*
+*.sqlite*
+*.log
+backups
+
+**/.env*
+**/.dev.vars*
+**/*.sqlite*

@@ -5,8 +5,14 @@
   "scripts": {
     "build": "bash scripts/build.sh",
     "validate": "node scripts/validate-artifact.mjs",
-    "test": "node scripts/saas-test.mjs && node --test scripts/security-test.mjs && node scripts/regression-test.mjs",
+    "test": "node scripts/saas-test.mjs && node --test scripts/security-test.mjs && node scripts/regression-test.mjs && npm run test:vps",
     "test:security": "node --test scripts/security-test.mjs",
-    "test:regression": "node scripts/regression-test.mjs"
+    "test:regression": "node scripts/regression-test.mjs",
+    "start:vps": "node vps/server.mjs",
+    "test:vps": "node --test scripts/vps-test.mjs",
+    "test:vps:docker": "node scripts/vps-docker-test.mjs"
+  },
+  "engines": {
+    "node": ">=24.19.0 <25"
   }
 }

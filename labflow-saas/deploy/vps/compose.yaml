@@ -1,0 +1,63 @@
+services:
+  app:
+    image: labflow-vps:${LABFLOW_VERSION:?Set an immutable release tag}
+    build:
+      context: ../..
+      dockerfile: deploy/vps/Dockerfile
+    restart: unless-stopped
+    init: true
+    environment:
+      NODE_ENV: production
+      PUBLIC_ORIGIN: https://${LABFLOW_DOMAIN:?Set the application hostname}
+      DATA_DIR: /data
+      BIND_ADDRESS: 0.0.0.0
+      PORT: 8787
+      SAAS_ADMIN_AUTH_FILE: /run/secrets/admin_auth
+      RESEND_API_KEY_FILE: /run/secrets/resend_key
+      EMAIL_FROM: ${EMAIL_FROM:-}
+    secrets:
+      - admin_auth
+      - resend_key
+    volumes:
+      - labflow_data:/data
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    stop_grace_period: 40s
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "5"}
+    healthcheck:
+      test: [CMD, node, vps/healthcheck.mjs]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks: [backend]
+  caddy:
+    image: caddy:2.10.2-alpine
+    restart: unless-stopped
+    environment:
+      LABFLOW_DOMAIN: ${LABFLOW_DOMAIN:?Set the application hostname}
+    ports: ["80:80", "443:443", "443:443/udp"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: [backend]
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "5"}
+networks:
+  backend:
+volumes:
+  labflow_data:
+    name: ${LABFLOW_DATA_VOLUME:-labflow-production-data}
+  caddy_data:
+  caddy_config:
+secrets:
+  admin_auth:
+    file: ${ADMIN_AUTH_FILE:?Set absolute path to private admin JSON}
+  resend_key:
+    file: ${RESEND_KEY_FILE:?Set path to private Resend key file, empty if unused}

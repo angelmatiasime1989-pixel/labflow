@@ -1,0 +1,7 @@
+# No credentials here. This file is passed with docker compose --env-file.
+LABFLOW_DOMAIN=app.example.com
+LABFLOW_VERSION=release-CHANGE-ME
+LABFLOW_DATA_VOLUME=labflow-production-data
+ADMIN_AUTH_FILE=/etc/labflow/admin-auth.json
+RESEND_KEY_FILE=/etc/labflow/resend-key
+EMAIL_FROM=

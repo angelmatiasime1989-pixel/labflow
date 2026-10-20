@@ -1,0 +1,10 @@
+[Unit]
+Description=Hourly LabFlow verified backup
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+Unit=labflow-backup.service
+
+[Install]
+WantedBy=timers.target

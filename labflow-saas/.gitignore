@@ -9,3 +9,7 @@ scripts/.qa-saas-*
 .env
 .env.*
 .wrangler/
+
+*.sqlite
+*.sqlite-*
+*.sqlite.json

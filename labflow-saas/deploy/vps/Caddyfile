@@ -1,0 +1,18 @@
+{$LABFLOW_DOMAIN} {
+	encode zstd gzip
+	request_body {
+		max_size 32MB
+	}
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy same-origin
+		-Server
+	}
+	reverse_proxy app:8787 {
+		header_up -oai-authenticated-user-id
+		header_up -oai-authenticated-user-full-name
+		header_up -oai-authenticated-user-full-name-encoding
+		header_up -CF-Connecting-IP
+		header_up -X-Real-IP
+	}
+}

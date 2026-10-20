@@ -53,7 +53,7 @@ Wrangler no se instaló ni se levantó durante esta tarea. Se verificaron ensamb
 | Hosting privado y audiencia de ChatGPT/Sites | Sustituir por hosting y controles propios. `.openai/hosting.json` conserva la configuración original, pero no configura un VPS. |
 | Identidad del proveedor SaaS | Usuario y contraseña propios; aprovisionamiento externo mediante `SAAS_ADMIN_AUTH`. Las cabeceras de identidad externas se ignoran. Requiere HTTPS y configuración segura del secreto. |
 | Propietario del panel | El antiguo ID de Sites se conserva en `saas/platform-v1.json` como dato histórico, sin autorizar acceso. Las credenciales independientes no se guardan en registros exportables. |
-| Runtime Worker | El backend exporta `default.fetch(request, env, ctx)`. No es Express, PHP ni un servidor Node autónomo. Necesita Workers o un adaptador compatible, que no se ha reconstruido en esta exportación. |
+| Runtime Worker | El backend exporta `default.fetch(request, env, ctx)`. Puede ejecutarse en Workers o con el adaptador Node independiente `labflow-saas/vps/server.mjs`. La guía VPS explica persistencia, HTTPS y despliegue. |
 | BUCKET | Binding de almacenamiento R2 o compatible, con get/json/arrayBuffer, put condicional por ETag, delete y list. Debe preservar concurrencia e aislamiento. Obligatorio para estado, documentos y sesiones. |
 | Correo Resend | Opcional: `RESEND_API_KEY`, `EMAIL_FROM` verificado, `SITE_URL` y conexión a `https://api.resend.com/emails`. Sin configurar no envía correos. Claves y cuentas no están incluidas. |
 | Referencias legales/técnicas | Enlaces a SAT, NIST y otras fuentes; no son copias locales de esos contenidos ni se garantiza disponibilidad sin conexión. |
@@ -61,7 +61,7 @@ Wrangler no se instaló ni se levantó durante esta tarea. Se verificaron ensamb
 
 **Nunca publiques la configuración local en producción.** La identidad administrativa de prueba fue eliminada. Antes de abrir el SaaS al público, configura las credenciales independientes del proveedor. Las rutas de laboratorio mantienen su autenticación propia con usuario, contraseña y sesiones almacenadas.
 
-El ejemplo `wrangler.production.example.toml` requiere sustituir dominio/bucket y configurar secretos externamente. No ejecuta una migración ni está listo para publicar sin completar identidad y datos. Para GoDaddy/VPS hace falta runtime compatible o adaptador; copiar el ZIP a cPanel no basta.
+El ejemplo `wrangler.production.example.toml` requiere sustituir dominio/bucket y configurar secretos externamente. No ejecuta una migración ni está listo para publicar sin completar identidad y datos. Para GoDaddy/VPS se incluye un adaptador Node, almacenamiento SQLite compatible y configuración Docker/Caddy; consulta `labflow-saas/docs/vps-godaddy.md`. Copiar el ZIP a cPanel no basta.
 
 ## Qué no puede exportarse en este paquete
 
@@ -85,3 +85,7 @@ Tampoco se incluyen infraestructura administrada, certificados SSL, DNS, audienc
 5. Antes de producción, resuelve identidad, almacenamiento y migración separada de datos.
 
 La entrega es una exportación fiel de las fuentes, no una migración de alojamiento ya realizada.
+
+## Preparación para VPS GoDaddy
+
+La instalación independiente, transferencia R2, respaldos y reversión se documentan en [la guía VPS](labflow-saas/docs/vps-godaddy.md). No se migra ni publica automáticamente.
