@@ -89,3 +89,10 @@ La entrega es una exportación fiel de las fuentes, no una migración de alojami
 ## Preparación para VPS GoDaddy
 
 La instalación independiente, transferencia R2, respaldos y reversión se documentan en [la guía VPS](labflow-saas/docs/vps-godaddy.md). No se migra ni publica automáticamente.
+
+## Servicio Node.js administrado de GoDaddy
+
+El build desde la raíz ya utiliza solo Node.js (`npm run build`). Consulta
+[configuración y entrada de pruebas](labflow-saas/docs/godaddy-node.md).
+`npm run check:hosting` identifica variables faltantes sin mostrar secretos.
+La configuración del panel y el volumen persistente siguen siendo obligatorios.

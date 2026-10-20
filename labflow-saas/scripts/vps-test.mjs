@@ -8,7 +8,7 @@ import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 const exec=promisify(execFile);
 import {SqliteBucket} from '../vps/bucket.mjs';
-import {createAppServer} from '../vps/server.mjs';
+import {createAppServer,readHostingConfig} from '../vps/server.mjs';
 import {backupDatabase,restoreDatabase,exportObjects,importObjects} from '../vps/storage.mjs';
 import {credentials} from './admin-credentials.mjs';
 async function temp(t){const dir=await mkdtemp(join(tmpdir(),'labflow-vps-'));t.after(()=>rm(dir,{recursive:true,force:true}));return dir;}
@@ -49,4 +49,12 @@ else if(a.includes('get-object')){if(!a.includes('--if-match'))process.exit(1);f
 `);await chmod(aws,0o700);const directory=join(dir,'r2');
  const result=await exec(process.execPath,['vps/r2-export.mjs','fixture-bucket',directory],{cwd:new URL('..',import.meta.url),env:{...process.env,PATH:bin+':'+process.env.PATH,R2_ENDPOINT:'https://'+ 'a'.repeat(32)+'.r2.cloudflarestorage.com'}});assert.match(result.stdout,/2 objects/);
  const manifest=JSON.parse(await readFile(join(directory,'manifest.json'),'utf8'));assert.equal(manifest.objects.length,2);await importObjects(directory,join(dir,'imported'));const b=new SqliteBucket(join(dir,'imported'));assert.deepEqual([...new Uint8Array(await(await b.get('saas/tenants/id/attachments/file')).arrayBuffer())],[0,255,0]);b.close();
+});
+
+test('managed Node hosting: actionable missing config, ORIGIN alias, assigned PORT and external binding',()=>{
+ assert.throws(()=>readHostingConfig({}),/PUBLIC_ORIGIN.*DATA_DIR.*SAAS_ADMIN_AUTH/);
+ const c=readHostingConfig({ORIGIN:'https://app.example',DATA_DIR:'/data',SAAS_ADMIN_AUTH:'{}',PORT:'3000'});
+ assert.equal(c.publicOrigin,'https://app.example');assert.equal(c.port,3000);assert.equal(c.bindAddress,'0.0.0.0');
+ assert.throws(()=>readHostingConfig({PUBLIC_ORIGIN:'https://app.example',DATA_DIR:'/data',SAAS_ADMIN_AUTH:'{}',PORT:'bad'}),/PORT/);
+ assert.throws(()=>createAppServer({publicOrigin:'https://app.example',adminAuth:'private-value-that-must-not-appear'}),error=>!error.message.includes('private-value-that-must-not-appear'));
 });

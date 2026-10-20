@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "bash scripts/build.sh",
+    "build": "node scripts/build-node.mjs",
     "validate": "node scripts/validate-artifact.mjs",
     "test": "node scripts/saas-test.mjs && node --test scripts/security-test.mjs && node scripts/regression-test.mjs && npm run test:vps",
     "test:security": "node --test scripts/security-test.mjs",

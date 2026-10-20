@@ -1,0 +1,10 @@
+import {mkdirSync,copyFileSync,rmSync} from 'node:fs';
+import './assemble.mjs';
+const root=new URL('../',import.meta.url),dist=new URL('dist/',root);
+rmSync(dist,{recursive:true,force:true});
+mkdirSync(new URL('server/',dist),{recursive:true});
+mkdirSync(new URL('.openai/',dist),{recursive:true});
+copyFileSync(new URL('worker/index.js',root),new URL('server/index.js',dist));
+copyFileSync(new URL('.openai/hosting.json',root),new URL('.openai/hosting.json',dist));
+await import('./validate-artifact.mjs');
+console.log('LabFlow build complete using Node.js only');

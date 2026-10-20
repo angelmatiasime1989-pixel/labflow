@@ -9,9 +9,9 @@ import worker from '../worker/index.js';
 import {SqliteBucket} from './bucket.mjs';
 
 export function createAppServer({publicOrigin,bucket,adminAuth,emailFrom,resendKey,logger=event=>console.log(JSON.stringify(event))}){
- const canonical=new URL(publicOrigin);
+ let canonical;try{canonical=new URL(publicOrigin);}catch{throw Error('PUBLIC_ORIGIN must contain the public HTTPS URL');}
  if(canonical.username||canonical.password||canonical.pathname!=='/'||canonical.search||canonical.hash||(!['https:'].includes(canonical.protocol)&&!(canonical.protocol==='http:'&&['localhost','127.0.0.1','[::1]'].includes(canonical.hostname))))throw Error('PUBLIC_ORIGIN must be an HTTPS origin (HTTP only on loopback)');
- const auth=JSON.parse(adminAuth||'null');
+ let auth;try{auth=JSON.parse(adminAuth||'null');}catch{throw Error('SAAS_ADMIN_AUTH must be a valid credential JSON secret');}
  if(auth?.version!==1||!/^[a-z0-9_.-]{3,40}$/.test(auth.username)||!/^[a-f0-9]{64}$/.test(auth.salt)||!/^[a-f0-9]{64}$/.test(auth.passwordHash))throw Error('Valid independent SAAS_ADMIN_AUTH credentials required');
  const env={BUCKET:bucket,SAAS_ADMIN_AUTH:adminAuth,SITE_URL:canonical.origin,EMAIL_FROM:emailFrom,RESEND_API_KEY:resendKey};
  const pending=new Set();let active=0;
@@ -45,16 +45,32 @@ export function createAppServer({publicOrigin,bucket,adminAuth,emailFrom,resendK
  return {server,async stop(){await new Promise(resolveStop=>{server.close(resolveStop);server.closeIdleConnections();});await Promise.allSettled([...pending]);}};
 }
 
+export function readHostingConfig(environment=process.env){
+ const publicOrigin=environment.PUBLIC_ORIGIN||environment.ORIGIN;
+ const missing=[];
+ if(!publicOrigin)missing.push('PUBLIC_ORIGIN');
+ if(!environment.DATA_DIR)missing.push('DATA_DIR (persistent writable directory)');
+ if(!environment.SAAS_ADMIN_AUTH&&!environment.SAAS_ADMIN_AUTH_FILE)missing.push('SAAS_ADMIN_AUTH or SAAS_ADMIN_AUTH_FILE');
+ if(missing.length)throw Error('Missing hosting configuration: '+missing.join(', '));
+ const secret=name=>{if(!environment[name+'_FILE'])return environment[name];try{return readFileSync(environment[name+'_FILE'],'utf8').trim();}catch{throw Error('Cannot read '+name+'_FILE; check the secret file permissions');}};
+ const port=Number(environment.PORT||8787);
+ if(!Number.isInteger(port)||port<0||port>65535)throw Error('PORT must be an integer between 0 and 65535');
+ return {publicOrigin,dataDir:resolve(environment.DATA_DIR),adminAuth:secret('SAAS_ADMIN_AUTH'),emailFrom:environment.EMAIL_FROM,resendKey:secret('RESEND_API_KEY'),port,bindAddress:environment.BIND_ADDRESS||(environment.PORT?'0.0.0.0':'127.0.0.1')};
+}
+
 if(import.meta.url===pathToFileURL(resolve(process.argv[1]||'')).href){
  process.umask(0o077);
- const secret=name=>process.env[name+'_FILE']?readFileSync(process.env[name+'_FILE'],'utf8').trim():process.env[name];
- let bucket,app;
+ let bucket,app,config;
  try{
-  if(!process.env.PUBLIC_ORIGIN||!process.env.DATA_DIR)throw Error('PUBLIC_ORIGIN and DATA_DIR are required');
-  bucket=new SqliteBucket(resolve(process.env.DATA_DIR,'labflow.sqlite'));
-  app=createAppServer({publicOrigin:process.env.PUBLIC_ORIGIN,bucket,adminAuth:secret('SAAS_ADMIN_AUTH'),emailFrom:process.env.EMAIL_FROM,resendKey:secret('RESEND_API_KEY')});
-  app.server.listen(Number(process.env.PORT||8787),process.env.BIND_ADDRESS||'127.0.0.1',()=>console.log(JSON.stringify({event:'listening',port:app.server.address().port})));
+  config=readHostingConfig();
+  // Validate origin and credentials before opening the persistent database.
+  app=createAppServer({...config});
+ }catch(error){console.error(error.message);process.exitCode=1;}
+ if(app)try{
+  bucket=new SqliteBucket(resolve(config.dataDir,'labflow.sqlite'));
+  app=createAppServer({...config,bucket});
+  app.server.listen(config.port,config.bindAddress,()=>console.log(JSON.stringify({event:'listening',port:app.server.address().port})));
   let stopping=false;const stop=async()=>{if(stopping)return;stopping=true;const deadline=setTimeout(()=>process.exit(1),30000);deadline.unref();await app.stop();bucket.close();clearTimeout(deadline);};process.on('SIGTERM',stop);process.on('SIGINT',stop);
   app.server.on('error',()=>{console.error('VPS listener failed');bucket.close();process.exitCode=1;});
- }catch{bucket?.close();console.error('VPS startup failed: verify origin, data directory and credential configuration');process.exitCode=1;}
+ }catch{bucket?.close();console.error('Cannot open DATA_DIR or initialize storage; verify directory permissions and persistent storage');process.exitCode=1;}
 }

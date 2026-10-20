@@ -8,7 +8,8 @@
   },
   "scripts": {
     "start": "node labflow-saas/vps/server.mjs",
-    "build": "python3 labflow-saas/scripts/assemble.py && npm --prefix labflow-saas run build && npm --prefix labflow-saas run validate",
-    "test": "npm --prefix labflow-saas test"
+    "build": "node labflow-saas/scripts/build-node.mjs",
+    "test": "npm --prefix labflow-saas test",
+    "check:hosting": "node labflow-saas/scripts/check-hosting.mjs"
   }
 }
