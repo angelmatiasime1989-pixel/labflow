@@ -1,0 +1,14 @@
+{
+  "name": "labflow-saas",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.19.0 <25"
+  },
+  "scripts": {
+    "start": "node labflow-saas/vps/server.mjs",
+    "build": "python3 labflow-saas/scripts/assemble.py && npm --prefix labflow-saas run build && npm --prefix labflow-saas run validate",
+    "test": "npm --prefix labflow-saas test"
+  }
+}
