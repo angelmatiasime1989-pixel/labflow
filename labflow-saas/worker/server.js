@@ -36,6 +36,7 @@ const labflowApp={async fetch(req,env,ctx){if(ctx?.waitUntil)env={...env,MAIL_CT
  if(path==='/api/login'&&req.method==='POST')return await passwordLogin(req,env,s,await req.json());
  const publicResponse=await publicSurveyRoute(req,url,s,env,etag);if(publicResponse)return publicResponse;
  const u=await session(req,env,s);
+ const pcResponse=await pcRoute(req,url,s,u,env,etag);if(pcResponse)return pcResponse;
  if(path==='/api/profiles'&&req.method==='GET'){if(!see(u,'users'))fail('Sin permiso',403);return json({users:s.users.filter(x=>x.active).map(({id,name,role,username})=>({id,name,role,username}))});}
  if(path==='/api/logout'&&req.method==='POST'){const token=(req.headers.get('cookie')||'').match(/(?:^|;\s*)labflow_session=([^;]+)/)?.[1];if(token){const obj=await env.BUCKET.get('public-demo/sessions/'+token);if(obj){const v=await obj.json();v.expires=0;await env.BUCKET.put('public-demo/sessions/'+token,JSON.stringify(v));}}return json({ok:true},200,{'Set-Cookie':'labflow_session=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0'});}
  const response35=await route35(req,url,s,u,env,etag);if(response35)return response35;

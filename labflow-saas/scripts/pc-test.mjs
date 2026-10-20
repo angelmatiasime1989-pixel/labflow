@@ -1,0 +1,47 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {fixture} from './helpers/saas-fixture.mjs';
+import {readFile} from 'node:fs/promises';
+import vm from 'node:vm';
+const quote={name:'Programa interno · inmueble ficticio',clientId:1,address:'Calle ficticia 10',jurisdiction:'Municipio de prueba',buildingArea:100,landArea:200,baseFee:500,buildingRate:10,landRate:2,discount:100,taxRate:16,due:'2027-12-01',notes:'Alcance ficticio',substances:[{name:'Sustancia ficticia',category:'Inflamable',quantity:10,unit:'L',unitPrice:5}],lineItems:[{kind:'Capacitación',description:'Brigada ficticia',quantity:2,unitPrice:300},{kind:'Simulacro',description:'Evacuación de prueba',quantity:1,unitPrice:250}]};
+const program={name:quote.name,clientId:1,address:quote.address,jurisdiction:quote.jurisdiction,buildingArea:100,landArea:200,ownerId:1,accreditedName:'Tercero ficticio',accreditation:'REG-DEMO-PC',accreditationAuthority:'Autoridad ficticia',accreditationDue:'2028-12-31',due:'2027-12-31',notes:'Solo pruebas'};
+async function setup(){const f=fixture(),admin=await f.login();let platform;async function state(){platform=await(await f.request('/api/saas/state',{cookie:admin})).json();}
+ const cookies={};for(const [slug,membership]of [['pc-advanced','advanced'],['pc-other','advanced'],['pc-basic','basic'],['pc-medium','medium']]){await state();let r=await f.request('/api/saas/customer',{cookie:admin,body:{revision:platform.revision,name:slug,slug,membership,status:'Activo',adminUsername:'admin',password:'FictitiousTenant-123!'}});assert.equal(r.status,200,await r.clone().text());r=await f.request('/laboratorio/'+slug+'/api/login',{body:{username:'admin',password:'FictitiousTenant-123!'}});cookies[slug]=r.headers.get('set-cookie').split(';')[0];}
+ async function request(path,{slug='pc-advanced',body}={}){return f.request('/laboratorio/'+slug+'/api/'+path,{cookie:cookies[slug],body});}
+ async function tenant(slug='pc-advanced'){return(await request('state',{slug})).json();}
+ let s=await tenant();let r=await request('mutate',{body:{module:'clients',action:'create',revision:s.revision,data:{name:'Cliente PC ficticio',email:'pc@example.com',contact:'Contacto'}}});assert.equal(r.status,200,await r.clone().text());
+ async function save(module,data,{id,reason,action,slug='pc-advanced'}={}){const s=await tenant(slug);return request('pc/save?module='+module,{slug,body:{revision:s.revision,data,id,reason,action}});}
+ return {f,admin,cookies,request,tenant,save};}
+test('Advanced only; server recalculates areas, substances, training, drills, discount and IVA',async()=>{
+ const f=await setup();for(const slug of ['pc-basic','pc-medium']){const s=await f.tenant(slug);assert.ok(!s.me.permissions.view.includes('pcPrograms'));assert.equal((await f.save('pcQuotes',quote,{slug})).status,403);assert.equal((await f.request('pc/pdf?module=pcQuotes&id=1',{slug})).status,403);}
+ let r=await f.save('pcQuotes',{...quote,total:1,subtotal:1});assert.equal(r.status,200,await r.clone().text());const q=(await f.tenant()).pcQuotes[0];assert.equal(q.subtotal,2800);assert.equal(q.tax,432);assert.equal(q.total,3132);assert.equal(q.currency,'MXN');assert.equal(q.lineItems.length,2);assert.equal(q.substances[0].category,'Inflamable');
+ for(const data of [{...quote,buildingArea:-1},{...quote,landArea:'NaN'},{...quote,discount:999999},{...quote,lineItems:[{kind:'Simulacro',description:'x',quantity:-1,unitPrice:100}]},{...quote,substances:[{...quote.substances[0],category:'inventada'}]}])assert.equal((await f.save('pcQuotes',data)).status,400);
+ assert.equal((await f.save('pcQuotes',{...quote,clientId:999})).status,404);assert.equal((await f.request('pc/pdf?module=pcQuotes&id='+q.id,{slug:'pc-other'})).status,404);r=await f.request('pc/pdf?module=pcQuotes&id='+q.id);assert.equal(r.status,200);assert.ok(Buffer.from(await r.arrayBuffer()).subarray(0,5).equals(Buffer.from('%PDF-')));
+ const s=await f.tenant();assert.equal((await f.request('mutate',{body:{module:'pcQuotes',action:'edit',id:q.id,data:{total:1},revision:s.revision}})).status,400);
+});
+test('quote lifecycle, protected prices, program conversion, accreditation and status history',async()=>{
+ const f=await setup();await f.save('pcQuotes',quote);let q=(await f.tenant()).pcQuotes[0];assert.equal((await f.save('pcQuotes',{...q,status:'Aceptada'},{id:q.id,reason:'No enviada'})).status,400);
+ let r=await f.save('pcQuotes',{...q,status:'Enviada'},{id:q.id,reason:'Envío ficticio'});assert.equal(r.status,200,await r.clone().text());q=(await f.tenant()).pcQuotes[0];assert.equal((await f.save('pcQuotes',{...q,baseFee:1},{id:q.id})).status,400);
+ r=await f.save('pcQuotes',{...q,status:'Aceptada'},{id:q.id,reason:'Aceptación ficticia'});assert.equal(r.status,200,await r.clone().text());q=(await f.tenant()).pcQuotes[0];
+ assert.equal((await f.save('pcQuotes',{...program,accreditationDue:'2020-01-01'},{id:q.id,action:'program'})).status,400);
+ r=await f.save('pcQuotes',program,{id:q.id,action:'program'});assert.equal(r.status,200,await r.clone().text());const id=(await r.json()).id;assert.equal((await f.save('pcQuotes',program,{id:q.id,action:'program'})).status,200);let s=await f.tenant();assert.equal(s.pcPrograms.length,1);assert.equal(s.pcPrograms[0].quoteId,q.id);assert.equal(s.pcPrograms[0].status,'Por iniciar');
+ assert.equal((await f.save('pcPrograms',{...s.pcPrograms[0],status:'Elaboración'},{id})).status,400);
+ r=await f.save('pcPrograms',{...s.pcPrograms[0],status:'Elaboración'},{id,reason:'Avance de prueba'});assert.equal(r.status,200,await r.clone().text());s=await f.tenant();assert.equal(s.pcPrograms[0].history.length,2);assert.equal((await f.save('pcPrograms',{...s.pcPrograms[0],status:'Aprobado'},{id,reason:'Sin folio'})).status,400);
+ r=await f.save('pcPrograms',{...s.pcPrograms[0],status:'Aprobado',authorityFolio:'FOLIO-FICTICIO'},{id,reason:'Folio capturado'});assert.equal(r.status,200,await r.clone().text());assert.equal((await f.request('pc/pdf?module=pcPrograms&id='+id)).status,200);
+});
+test('PC UI script syntax and estimator are available in the assembled application',async()=>{
+ const source=await readFile('worker/pc-ui.js','utf8');new vm.Script(source);assert.match(source,/Cotizar Programas de PC/);assert.match(source,/Capacitación/);assert.match(source,/Simulacro/);const f=await setup();const r=await f.f.request('/laboratorio/pc-advanced/',{}),html=await r.text();new vm.Script(html.match(/<script>([\s\S]*?)<\/script>/)[1]);assert.ok(html.includes('/laboratorio/pc-advanced/api/pc/pdf'));assert.ok(html.includes('function pcPage'));
+});
+
+test('downgrade revokes PC and its PDF immediately, retains data, and restores access on upgrade',async()=>{
+ const f=await setup();await f.save('pcQuotes',quote);let tenant=await f.tenant();const customerId=tenant.saasTenant.id;let platform=(await f.f.request('/api/saas/state',{cookie:f.admin}));platform=await platform.json();let customer=platform.customers.find(x=>x.id===customerId);
+ let r=await f.f.request('/api/saas/customer',{cookie:f.admin,body:{...customer,modules:undefined,membership:'medium',revision:platform.revision}});assert.equal(r.status,200);assert.equal((await f.request('pc/pdf?module=pcQuotes&id=1')).status,403);assert.equal((await f.tenant()).pcQuotes.length,0);
+ platform=await(await f.f.request('/api/saas/state',{cookie:f.admin})).json();customer=platform.customers.find(x=>x.id===customerId);r=await f.f.request('/api/saas/customer',{cookie:f.admin,body:{...customer,modules:undefined,membership:'advanced',revision:platform.revision}});assert.equal(r.status,200);assert.equal((await f.tenant()).pcQuotes.length,1);assert.equal((await f.request('pc/pdf?module=pcQuotes&id=1')).status,200);
+});
+
+test('rendered PC pages expose program tracking, quote inputs and calculator without runtime errors',async()=>{
+ const f=await setup(),state=await f.tenant(),html=await(await f.f.request('/laboratorio/pc-advanced/')).text();
+ const nodes=new Map(),element=key=>{if(!nodes.has(key))nodes.set(key,{innerHTML:'',textContent:'',value:'',insertAdjacentHTML(position,value){this.innerHTML=position==='afterbegin'?value+this.innerHTML:this.innerHTML+value;},classList:{add(){},remove(){},toggle(){}},setAttribute(){},addEventListener(){},remove(){},querySelector(){return element('button');}});return nodes.get(key);};
+ const context=vm.createContext({document:{querySelector:element,querySelectorAll:()=>[],addEventListener(){},body:{appendChild(){}}},window:{scrollTo(){},innerWidth:1200},location:{origin:'https://test.example'},console,Intl,Date,JSON,Number,String,Math,Set,Blob,URL,FormData:class{[Symbol.iterator](){return Object.entries(quote)[Symbol.iterator]();}},setTimeout(){},setInterval(){},confirm:()=>true});
+ vm.runInContext(html.match(/<script>([\s\S]*?)<\/script>/)[1].replace(/boot\(\);\s*$/,''),context);context.fixture=state;vm.runInContext('S=fixture;nav("pcPrograms")',context);assert.match(element('#content').innerHTML,/Programas y estados/);vm.runInContext('pcForm("pcPrograms")',context);assert.match(element('#overlay').innerHTML,/Registro de acreditación/);vm.runInContext('nav("pcQuotes");pcForm("pcQuotes")',context);assert.match(element('#overlay').innerHTML,/Tarifa por m² construido/);assert.match(element('#overlay').innerHTML,/Sustancias almacenadas/);assert.match(element('#overlay').innerHTML,/Capacitación/);assert.match(element('#pc-total').textContent,/Total:/);
+});
