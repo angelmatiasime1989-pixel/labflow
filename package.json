@@ -9,7 +9,10 @@
   "scripts": {
     "start": "node labflow-saas/vps/server.mjs",
     "build": "node labflow-saas/scripts/build-node.mjs",
-    "test": "npm --prefix labflow-saas test",
-    "check:hosting": "node labflow-saas/scripts/check-hosting.mjs"
+    "test": "npm --prefix labflow-saas test && npm run test:demo",
+    "check:hosting": "node labflow-saas/scripts/check-hosting.mjs",
+    "start:demo": "node labflow-saas/vps/demo.mjs",
+    "test:demo": "node --test labflow-saas/scripts/demo-test.mjs",
+    "start:production": "node labflow-saas/vps/server.mjs"
   }
 }

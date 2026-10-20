@@ -8,7 +8,7 @@ import {randomUUID} from 'node:crypto';
 import worker from '../worker/index.js';
 import {SqliteBucket} from './bucket.mjs';
 
-export function createAppServer({publicOrigin,bucket,adminAuth,emailFrom,resendKey,logger=event=>console.log(JSON.stringify(event))}){
+export function createAppServer({publicOrigin,bucket,adminAuth,emailFrom,resendKey,fetchHandler=(...args)=>worker.fetch(...args),logger=event=>console.log(JSON.stringify(event))}){
  let canonical;try{canonical=new URL(publicOrigin);}catch{throw Error('PUBLIC_ORIGIN must contain the public HTTPS URL');}
  if(canonical.username||canonical.password||canonical.pathname!=='/'||canonical.search||canonical.hash||(!['https:'].includes(canonical.protocol)&&!(canonical.protocol==='http:'&&['localhost','127.0.0.1','[::1]'].includes(canonical.hostname))))throw Error('PUBLIC_ORIGIN must be an HTTPS origin (HTTP only on loopback)');
  let auth;try{auth=JSON.parse(adminAuth||'null');}catch{throw Error('SAAS_ADMIN_AUTH must be a valid credential JSON secret');}
@@ -34,7 +34,7 @@ export function createAppServer({publicOrigin,bucket,adminAuth,emailFrom,resendK
    headers.set('cf-connecting-ip',req.socket.remoteAddress||'unknown');
    const request=new Request(canonical.origin+req.url,{method:req.method,headers,...(!['GET','HEAD'].includes(req.method)?{body:Buffer.concat(chunks)}:{})});
    const context={waitUntil(promise){const task=Promise.resolve(promise).catch(()=>logger({event:'background_error',requestId})).finally(()=>pending.delete(task));pending.add(task);}};
-   const response=await worker.fetch(request,env,context);status=response.status;
+   const response=await fetchHandler(request,env,context);status=response.status;
    for(const [key,value] of response.headers)if(!['set-cookie','transfer-encoding','connection'].includes(key))res.setHeader(key,value);
    const cookies=response.headers.getSetCookie();if(cookies.length)res.setHeader('Set-Cookie',cookies);
    res.writeHead(status);

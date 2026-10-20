@@ -96,3 +96,9 @@ El build desde la raíz ya utiliza solo Node.js (`npm run build`). Consulta
 [configuración y entrada de pruebas](labflow-saas/docs/godaddy-node.md).
 `npm run check:hosting` identifica variables faltantes sin mostrar secretos.
 La configuración del panel y el volumen persistente siguen siendo obligatorios.
+
+## Demo temporal sin configuración de producción
+
+Para una vista previa pública con datos ficticios, usar `npm run start:demo` como
+comando de inicio. No conserva datos ni requiere secretos de producción. Consulta
+[acceso a la demo temporal](labflow-saas/docs/temporary-demo.md).
