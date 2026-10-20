@@ -7,7 +7,7 @@
     "node": ">=24.19.0 <25"
   },
   "scripts": {
-    "start": "node labflow-saas/vps/server.mjs",
+    "start": "node labflow-saas/vps/demo.mjs",
     "build": "node labflow-saas/scripts/build-node.mjs",
     "test": "npm --prefix labflow-saas test && npm run test:demo",
     "check:hosting": "node labflow-saas/scripts/check-hosting.mjs",

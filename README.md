@@ -1,3 +1,5 @@
+> **RAMA DE DEMO PÚBLICA TEMPORAL:** `npm start` abre una demo compartida sin secretos ni disco permanente. No usar datos reales. Para producción utilizar `feat/godaddy-vps`.
+
 # LabFlow — exportación fiel para Codex
 
 ## Contenido y fidelidad
