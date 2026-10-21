@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
+import {spawn} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
 import {createDemoServer} from '../vps/demo.mjs';
 
 async function running(t){const app=await createDemoServer();await new Promise(resolve=>app.server.listen(0,'127.0.0.1',resolve));t.after(()=>app.stop());const port=app.server.address().port;
@@ -17,4 +19,15 @@ test('temporary demo: landing, public demo access, three memberships and working
 test('demo writes do not survive a fresh demo instance',async t=>{
  const first=await running(t);let r=await first.request('/_demo/login',{}),cookie=r.headers['set-cookie'][0].split(';')[0];let state=(await first.request('/api/saas/state',undefined,cookie)).json();r=await first.request('/api/saas/customer',{revision:state.revision,name:'Temporal ficticio',slug:'temporal-ficticio',membership:'basic',status:'Activo',adminUsername:'demo',password:'DemoTemporal-2026!'},cookie);assert.equal(r.status,200);assert.equal((await first.request('/api/saas/state',undefined,cookie)).json().customers.length,4);
  const second=await running(t);r=await second.request('/_demo/login',{});cookie=r.headers['set-cookie'][0].split(';')[0];assert.equal((await second.request('/api/saas/state',undefined,cookie)).json().customers.length,3);
+});
+
+test('preview entrypoint stays available when the former two-hour timer would expire',async()=>{
+ // Accelerate only long child-process timers; do not wait two hours in the suite.
+ const hook='const original=setTimeout;globalThis.setTimeout=(fn,ms,...args)=>original(fn,ms>=3600000?1:ms,...args);';
+ const child=spawn(process.execPath,['--import','data:text/javascript;base64,'+Buffer.from(hook).toString('base64'),fileURLToPath(new URL('../vps/demo.mjs',import.meta.url))],{env:{...process.env,PORT:'0'},stdio:['ignore','pipe','pipe']});
+ try{
+  const port=await new Promise((resolve,reject)=>{let output='';const timer=setTimeout(()=>reject(Error('Demo startup timeout')),15000);child.stdout.on('data',chunk=>{output+=chunk;const match=output.match(/\{"event":"demo_ready","port":(\d+)/);if(match){clearTimeout(timer);resolve(Number(match[1]));}});child.on('exit',()=>{clearTimeout(timer);reject(Error('Demo unexpectedly stopped'));});child.on('error',reject);});
+  await new Promise(resolve=>setTimeout(resolve,100));assert.equal(child.exitCode,null);
+  const status=await new Promise((resolve,reject)=>http.get({hostname:'127.0.0.1',port,path:'/_health'},response=>{response.resume();resolve(response.statusCode);}).on('error',reject));assert.equal(status,200);
+ }finally{if(child.exitCode===null){child.kill('SIGTERM');await new Promise(resolve=>child.once('exit',resolve));}}
 });
