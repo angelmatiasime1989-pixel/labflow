@@ -26,6 +26,7 @@ class DemoBucket extends SqliteBucket {
 const tenantPassword='DemoTemporal-2026!';
 const landing=`<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LabFlow · Demo temporal</title><style>body{font:16px/1.6 system-ui;max-width:760px;margin:50px auto;padding:24px;color:#17314e}button{padding:14px;background:#2569aa;color:white;border:0;border-radius:8px;cursor:pointer}li{margin:14px 0}</style><h1>LabFlow · Demo temporal</h1><p><strong>Demo pública compartida. No introduzcas datos personales ni de clientes reales.</strong> Los datos se eliminan al reiniciar. Demo temporal con límite de 32 MB de datos.</p><button id="enter">Entrar a Administración SaaS</button><p id="error" role="alert"></p><h2>Laboratorios ficticios</h2><p>Usuario: <strong>demo</strong> · Contraseña de demostración: <strong>${tenantPassword}</strong></p><ul><li><a href="/laboratorio/demo-basico/">Básico</a></li><li><a href="/laboratorio/demo-medio/">Medio</a></li><li><a href="/laboratorio/demo-avanzado/">Avanzado · Protección civil</a></li></ul><script>document.getElementById('enter').onclick=async()=>{try{const r=await fetch('/_demo/login',{method:'POST'});if(!r.ok)throw Error('No se pudo iniciar la demo');location.href='/admin/';}catch(e){document.getElementById('error').textContent=e.message;}};</script></html>`;
 export async function createDemoServer(){
+ if(process.env.LABFLOW_ENV==='production')throw Error('Public demo is forbidden when LABFLOW_ENV=production; use start:production');
  process.umask(0o077);
  const directory=await mkdtemp(join(tmpdir(),'labflow-public-demo-')),bucket=new DemoBucket(join(directory,'demo.sqlite'));
  const password=randomBytes(32).toString('hex'),adminAuth=JSON.stringify(await credentials('demo-admin',password));
@@ -85,7 +86,7 @@ export async function createDemoServer(){
    publicOrigin=(loopback?'http://':'https://')+host;
    if(!applications.has(publicOrigin)){
     if(applications.size>=8)throw Error('Too many hosts');
-    applications.set(publicOrigin,createAppServer({publicOrigin,bucket,adminAuth,fetchHandler:handler,logger:()=>{}}));
+    applications.set(publicOrigin,createAppServer({publicOrigin,bucket,adminAuth,mode:'demo',fetchHandler:handler,logger:()=>{}}));
    }
    applications.get(publicOrigin).server.emit('request',req,res);
   }catch{res.writeHead(400).end('Invalid demo request');}

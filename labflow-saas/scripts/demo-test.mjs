@@ -31,3 +31,6 @@ test('preview entrypoint stays available when the former two-hour timer would ex
   const status=await new Promise((resolve,reject)=>http.get({hostname:'127.0.0.1',port,path:'/_health'},response=>{response.resume();resolve(response.statusCode);}).on('error',reject));assert.equal(status,200);
  }finally{if(child.exitCode===null){child.kill('SIGTERM');await new Promise(resolve=>child.once('exit',resolve));}}
 });
+test('production environment explicitly refuses the public demo launcher',async()=>{
+ const previous=process.env.LABFLOW_ENV;process.env.LABFLOW_ENV='production';try{await assert.rejects(()=>createDemoServer(),/Public demo is forbidden/);}finally{if(previous===undefined)delete process.env.LABFLOW_ENV;else process.env.LABFLOW_ENV=previous;}
+});

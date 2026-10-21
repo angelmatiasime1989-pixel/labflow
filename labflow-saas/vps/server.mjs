@@ -8,13 +8,13 @@ import {randomUUID} from 'node:crypto';
 import worker from '../worker/index.js';
 import {SqliteBucket} from './bucket.mjs';
 
-export function createAppServer({publicOrigin,bucket,adminAuth,emailFrom,resendKey,fetchHandler=(...args)=>worker.fetch(...args),logger=event=>console.log(JSON.stringify(event))}){
+export function createAppServer({publicOrigin,bucket,adminAuth,emailFrom,resendKey,mode='private',fetchHandler=(...args)=>worker.fetch(...args),logger=event=>console.log(JSON.stringify(event))}){
  let canonical;try{canonical=new URL(publicOrigin);}catch{throw Error('PUBLIC_ORIGIN must contain the public HTTPS URL');}
  if(canonical.username||canonical.password||canonical.pathname!=='/'||canonical.search||canonical.hash||(!['https:'].includes(canonical.protocol)&&!(canonical.protocol==='http:'&&['localhost','127.0.0.1','[::1]'].includes(canonical.hostname))))throw Error('PUBLIC_ORIGIN must be an HTTPS origin (HTTP only on loopback)');
  let auth;try{auth=JSON.parse(adminAuth||'null');}catch{throw Error('SAAS_ADMIN_AUTH must be a valid credential JSON secret');}
  if(auth?.version!==1||!/^[a-z0-9_.-]{3,40}$/.test(auth.username)||!/^[a-f0-9]{64}$/.test(auth.salt)||!/^[a-f0-9]{64}$/.test(auth.passwordHash))throw Error('Valid independent SAAS_ADMIN_AUTH credentials required');
- const env={BUCKET:bucket,SAAS_ADMIN_AUTH:adminAuth,SITE_URL:canonical.origin,EMAIL_FROM:emailFrom,RESEND_API_KEY:resendKey};
- const pending=new Set();let active=0;
+ const env={DEMO_MODE:mode==='demo',BUCKET:bucket,SAAS_ADMIN_AUTH:adminAuth,SITE_URL:canonical.origin,EMAIL_FROM:emailFrom,RESEND_API_KEY:resendKey};
+ const pending=new Set();let active=0,mailTimer=null;
  const server=http.createServer(async(req,res)=>{
   if(active>=16){res.writeHead(503,{'Retry-After':'1','Connection':'close'}).end();req.resume();return;}
   active++;const requestId=randomUUID(),started=Date.now();let status=500;
@@ -23,7 +23,7 @@ export function createAppServer({publicOrigin,bucket,adminAuth,emailFrom,resendK
   try{
    if(req.headers.host?.toLowerCase()!==canonical.host.toLowerCase()){status=421;res.writeHead(status).end();return;}
    if(!req.url.startsWith('/')||req.url.startsWith('//')||/[\\\r\n]/.test(req.url)){status=400;res.writeHead(status).end();return;}
-   if(req.url==='/_health'&&req.method==='GET'){status=bucket.check()?200:503;res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store'}).end(JSON.stringify({ok:status===200}));return;}
+   if(req.url==='/_health'&&req.method==='GET'){status=bucket.check()?200:503;res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store'}).end(JSON.stringify({ok:status===200,mode}));return;}
    const limit=32*1024*1024;
    if(Number(req.headers['content-length'])>limit){status=413;res.writeHead(status,{'Connection':'close'}).end();req.resume();return;}
    let size=0;const chunks=[];
@@ -42,7 +42,8 @@ export function createAppServer({publicOrigin,bucket,adminAuth,emailFrom,resendK
   }catch{logger({event:'request_error',requestId});if(!res.headersSent)res.writeHead(500,{'Content-Type':'application/json'}).end('{"error":"Error interno"}');else res.destroy();}finally{active--;}
  });
  server.requestTimeout=60000;server.headersTimeout=15000;server.keepAliveTimeout=5000;
- return {server,async stop(){await new Promise(resolveStop=>{server.close(resolveStop);server.closeIdleConnections();});await Promise.allSettled([...pending]);}};
+ server.once('listening',()=>{if(!resendKey||!emailFrom)return;mailTimer=setInterval(()=>{if(pending.size)return;const task=Promise.resolve(worker.scheduled({},env,{})).catch(()=>logger({event:'mail_retry_error'})).finally(()=>pending.delete(task));pending.add(task);},120000);mailTimer.unref();});
+ return {server,async stop(){clearInterval(mailTimer);await new Promise(resolveStop=>{server.close(resolveStop);server.closeIdleConnections();});await Promise.allSettled([...pending]);}};
 }
 
 export function readHostingConfig(environment=process.env){
