@@ -14,3 +14,8 @@ SITE_URL = "https://REEMPLAZAR_DOMINIO"
 # SAAS_ADMIN_AUTH: JSON de credenciales independientes, cargar como secreto.
 # Generar con scripts/admin-credentials.mjs; ver docs/phase-one-auth.md.
 # Las cabeceras externas y SAAS_TEST_OPERATOR nunca conceden acceso.
+
+# Reintenta las colas pendientes sin depender de nuevas visitas.
+# Activar en el entorno contratado; no ejecutado por las pruebas locales.
+[triggers]
+crons = ["*/2 * * * *"]

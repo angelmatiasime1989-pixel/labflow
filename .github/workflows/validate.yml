@@ -1,0 +1,33 @@
+name: Validate LabFlow
+on:
+  pull_request:
+  push:
+    branches: [main, 'feat/**', 'demo/**']
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.19.0'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install lxml==6.0.2
+      - run: npm run build
+      - run: npm test
+      - name: Verify Python and Node assemblers agree
+        run: |
+          cp labflow-saas/worker/index.js /tmp/node-bundle.js
+          python labflow-saas/scripts/assemble.py
+          cmp /tmp/node-bundle.js labflow-saas/worker/index.js
+      - uses: actions/upload-artifact@v4
+        with:
+          name: labflow-node-${{ github.sha }}
+          path: labflow-saas/dist/
+          include-hidden-files: true
+          retention-days: 7

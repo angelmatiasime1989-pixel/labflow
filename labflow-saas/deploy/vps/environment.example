@@ -5,3 +5,6 @@ LABFLOW_DATA_VOLUME=labflow-production-data
 ADMIN_AUTH_FILE=/etc/labflow/admin-auth.json
 RESEND_KEY_FILE=/etc/labflow/resend-key
 EMAIL_FROM=
+
+# Impide usar por error el lanzador de demo pública en este entorno.
+LABFLOW_ENV=production

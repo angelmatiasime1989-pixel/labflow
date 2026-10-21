@@ -8,6 +8,7 @@ services:
     init: true
     environment:
       NODE_ENV: production
+      LABFLOW_ENV: production
       PUBLIC_ORIGIN: https://${LABFLOW_DOMAIN:?Set the application hostname}
       DATA_DIR: /data
       BIND_ADDRESS: 0.0.0.0

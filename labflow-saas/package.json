@@ -5,7 +5,7 @@
   "scripts": {
     "build": "node scripts/build-node.mjs",
     "validate": "node scripts/validate-artifact.mjs",
-    "test": "node scripts/saas-test.mjs && node --test scripts/security-test.mjs && node scripts/regression-test.mjs && npm run test:vps && npm run test:pc",
+    "test": "node scripts/saas-test.mjs && node --test scripts/security-test.mjs && node --test scripts/commerce-test.mjs && node scripts/regression-test.mjs && npm run test:vps && npm run test:pc",
     "test:security": "node --test scripts/security-test.mjs",
     "test:regression": "node scripts/regression-test.mjs",
     "start:vps": "node vps/server.mjs",
