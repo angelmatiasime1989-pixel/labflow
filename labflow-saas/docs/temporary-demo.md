@@ -32,9 +32,10 @@ sus enlaces. Para esos laboratorios el usuario es `demo` y la contraseña
 reales. Los datos de todos los visitantes son compartidos y pueden cambiar.
 
 La demo tiene un máximo de ocho clientes ficticios y 32 MB de contenido de
-objetos; los archivos SQLite/WAL pueden ocupar más. La sesión de proceso termina
-a las dos horas. El hosting puede reiniciarla antes, o volver a arrancarla al
-terminar. En cada arranque se crea una demo vacía con los tres clientes iniciales;
+objetos; los archivos SQLite/WAL pueden ocupar más. El servidor no se apaga por
+un temporizador: permanece disponible mientras el hosting mantenga el proceso
+activo. El plan gratuito puede suspenderlo o reiniciarlo. En cada arranque se
+crea una demo vacía con los tres clientes iniciales;
 no se conserva lo introducido. Los reinicios forzados pueden dejar archivos en
 el almacenamiento temporal hasta que el hosting los limpie. Correo externo está
 deshabilitado. No se conectan buckets R2 ni se realizan migraciones.
