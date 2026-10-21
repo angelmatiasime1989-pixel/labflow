@@ -11,7 +11,8 @@
     "start:vps": "node vps/server.mjs",
     "test:vps": "node --test scripts/vps-test.mjs",
     "test:vps:docker": "node scripts/vps-docker-test.mjs",
-    "test:pc": "node --test scripts/pc-test.mjs"
+    "test:pc": "node --test scripts/pc-test.mjs",
+    "dev": "node vps/demo.mjs"
   },
   "engines": {
     "node": ">=24.19.0 <25"

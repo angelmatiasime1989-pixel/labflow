@@ -13,6 +13,7 @@
     "check:hosting": "node labflow-saas/scripts/check-hosting.mjs",
     "start:demo": "node labflow-saas/vps/demo.mjs",
     "test:demo": "node --test labflow-saas/scripts/demo-test.mjs",
-    "start:production": "node labflow-saas/vps/server.mjs"
+    "start:production": "node labflow-saas/vps/server.mjs",
+    "dev": "node labflow-saas/vps/demo.mjs"
   }
 }

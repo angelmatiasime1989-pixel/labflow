@@ -12,6 +12,8 @@ En el proyecto Node.js de GoDaddy:
 - Node: 24.19.x, como la versión del servidor existente.
 - Build: npm run build.
 - **Start en demo/godaddy-preview: npm start**.
+- Si el panel de vista previa ejecuta **npm run dev**, también inicia esta demo
+  (desde la raíz o desde labflow-saas), respetando PORT.
 - **Start en feat/godaddy-vps: npm run start:demo**.
 - Guardar y redesplegar la vista previa.
 
