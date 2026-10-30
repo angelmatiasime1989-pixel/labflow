@@ -1,4 +1,5 @@
 import test from 'node:test';
+import vm from 'node:vm';
 import assert from 'node:assert/strict';
 import http from 'node:http';
 import {spawn} from 'node:child_process';
@@ -8,7 +9,7 @@ import {createDemoServer} from '../vps/demo.mjs';
 async function running(t){const app=await createDemoServer();await new Promise(resolve=>app.server.listen(0,'127.0.0.1',resolve));t.after(()=>app.stop());const port=app.server.address().port;
  const request=(path,body,cookie='',origin='https://demo.example')=>new Promise((resolve,reject)=>{const r=http.request({hostname:'127.0.0.1',port,path,method:body!==undefined?'POST':'GET',headers:{host:'demo.example',origin,'content-type':'application/json',cookie}},res=>{let text='';res.on('data',chunk=>text+=chunk);res.on('end',()=>resolve({status:res.statusCode,text,headers:res.headers,json:()=>JSON.parse(text)}));});r.on('error',reject);r.end(body!==undefined?JSON.stringify(body):undefined);});return {request};}
 test('temporary demo: landing, public demo access, three memberships and working tenant login',async t=>{
- const {request}=await running(t);let r=await request('/');assert.equal(r.status,200);assert.match(r.text,/Solo datos ficticios|No introduzcas datos/);assert.match(r.text,/demo-basico/);
+ const {request}=await running(t);let r=await request('/');assert.equal(r.status,200);assert.match(r.text,/Solo datos ficticios|No introduzcas datos/);assert.match(r.text,/isoDesk/);assert.match(r.text,/Menos pendientes/);assert.match(r.text,/href="\/_demo"/);assert.ok(!r.text.includes('LabFlow · Demo temporal'));const panel=await request('/_demo');assert.equal(panel.status,200);assert.match(panel.text,/demo-basico/);new vm.Script(panel.text.match(/<script>([\s\S]*?)<\/script>/)[1]);
  assert.equal((await request('/api/saas/state')).status,401);assert.equal((await request('/_demo/login',{} ,'','https://evil.example')).status,403);assert.equal((await request('/_demo/login')).status,403);
  r=await request('/_demo/login',{});assert.equal(r.status,200);const cookie=r.headers['set-cookie'][0].split(';')[0];assert.ok(r.headers['set-cookie'][0].includes('Secure'));
  let state=(await request('/api/saas/state',undefined,cookie)).json();assert.equal(state.customers.length,3);assert.deepEqual(state.customers.map(c=>c.membership),['basic','medium','advanced']);
@@ -33,4 +34,10 @@ test('preview entrypoint stays available when the former two-hour timer would ex
 });
 test('production environment explicitly refuses the public demo launcher',async()=>{
  const previous=process.env.LABFLOW_ENV;process.env.LABFLOW_ENV='production';try{await assert.rejects(()=>createDemoServer(),/Public demo is forbidden/);}finally{if(previous===undefined)delete process.env.LABFLOW_ENV;else process.env.LABFLOW_ENV=previous;}
+});
+
+test('isoDesk preview: one-click entry for each lab, central password login, status and mobile UI',async t=>{
+ const {request}=await running(t);const status=await request('/_preview/status');assert.equal(status.status,200);assert.equal(status.json().product,'isoDesk');assert.equal(status.json().release,'isodesk-preview-2026-10-30');assert.equal(status.json().landing,'isodesk');assert.equal((await request('/_demo/laboratory',{},'','https://evil.example')).status,403);assert.equal((await request('/_demo/laboratory')).status,403);assert.equal((await request('/_demo/laboratory',{slug:'another-customer'})).status,400);
+ for(const [slug,membership]of [['demo-basico','basic'],['demo-medio','medium'],['demo-avanzado','advanced']]){const login=await request('/_demo/laboratory',{slug});assert.equal(login.status,200,login.text);assert.equal(login.json().redirect,'/laboratorio/'+slug+'/');assert.ok(login.headers['set-cookie'][0].includes('Path=/laboratorio/'+slug+'/'));const cookie=login.headers['set-cookie'][0].split(';')[0];const state=await request('/laboratorio/'+slug+'/api/state',undefined,cookie);assert.equal(state.status,200,state.text);assert.equal(state.json().saasTenant.membership,membership);assert.equal((await request('/api/saas/state',undefined,cookie)).status,401);const html=await request('/laboratorio/'+slug+'/');assert.match(html.text,/isodeskMobileBar/);assert.match(html.text,/isodesk-sidebar-collapsed/);new vm.Script(html.text.match(/<script>([\s\S]*?)<\/script>/)[1]);}
+ const central=await request('/api/access/login',{laboratory:'demo-avanzado',username:'demo',password:'DemoTemporal-2026!'});assert.equal(central.status,200,central.text);assert.equal(central.json().redirect,'/laboratorio/demo-avanzado/');assert.match((await request('/acceso')).text,/Elegir laboratorio o administrador/);
 });

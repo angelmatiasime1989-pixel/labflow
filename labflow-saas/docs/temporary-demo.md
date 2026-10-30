@@ -1,3 +1,5 @@
+> **Actualización isoDesk:** ver [accesos y sincronización de la vista previa](preview-isodesk.md). La raíz muestra la landing nueva; los botones de prueba están en `/_demo`.
+
 # Demo temporal pública para vista previa Node.js
 
 Solo para pruebas con datos ficticios. Cualquier persona con el enlace puede
@@ -23,7 +25,7 @@ directorio temporal, con credenciales aleatorias independientes. Ignora las
 credenciales de producción, los datos persistentes y las claves de correo.
 PORT lo asigna el hosting y el servidor escucha en 0.0.0.0.
 
-Al abrir la URL pública aparecerá una portada con **Entrar a Administración SaaS**.
+Al abrir la URL pública aparecerá la landing de isoDesk. Abre **Elegir laboratorio o administrador** (`/_demo`) para ver los botones de prueba y **Entrar a Administración SaaS**.
 Ese botón concede acceso público exclusivamente a esta demo temporal. No hay
 que introducir una contraseña de superadministrador. El acceso público no existe
 al ejecutar npm run start:production.
