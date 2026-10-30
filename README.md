@@ -1,4 +1,6 @@
-> **RAMA DE DEMO PÚBLICA TEMPORAL:** `npm start` abre una demo compartida sin secretos ni disco permanente. No usar datos reales. Para producción utilizar `feat/godaddy-vps`.
+> **Vista de prueba de isoDesk:** esta rama usa datos ficticios y arranque de demo. No requiere secretos de producción; los datos se restablecen al reiniciar.
+
+> **isoDesk** es la nueva presentación comercial de LabFlow. Consulta [accesos, móvil y requisitos de lanzamiento](labflow-saas/docs/isodesk-lanzamiento.md). El cambio no renombra claves ni formatos históricos.
 
 # LabFlow — exportación fiel para Codex
 

@@ -8,6 +8,8 @@ bucket_name = "REEMPLAZAR_POR_BUCKET_REAL"
 
 [vars]
 SITE_URL = "https://REEMPLAZAR_DOMINIO"
+# SALES_CONTACT_URL = "https://CANAL_COMERCIAL_APROBADO"
+# PRIVACY_POLICY_URL = "https://DOMINIO/aviso-de-privacidad"
 # EMAIL_FROM: remitente verificado opcional.
 # RESEND_API_KEY: configurar como secreto, nunca en este archivo.
 

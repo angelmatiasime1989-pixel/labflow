@@ -1,20 +1,22 @@
 {
-  "name": "sites-worker-esm-starter",
+  "name": "isodesk-saas",
   "private": true,
   "type": "module",
   "scripts": {
     "build": "node scripts/build-node.mjs",
     "validate": "node scripts/validate-artifact.mjs",
-    "test": "node scripts/saas-test.mjs && node --test scripts/security-test.mjs && node --test scripts/commerce-test.mjs && node scripts/regression-test.mjs && npm run test:vps && npm run test:pc",
+    "test": "node scripts/saas-test.mjs && node --test scripts/security-test.mjs && node --test scripts/commerce-test.mjs scripts/isodesk-test.mjs scripts/launch-check-test.mjs scripts/sidebar-test.mjs && node scripts/regression-test.mjs && npm run test:vps && npm run test:pc",
     "test:security": "node --test scripts/security-test.mjs",
     "test:regression": "node scripts/regression-test.mjs",
     "start:vps": "node vps/server.mjs",
     "test:vps": "node --test scripts/vps-test.mjs",
     "test:vps:docker": "node scripts/vps-docker-test.mjs",
     "test:pc": "node --test scripts/pc-test.mjs",
-    "dev": "node vps/demo.mjs"
+    "dev": "node vps/demo.mjs",
+    "check:launch": "node scripts/launch-check.mjs"
   },
   "engines": {
     "node": ">=24.19.0 <25"
-  }
+  },
+  "version": "1.3.0"
 }

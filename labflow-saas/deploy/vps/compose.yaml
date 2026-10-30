@@ -16,6 +16,8 @@ services:
       SAAS_ADMIN_AUTH_FILE: /run/secrets/admin_auth
       RESEND_API_KEY_FILE: /run/secrets/resend_key
       EMAIL_FROM: ${EMAIL_FROM:-}
+      SALES_CONTACT_URL: ${SALES_CONTACT_URL:-}
+      PRIVACY_POLICY_URL: ${PRIVACY_POLICY_URL:-}
     secrets:
       - admin_auth
       - resend_key
