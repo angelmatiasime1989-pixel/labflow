@@ -15,4 +15,4 @@ try{
  console.log('Optional hosting manifest absent; generated an empty manifest.');
 }
 await import('./validate-artifact.mjs');
-console.log('LabFlow build complete using Node.js only');
+console.log('isoDesk build complete using Node.js only');

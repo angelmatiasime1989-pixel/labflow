@@ -8,12 +8,12 @@ import {randomUUID} from 'node:crypto';
 import worker from '../worker/index.js';
 import {SqliteBucket} from './bucket.mjs';
 
-export function createAppServer({publicOrigin,bucket,adminAuth,emailFrom,resendKey,mode='private',fetchHandler=(...args)=>worker.fetch(...args),logger=event=>console.log(JSON.stringify(event))}){
+export function createAppServer({publicOrigin,bucket,adminAuth,emailFrom,resendKey,salesContactUrl,privacyPolicyUrl,mode='private',fetchHandler=(...args)=>worker.fetch(...args),logger=event=>console.log(JSON.stringify(event))}){
  let canonical;try{canonical=new URL(publicOrigin);}catch{throw Error('PUBLIC_ORIGIN must contain the public HTTPS URL');}
  if(canonical.username||canonical.password||canonical.pathname!=='/'||canonical.search||canonical.hash||(!['https:'].includes(canonical.protocol)&&!(canonical.protocol==='http:'&&['localhost','127.0.0.1','[::1]'].includes(canonical.hostname))))throw Error('PUBLIC_ORIGIN must be an HTTPS origin (HTTP only on loopback)');
  let auth;try{auth=JSON.parse(adminAuth||'null');}catch{throw Error('SAAS_ADMIN_AUTH must be a valid credential JSON secret');}
  if(auth?.version!==1||!/^[a-z0-9_.-]{3,40}$/.test(auth.username)||!/^[a-f0-9]{64}$/.test(auth.salt)||!/^[a-f0-9]{64}$/.test(auth.passwordHash))throw Error('Valid independent SAAS_ADMIN_AUTH credentials required');
- const env={DEMO_MODE:mode==='demo',BUCKET:bucket,SAAS_ADMIN_AUTH:adminAuth,SITE_URL:canonical.origin,EMAIL_FROM:emailFrom,RESEND_API_KEY:resendKey};
+ const env={SALES_CONTACT_URL:salesContactUrl,PRIVACY_POLICY_URL:privacyPolicyUrl,DEMO_MODE:mode==='demo',BUCKET:bucket,SAAS_ADMIN_AUTH:adminAuth,SITE_URL:canonical.origin,EMAIL_FROM:emailFrom,RESEND_API_KEY:resendKey};
  const pending=new Set();let active=0,mailTimer=null;
  const server=http.createServer(async(req,res)=>{
   if(active>=16){res.writeHead(503,{'Retry-After':'1','Connection':'close'}).end();req.resume();return;}
@@ -56,7 +56,7 @@ export function readHostingConfig(environment=process.env){
  const secret=name=>{if(!environment[name+'_FILE'])return environment[name];try{return readFileSync(environment[name+'_FILE'],'utf8').trim();}catch{throw Error('Cannot read '+name+'_FILE; check the secret file permissions');}};
  const port=Number(environment.PORT||8787);
  if(!Number.isInteger(port)||port<0||port>65535)throw Error('PORT must be an integer between 0 and 65535');
- return {publicOrigin,dataDir:resolve(environment.DATA_DIR),adminAuth:secret('SAAS_ADMIN_AUTH'),emailFrom:environment.EMAIL_FROM,resendKey:secret('RESEND_API_KEY'),port,bindAddress:environment.BIND_ADDRESS||(environment.PORT?'0.0.0.0':'127.0.0.1')};
+ return {publicOrigin,dataDir:resolve(environment.DATA_DIR),adminAuth:secret('SAAS_ADMIN_AUTH'),emailFrom:environment.EMAIL_FROM,resendKey:secret('RESEND_API_KEY'),salesContactUrl:environment.SALES_CONTACT_URL,privacyPolicyUrl:environment.PRIVACY_POLICY_URL,port,bindAddress:environment.BIND_ADDRESS||(environment.PORT?'0.0.0.0':'127.0.0.1')};
 }
 
 if(import.meta.url===pathToFileURL(resolve(process.argv[1]||'')).href){

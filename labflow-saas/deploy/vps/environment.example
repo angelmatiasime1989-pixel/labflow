@@ -8,3 +8,15 @@ EMAIL_FROM=
 
 # Impide usar por error el lanzador de demo pública en este entorno.
 LABFLOW_ENV=production
+
+# Enlaces públicos aprobados; no contienen secretos.
+SALES_CONTACT_URL=
+PRIVACY_POLICY_URL=
+
+# Preflight operativo: completar solo después de comprobar cada requisito.
+DATA_PERSISTENCE_CONFIRMED=false
+BACKUP_VERIFIED_AT=
+BACKUP_OFFSITE_CONFIRMED=false
+MONITORING_CONFIRMED=false
+LEGAL_REVIEW_CONFIRMED=false
+SECURITY_REVIEW_CONFIRMED=false

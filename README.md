@@ -1,3 +1,5 @@
+> **isoDesk** es la nueva presentación comercial de LabFlow. Consulta [accesos, móvil y requisitos de lanzamiento](labflow-saas/docs/isodesk-lanzamiento.md). El cambio no renombra claves ni formatos históricos.
+
 # LabFlow — exportación fiel para Codex
 
 ## Contenido y fidelidad
