@@ -7,8 +7,8 @@ import {SqliteBucket} from './database.mjs';
 import {providerAuth,providerSession} from './auth.mjs';
 const changePassword=readFileSync(new URL('./change-password.html',import.meta.url),'utf8');
 const login=readFileSync(new URL('./login.html',import.meta.url),'utf8');
-export function createApp({db,publicUrl,env={}}){
- const origin=new URL(publicUrl).origin,secure=origin.startsWith('https:'),bucket=new SqliteBucket(db);
+export function createApp({db,publicUrl,env={},bucket:providedBucket,authentication}){
+ const origin=new URL(publicUrl).origin,secure=origin.startsWith('https:'),bucket=providedBucket||new SqliteBucket(db);
  const bindings={BUCKET:bucket,...Object.fromEntries(['RESEND_API_KEY','EMAIL_FROM','OPENAI_API_KEY','OPENAI_MODEL','QUBITO_TENANT_HOURLY_LIMIT','QUBITO_TENANT_MONTHLY_LIMIT','TENANT_SUBDOMAINS_ENABLED'].filter(k=>env[k]).map(k=>[k,env[k]]))};
  async function handle(req,{ip='local',waitUntil=p=>p.catch(()=>{})}={}){
   let url=new URL(req.url);const externalOrigin=url.origin,slug=tenantSlugForHost(url,origin);
@@ -27,8 +27,8 @@ export function createApp({db,publicUrl,env={}}){
    const object=await bucket.get('saas/platform-v1.json'),platform=object?await object.json():null;
    if(platform?.customers.some(c=>c.slug===entryPath[1]&&c.status==='Activo')){const target=new URL(origin);target.hostname=entryPath[1]+'.'+target.hostname;target.pathname='/';if(tenantSlugForHost(target.origin,origin))return new Response(null,{status:302,headers:{location:target.origin+'/'+url.search,'cache-control':'no-store'}});}
   }
-  const auth=await providerAuth(req,db,{origin,ip,secure});if(auth)return auth;
-  const user=slug?null:providerSession(db,req.headers.get('cookie')||'');
+  const auth=await (authentication?authentication.handle(req,{origin,ip,secure}):providerAuth(req,db,{origin,ip,secure}));if(auth)return auth;
+  const user=slug?null:await(authentication?authentication.session(req.headers.get('cookie')||''):providerSession(db,req.headers.get('cookie')||''));
   if(url.pathname==='/administrador/cambiar-contrasena'){if(!user)return Response.redirect(origin+'/administrador/ingresar',303);if(!['GET','HEAD'].includes(req.method))return new Response('Método no permitido',{status:405});return new Response(changePassword,{headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store','content-security-policy':"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'"}});}
   if(user?.mustChangePassword){if(url.pathname.startsWith('/api/saas/'))return new Response(JSON.stringify({error:'Cambia la contraseña temporal antes de acceder al panel.',code:'PASSWORD_CHANGE_REQUIRED',redirect:'/administrador/cambiar-contrasena'}),{status:403,headers:{'content-type':'application/json','cache-control':'no-store'}});if(['/admin','/admin/','/administrador/ingresar','/entrar','/entrar/'].includes(url.pathname))return Response.redirect(origin+'/administrador/cambiar-contrasena',303);}
   if(url.pathname==='/admin/'&&!user)return Response.redirect(origin+'/admin',303);
