@@ -1,3 +1,6 @@
+import {finalizeSeo} from './seo.mjs';
+import {pwaResponse,pwaHead,pwaRegistration} from './pwa.mjs';
+import {tenantSlugForHost} from './tenant-hosts.mjs';
 import worker from '../worker/index.js';
 import {readFileSync} from 'node:fs';
 import {SqliteBucket} from './database.mjs';
@@ -6,22 +9,41 @@ const changePassword=readFileSync(new URL('./change-password.html',import.meta.u
 const login=readFileSync(new URL('./login.html',import.meta.url),'utf8');
 export function createApp({db,publicUrl,env={}}){
  const origin=new URL(publicUrl).origin,secure=origin.startsWith('https:'),bucket=new SqliteBucket(db);
- const bindings={BUCKET:bucket,...Object.fromEntries(['RESEND_API_KEY','EMAIL_FROM'].filter(k=>env[k]).map(k=>[k,env[k]]))};
- return async function handle(req,{ip='local',waitUntil=p=>p.catch(()=>{})}={}){
-  const url=new URL(req.url);if(url.origin!==origin)return new Response('Origen no autorizado',{status:400});
+ const bindings={BUCKET:bucket,...Object.fromEntries(['RESEND_API_KEY','EMAIL_FROM','OPENAI_API_KEY','OPENAI_MODEL','QUBITO_TENANT_HOURLY_LIMIT','QUBITO_TENANT_MONTHLY_LIMIT'].filter(k=>env[k]).map(k=>[k,env[k]]))};
+ async function handle(req,{ip='local',waitUntil=p=>p.catch(()=>{})}={}){
+  let url=new URL(req.url);const externalOrigin=url.origin,slug=tenantSlugForHost(url,origin);
+  if(externalOrigin!==origin&&!slug)return new Response('Origen no autorizado',{status:400});
+  const publicPwa=pwaResponse(url.pathname,{tenant:!!slug,method:req.method});if(publicPwa)return publicPwa;
+  if(slug){
+   if(/^\/(?:admin(?:istrador)?|api\/(?:saas|provider)|laboratorio)(?:\/|$)/.test(url.pathname))return new Response('Ruta no disponible',{status:404});
+   const incomingHeaders=new Headers(req.headers);const requestOrigin=incomingHeaders.get('origin');
+   if(!['GET','HEAD','OPTIONS'].includes(req.method)&&requestOrigin!==externalOrigin)return new Response('Origen no autorizado',{status:403});
+   if(requestOrigin===externalOrigin)incomingHeaders.set('origin',origin);
+   url=new URL(origin+'/laboratorio/'+slug+url.pathname+url.search);req=new Request(url, new Request(req,{headers:incomingHeaders}));
+  }
   const auth=await providerAuth(req,db,{origin,ip,secure});if(auth)return auth;
-  const user=providerSession(db,req.headers.get('cookie')||'');
+  const user=slug?null:providerSession(db,req.headers.get('cookie')||'');
   if(url.pathname==='/administrador/cambiar-contrasena'){if(!user)return Response.redirect(origin+'/administrador/ingresar',303);if(!['GET','HEAD'].includes(req.method))return new Response('Método no permitido',{status:405});return new Response(changePassword,{headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store','content-security-policy':"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'"}});}
   if(user?.mustChangePassword){if(url.pathname.startsWith('/api/saas/'))return new Response(JSON.stringify({error:'Cambia la contraseña temporal antes de acceder al panel.',code:'PASSWORD_CHANGE_REQUIRED',redirect:'/administrador/cambiar-contrasena'}),{status:403,headers:{'content-type':'application/json','cache-control':'no-store'}});if(['/admin','/admin/','/administrador/ingresar','/entrar','/entrar/'].includes(url.pathname))return Response.redirect(origin+'/administrador/cambiar-contrasena',303);}
-  if(url.pathname==='/administrador/ingresar')return user?Response.redirect(origin+'/admin/',303):new Response(login,{headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store','content-security-policy':"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'"}});
+  if(url.pathname==='/admin/'&&!user)return Response.redirect(origin+'/admin',303);
+  if(url.pathname==='/administrador/ingresar'||(url.pathname==='/admin'&&!user))return user?Response.redirect(origin+'/admin/',303):new Response(login,{headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store','content-security-policy':"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'"}});
   if(['/admin','/admin/'].includes(url.pathname)&&!user)return Response.redirect(origin+'/administrador/ingresar',303);
   if(url.pathname.startsWith('/api/saas/')&&!user)return new Response(JSON.stringify({error:'Inicia sesión como administrador del servicio.'}),{status:401,headers:{'content-type':'application/json','cache-control':'no-store'}});
   const headers=new Headers(req.headers);for(const key of [...headers.keys()])if(/^(oai-|x-forwarded-|x-authenticated-)/i.test(key))headers.delete(key);
+  headers.set('cf-connecting-ip',String(ip));
   if(user&&!user.mustChangePassword){headers.set('oai-authenticated-user-id',user.id);headers.set('oai-authenticated-user-full-name',encodeURIComponent(user.name));headers.set('oai-authenticated-user-full-name-encoding','percent-encoded-utf-8');}
   const response=await worker.fetch(new Request(req,{headers}),bindings,{waitUntil});const outputHeaders=new Headers(response.headers);
   if(!secure&&outputHeaders.has('set-cookie'))outputHeaders.set('set-cookie',outputHeaders.get('set-cookie').replace(/;\s*Secure/gi,''));
   outputHeaders.set('x-content-type-options','nosniff');outputHeaders.set('referrer-policy','same-origin');outputHeaders.set('x-frame-options','SAMEORIGIN');
   if(secure)outputHeaders.set('strict-transport-security','max-age=31536000');
+  if(slug){
+   const prefix='/laboratorio/'+slug;
+   if(outputHeaders.has('set-cookie'))outputHeaders.set('set-cookie',outputHeaders.get('set-cookie').replace('Path='+prefix+'/','Path=/'));
+   if(outputHeaders.has('location')){const target=new URL(outputHeaders.get('location'),origin);if(target.origin===origin&&target.pathname.startsWith(prefix+'/')){target.pathname=target.pathname.slice(prefix.length);outputHeaders.set('location',externalOrigin+target.pathname+target.search+target.hash);}}
+   if((outputHeaders.get('content-type')||'').includes('text/html'))return new Response((await response.text()).replaceAll(prefix+'/', '/').replace('</head>',pwaHead+'</head>').replace(/<\/body>(?=\s*<\/html>\s*$)/,pwaRegistration+'</body>'),{status:response.status,headers:outputHeaders});
+  }
+  if((outputHeaders.get('content-type')||'').includes('text/html'))return new Response((await response.text()).replace('</head>',pwaHead+'</head>').replace(/<\/body>(?=\s*<\/html>\s*$)/,pwaRegistration+'</body>'),{status:response.status,headers:outputHeaders});
   return new Response(response.body,{status:response.status,headers:outputHeaders});
  };
+ return async function(req,context){const response=await handle(req,context);return finalizeSeo(response,req,{origin,bucket,verification:env.GOOGLE_SITE_VERIFICATION||''});};
 }

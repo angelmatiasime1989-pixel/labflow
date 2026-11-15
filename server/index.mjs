@@ -16,7 +16,8 @@ if(!db.prepare('SELECT id FROM provider WHERE slot=1').get()){
 const handle=createApp({db,publicUrl,env:process.env}),pending=new Set();
 const server=createServer(async(req,res)=>{try{
  const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>50*1024*1024){res.writeHead(413);res.end('Solicitud demasiado grande');return;}chunks.push(chunk);}
- const url=new URL(req.url,parsed.origin);if(url.origin!==parsed.origin){res.writeHead(400);res.end();return;}
+ const host=req.headers.host||parsed.host;let requestOrigin;try{const incoming=new URL(parsed.protocol+'//'+host);if(incoming.host!==host||incoming.username||incoming.password)throw Error();requestOrigin=incoming.origin;}catch{res.writeHead(400);res.end();return;}
+ const url=new URL(req.url,requestOrigin);if(url.origin!==requestOrigin){res.writeHead(400);res.end();return;}
  const headers=new Headers();for(const[k,v]of Object.entries(req.headers))if(v!==undefined)headers.set(k,Array.isArray(v)?v.join(', '):v);
  let ip=req.socket.remoteAddress||'unknown';if(process.env.TRUST_PROXY==='true'&&['127.0.0.1','::1','::ffff:127.0.0.1'].includes(ip))ip=headers.get('x-forwarded-for')?.split(',')[0].trim()||ip;
  const request=new Request(url,{method:req.method,headers,...(!['GET','HEAD'].includes(req.method)?{body:Buffer.concat(chunks)}:{})});

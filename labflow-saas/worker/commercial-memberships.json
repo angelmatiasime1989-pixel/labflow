@@ -1,0 +1,117 @@
+[
+  {
+    "id": "silver",
+    "name": "Silver",
+    "monthly": 790,
+    "subtitle": "Control & Compliance",
+    "description": "Digitaliza tu laboratorio, administra tus clientes, cotizaciones, documentos y obligaciones regulatorias desde una sola plataforma.",
+    "features": [
+      "Usuarios ilimitados",
+      "Personalización de colores y logotipo",
+      "Clientes, contactos y cotizaciones",
+      "Catálogo de servicios y precios",
+      "Solicitudes y órdenes de servicio",
+      "Gestión documental y control de versiones",
+      "Reportes semestrales para las obligaciones aplicables de la Ley de Infraestructura de la Calidad",
+      "Calendario de obligaciones regulatorias",
+      "Control de acreditaciones y aprobaciones",
+      "Inventario básico de equipos",
+      "Alertas y notificaciones"
+    ]
+  },
+  {
+    "id": "gold",
+    "name": "Gold",
+    "monthly": 1490,
+    "subtitle": "Quality & Operations",
+    "description": "Gestiona completamente tu operación técnica y sistema de calidad ISO/IEC 17025, desde la programación del servicio hasta la emisión del informe.",
+    "features": [
+      "Todo lo incluido en Silver",
+      "Usuarios ilimitados",
+      "CRM y seguimiento comercial",
+      "Programación de servicios y técnicos",
+      "Registros de campo y laboratorio",
+      "Control de muestras",
+      "Resultados de ensayos y calibraciones",
+      "Informes y certificados PDF",
+      "Revisión y autorización de informes",
+      "Verificación de informes mediante QR",
+      "Sistema de gestión ISO/IEC 17025 integral",
+      "Auditorías internas y acciones correctivas",
+      "Riesgos, imparcialidad y trabajo no conforme",
+      "Calibraciones y mantenimiento de equipos",
+      "Expedientes, competencia y capacitación del personal",
+      "Solicitudes de compra, proveedores y órdenes de compra",
+      "Preparación de reportes semestrales LIC"
+    ]
+  },
+  {
+    "id": "platinum",
+    "name": "Platinum",
+    "monthly": 2490,
+    "subtitle": "Total Business Management",
+    "description": "Controla toda la operación de tu laboratorio, incluyendo gestión técnica, calidad, compras, almacén, administración y finanzas.",
+    "features": [
+      "Todo lo incluido en Gold",
+      "Usuarios ilimitados",
+      "Gestión de almacén e inventarios",
+      "Entradas y salidas de materiales",
+      "Control de existencias",
+      "Cuentas por cobrar y pagar",
+      "Gestión de gastos y anticipos",
+      "Facturación electrónica CFDI",
+      "Catálogo de cuentas contables",
+      "Estados financieros",
+      "Costos y rentabilidad por servicio",
+      "Indicadores financieros y EBITDA",
+      "Portal de clientes",
+      "Dashboard gerencial"
+    ]
+  },
+  {
+    "id": "diamond",
+    "name": "Diamond",
+    "monthly": 4490,
+    "subtitle": "Smart Laboratory Enterprise",
+    "description": "Potencia tu laboratorio con inteligencia artificial, automatización avanzada, integraciones y gestión de múltiples empresas.",
+    "features": [
+      "Todo lo incluido en Platinum",
+      "Usuarios ilimitados",
+      "Inteligencia artificial integrada",
+      "Análisis inteligente de documentos",
+      "Automatización avanzada de procesos",
+      "Indicadores y analítica avanzada",
+      "Integraciones empresariales estándar",
+      "API para conexión con sistemas externos",
+      "Gestión multiempresa",
+      "Administración centralizada",
+      "Reportes consolidados",
+      "Soporte preferente",
+      "Módulo avanzado de finanzas con periodos seleccionables",
+      "Desglose de ventas y gastos por servicio, ubicación y unidad de negocio",
+      "Productividad por persona y tableros financieros configurables",
+      "Qubito con autorización individual de acceso"
+    ]
+  },
+  {
+    "id": "enterprise-custom",
+    "name": "Enterprise Custom",
+    "monthly": 7990,
+    "subtitle": "Your Laboratory. Your Platform.",
+    "description": "Una plataforma diseñada para tu organización, con identidad corporativa, infraestructura independiente y configuraciones especializadas.",
+    "features": [
+      "Todo lo incluido en Diamond",
+      "Usuarios ilimitados",
+      "Dominio o subdominio propio",
+      "IP pública dedicada",
+      "Infraestructura exclusiva",
+      "Base de datos independiente",
+      "Identidad corporativa personalizada",
+      "Integraciones específicas",
+      "Configuraciones empresariales particulares",
+      "Tableros personalizados",
+      "Soporte especializado",
+      "Acuerdo de nivel de servicio (SLA)"
+    ]
+  }
+]

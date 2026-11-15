@@ -1,0 +1,2 @@
+// Match only one customer label under the configured public hostname.
+export function tenantSlugForHost(url,publicUrl){const incoming=new URL(url),root=new URL(publicUrl);if(incoming.protocol!==root.protocol||incoming.port!==root.port)return null;const suffix='.'+root.hostname;if(!incoming.hostname.endsWith(suffix))return null;const slug=incoming.hostname.slice(0,-suffix.length);return /^[a-z0-9](?:[a-z0-9-]{1,48}[a-z0-9])$/.test(slug)&&!['www','admin','api','mail'].includes(slug)?slug:null;}

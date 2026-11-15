@@ -1,0 +1,107 @@
+[
+  {
+    "id": "editorial-administracion",
+    "slug": "administracion",
+    "category": "Administración de empresas",
+    "title": "Tres hábitos para administrar mejor tu laboratorio",
+    "excerpt": "Ordena tu agenda, tus cuentas y el seguimiento comercial sin complicar el trabajo de tu equipo.",
+    "body": "Un laboratorio también es una empresa. Además del trabajo técnico, necesita saber qué servicios se han comprometido, cuándo se entregarán y qué pagos siguen pendientes. Una revisión semanal breve ayuda a tomar decisiones con información compartida.\n\n1. Revisa los servicios en curso. Define un responsable, una fecha comprometida y el siguiente paso para cada servicio. Si hay un retraso, deja claro qué lo provoca y cómo se atenderá.\n\n2. Separa ventas de cobros. Una cotización aceptada no equivale a dinero recibido. Da seguimiento a las cuentas por cobrar y registra cada pago con su fecha, referencia y periodo cubierto.\n\n3. Elige pocos indicadores útiles. Entregas a tiempo, propuestas aceptadas y cartera vencida pueden iniciar una conversación productiva. Aclara cómo se calcula cada indicador antes de comparar periodos.\n\nEmpieza con una rutina sencilla y ajústala a tu tamaño. El objetivo es que el equipo encuentre lo que necesita y tenga claro qué sigue.",
+    "sources": [
+      "https://www.iso.org/iso-9001-quality-management.html"
+    ],
+    "status": "Publicado",
+    "image": "",
+    "kind": "Guía informativa",
+    "publishedAt": null,
+    "updatedAt": null,
+    "verificationNote": "Contenido orientativo. Consulta las fuentes oficiales; no se presenta como noticia de actualidad verificada."
+  },
+  {
+    "id": "editorial-gestion-calidad",
+    "slug": "gestion-calidad",
+    "category": "Gestión de calidad",
+    "title": "Un sistema de calidad que ayude al equipo cada día",
+    "excerpt": "Convierte documentos, hallazgos y acciones en herramientas prácticas para mejorar.",
+    "body": "La gestión de calidad funciona mejor cuando acompaña la operación. Los formatos y procedimientos deben ayudar a realizar el trabajo, conservar evidencia y detectar problemas, además de atender las evaluaciones externas.\n\nRevisa que cada documento tenga una versión identificable y un responsable. Mantén disponible la versión vigente y evita que se utilicen copias desactualizadas sin control.\n\nCuando aparezca una desviación, registra qué ocurrió, su impacto y las medidas inmediatas. Si corresponde una acción correctiva, analiza la causa, asigna una fecha y verifica después si la solución fue eficaz.\n\nUna reunión breve con información clara vale más que una lista larga de pendientes sin responsables. Selecciona mejoras que puedas verificar y conserva la evidencia de sus resultados.",
+    "sources": [
+      "https://www.iso.org/iso-9001-quality-management.html"
+    ],
+    "status": "Publicado",
+    "image": "",
+    "kind": "Guía informativa",
+    "publishedAt": null,
+    "updatedAt": null,
+    "verificationNote": "Contenido orientativo. Consulta las fuentes oficiales; no se presenta como noticia de actualidad verificada."
+  },
+  {
+    "id": "editorial-ley-infraestructura-calidad",
+    "slug": "ley-infraestructura-calidad",
+    "category": "Ley de Infraestructura de la Calidad",
+    "title": "LIC: organiza las obligaciones que sí aplican a tu organismo",
+    "excerpt": "Una ruta práctica para identificar obligaciones, reunir evidencias y revisar su cumplimiento.",
+    "body": "La Ley de Infraestructura de la Calidad forma parte del marco mexicano de normalización, estandarización, acreditación y evaluación de la conformidad. Su aplicación concreta depende de la actividad del organismo y del marco que corresponda.\n\nAntes de crear un calendario, identifica tu alcance, las autoridades competentes, la acreditación o aprobación aplicable y los instrumentos que regulan tu actividad. Conserva el enlace y la versión de cada fuente consultada.\n\nPara cada obligación registra: fundamento, responsable, fecha, evidencia esperada y revisión. Si tu actividad requiere informes periódicos o semestrales, confirma el destinatario, formato y periodicidad en las disposiciones y condiciones que te correspondan.\n\nLa plataforma puede ayudarte a organizar el seguimiento. La determinación de obligaciones y su cumplimiento corresponden al organismo; consulta el texto oficial y asesoría especializada cuando sea necesario.",
+    "sources": [
+      "https://www.diputados.gob.mx/LeyesBiblio/pdf/LICal.pdf",
+      "https://www.dof.gob.mx/"
+    ],
+    "status": "Publicado",
+    "image": "",
+    "kind": "Guía informativa",
+    "publishedAt": null,
+    "updatedAt": null,
+    "verificationNote": "Contenido orientativo. Consulta las fuentes oficiales; no se presenta como noticia de actualidad verificada."
+  },
+  {
+    "id": "editorial-normas-iso",
+    "slug": "normas-iso",
+    "category": "Normas ISO",
+    "title": "ISO 9001 e ISO/IEC 17025: entiende el propósito de cada una",
+    "excerpt": "Identifica qué necesitas fortalecer en la gestión y en la competencia técnica.",
+    "body": "ISO 9001 aborda los sistemas de gestión de la calidad. ISO/IEC 17025 trata la competencia de los laboratorios de ensayo y calibración. Comparten elementos de gestión, pero sus objetivos y vías de evaluación no son intercambiables.\n\nPara un laboratorio, el control de métodos, equipos, trazabilidad, competencia del personal y validez de resultados forma parte de la conversación técnica. Tener documentos ordenados, por sí solo, no demuestra competencia.\n\nSi trabajas como organismo de inspección, revisa las normas y requisitos que correspondan a tu actividad; no asumas que los requisitos de un laboratorio de ensayo son idénticos a los de inspección.\n\nConsulta la edición aplicable en el catálogo oficial de ISO y los criterios del organismo que te evalúe. Este artículo resume conceptos y no reproduce ni sustituye el texto normativo.",
+    "sources": [
+      "https://www.iso.org/standard/66912.html",
+      "https://www.iso.org/iso-9001-quality-management.html"
+    ],
+    "status": "Publicado",
+    "image": "",
+    "kind": "Guía informativa",
+    "publishedAt": null,
+    "updatedAt": null,
+    "verificationNote": "Contenido orientativo. Consulta las fuentes oficiales; no se presenta como noticia de actualidad verificada."
+  },
+  {
+    "id": "editorial-reglamento-lic",
+    "slug": "reglamento-lic",
+    "category": "Reglamento y disposiciones aplicables",
+    "title": "Reglamento de la LIC: qué verificar antes de actualizar tus procedimientos",
+    "excerpt": "Consulta la publicación oficial, los transitorios y la aplicación concreta antes de incorporar un cambio.",
+    "body": "Las referencias a un reglamento, proyecto o disposición relacionada con la Ley de Infraestructura de la Calidad deben verificarse en fuentes oficiales. Un proyecto en consulta no equivale a una disposición publicada y vigente.\n\nAntes de modificar un procedimiento, localiza la publicación en el Diario Oficial de la Federación. Comprueba el título exacto, la fecha de publicación, la entrada en vigor, los artículos transitorios y las disposiciones que se modifican o sustituyen.\n\nRevisa también la relación con disposiciones anteriores y su posible aplicación transitoria. Documenta la conclusión con la referencia oficial y, cuando corresponda, con la revisión de una persona especialista.\n\nEste artículo es una guía de verificación: no afirma que exista una nueva publicación o una reforma vigente a la fecha de lectura. La vigencia normativa debe confirmarse antes de tomar decisiones.\n\nEn tu control de cambios registra la fuente, los procesos afectados, el responsable y la evidencia de capacitación del personal. Actualiza el calendario de obligaciones sólo después de confirmar el cambio.",
+    "sources": [
+      "https://www.dof.gob.mx/",
+      "https://www.diputados.gob.mx/LeyesBiblio/"
+    ],
+    "status": "Publicado",
+    "image": "",
+    "kind": "Guía informativa",
+    "publishedAt": null,
+    "updatedAt": null,
+    "verificationNote": "Contenido orientativo. Consulta las fuentes oficiales; no se presenta como noticia de actualidad verificada."
+  },
+  {
+    "id": "editorial-equipos-trazabilidad",
+    "slug": "equipos-trazabilidad",
+    "category": "Laboratorios y trazabilidad",
+    "title": "Equipos bajo control: del calendario a la evidencia",
+    "excerpt": "Prepara un seguimiento sencillo para calibraciones, mantenimiento y decisiones de uso.",
+    "body": "Un calendario ayuda a anticipar actividades, pero el control del equipo requiere conservar su identificación, historial y evidencia. La fecha por sí sola no permite decidir si el equipo es adecuado para un trabajo.\n\nRegistra el identificador, ubicación, responsable, uso previsto y requisitos aplicables. Conserva los certificados y registros que respaldan las decisiones de aptitud y las restricciones de uso.\n\nDefine cómo revisar resultados de calibración y mantenimiento, quién toma las decisiones y qué ocurre cuando el equipo deja de cumplir. Considera el posible impacto sobre trabajos realizados según tus procedimientos.\n\nAjusta intervalos y controles con criterios técnicos documentados. Consulta los requisitos aplicables a tu actividad y evita sustituir una evaluación técnica por una alerta automática.",
+    "sources": [
+      "https://www.iso.org/standard/66912.html"
+    ],
+    "status": "Publicado",
+    "image": "",
+    "kind": "Guía informativa",
+    "publishedAt": null,
+    "updatedAt": null,
+    "verificationNote": "Contenido orientativo. Consulta las fuentes oficiales; no se presenta como noticia de actualidad verificada."
+  }
+]
