@@ -9,7 +9,7 @@ const changePassword=readFileSync(new URL('./change-password.html',import.meta.u
 const login=readFileSync(new URL('./login.html',import.meta.url),'utf8');
 export function createApp({db,publicUrl,env={}}){
  const origin=new URL(publicUrl).origin,secure=origin.startsWith('https:'),bucket=new SqliteBucket(db);
- const bindings={BUCKET:bucket,...Object.fromEntries(['RESEND_API_KEY','EMAIL_FROM','OPENAI_API_KEY','OPENAI_MODEL','QUBITO_TENANT_HOURLY_LIMIT','QUBITO_TENANT_MONTHLY_LIMIT'].filter(k=>env[k]).map(k=>[k,env[k]]))};
+ const bindings={BUCKET:bucket,...Object.fromEntries(['RESEND_API_KEY','EMAIL_FROM','OPENAI_API_KEY','OPENAI_MODEL','QUBITO_TENANT_HOURLY_LIMIT','QUBITO_TENANT_MONTHLY_LIMIT','TENANT_SUBDOMAINS_ENABLED'].filter(k=>env[k]).map(k=>[k,env[k]]))};
  async function handle(req,{ip='local',waitUntil=p=>p.catch(()=>{})}={}){
   let url=new URL(req.url);const externalOrigin=url.origin,slug=tenantSlugForHost(url,origin);
   if(externalOrigin!==origin&&!slug)return new Response('Origen no autorizado',{status:400});
@@ -20,6 +20,12 @@ export function createApp({db,publicUrl,env={}}){
    if(!['GET','HEAD','OPTIONS'].includes(req.method)&&requestOrigin!==externalOrigin)return new Response('Origen no autorizado',{status:403});
    if(requestOrigin===externalOrigin)incomingHeaders.set('origin',origin);
    url=new URL(origin+'/laboratorio/'+slug+url.pathname+url.search);req=new Request(url, new Request(req,{headers:incomingHeaders}));
+  }
+  // Path links work on the main domain until the operator explicitly enables verified subdomains.
+  const entryPath=!slug&&url.pathname.match(/^\/laboratorio\/([a-z0-9](?:[a-z0-9-]{1,48}[a-z0-9]))\/?$/);
+  if(entryPath&&env.TENANT_SUBDOMAINS_ENABLED==='true'&&['GET','HEAD'].includes(req.method)){
+   const object=await bucket.get('saas/platform-v1.json'),platform=object?await object.json():null;
+   if(platform?.customers.some(c=>c.slug===entryPath[1]&&c.status==='Activo')){const target=new URL(origin);target.hostname=entryPath[1]+'.'+target.hostname;target.pathname='/';if(tenantSlugForHost(target.origin,origin))return new Response(null,{status:302,headers:{location:target.origin+'/'+url.search,'cache-control':'no-store'}});}
   }
   const auth=await providerAuth(req,db,{origin,ip,secure});if(auth)return auth;
   const user=slug?null:providerSession(db,req.headers.get('cookie')||'');

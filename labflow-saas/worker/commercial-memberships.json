@@ -12,7 +12,7 @@
       "Catálogo de servicios y precios",
       "Solicitudes y órdenes de servicio",
       "Gestión documental y control de versiones",
-      "Reportes semestrales para las obligaciones aplicables de la Ley de Infraestructura de la Calidad",
+      "Herramientas de cumplimiento LIC",
       "Calendario de obligaciones regulatorias",
       "Control de acreditaciones y aprobaciones",
       "Inventario básico de equipos",
@@ -42,7 +42,7 @@
       "Calibraciones y mantenimiento de equipos",
       "Expedientes, competencia y capacitación del personal",
       "Solicitudes de compra, proveedores y órdenes de compra",
-      "Preparación de reportes semestrales LIC"
+      "Herramientas de cumplimiento LIC"
     ]
   },
   {
@@ -59,7 +59,6 @@
       "Control de existencias",
       "Cuentas por cobrar y pagar",
       "Gestión de gastos y anticipos",
-      "Facturación electrónica CFDI",
       "Catálogo de cuentas contables",
       "Estados financieros",
       "Costos y rentabilidad por servicio",
@@ -82,7 +81,6 @@
       "Automatización avanzada de procesos",
       "Indicadores y analítica avanzada",
       "Integraciones empresariales estándar",
-      "API para conexión con sistemas externos",
       "Gestión multiempresa",
       "Administración centralizada",
       "Reportes consolidados",
