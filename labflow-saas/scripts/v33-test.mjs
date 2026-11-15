@@ -9,7 +9,7 @@ assert.equal(closed,1);assert.match(messages.at(-1),/Envío exitoso.*María/);
 vm.runInContext("toast('Documento actualizado')",c);assert.match(messages.at(-1),/María/);vm.runInContext("toast('Error de conexión')",c);assert.equal(messages.at(-1),'Error de conexión');
 fail=true;await assert.rejects(vm.runInContext("mutate('documents',1,'submit')",c));assert.equal(closed,1);
 const server=await readFile('worker/server.js','utf8');
-const fn=server.slice(server.indexOf('function submissionReceipt33'),server.indexOf('export default app;'));
+const fn=server.slice(server.indexOf('function submissionReceipt33'),server.indexOf('/*SAAS_GATEWAY*/'));
 const d=vm.createContext({rolePermissions:()=>({view:[],edit:[],approve:[]}),approvalInbox:(s,u)=>u.role==='Calidad'?[{module:'documents',id:1}]:[]});vm.runInContext(fn,d);
 const receipt=vm.runInContext("submissionReceipt33({users:[{name:'Calidad Uno',role:'Calidad',active:true},{name:'Inactivo',role:'Calidad',active:false},{name:'Técnico',role:'Técnico'}]},'documents',{id:1,status:'Pendiente de Calidad',folio:'DOC-1'},{action:'submit'})",d);
 assert.equal(receipt.recipient,'Calidad Uno');assert.equal(receipt.sent,true);

@@ -37,6 +37,7 @@ const labflowApp={async fetch(req,env,ctx){if(ctx?.waitUntil)env={...env,MAIL_CT
  const publicResponse=await publicSurveyRoute(req,url,s,env,etag);if(publicResponse)return publicResponse;
  const u=await session(req,env,s);
  if(path==='/api/logout'&&req.method==='POST'){const token=(req.headers.get('cookie')||'').match(/(?:^|;\s*)labflow_session=([^;]+)/)?.[1];if(token){const obj=await env.BUCKET.get('public-demo/sessions/'+token);if(obj){const v=await obj.json();v.expires=0;await env.BUCKET.put('public-demo/sessions/'+token,JSON.stringify(v));}}return json({ok:true},200,{'Set-Cookie':'labflow_session=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0'});}
+ const profileResponseCube=await profileRouteCube(req,url,s,u,env,etag);if(profileResponseCube)return profileResponseCube;
  const response35=await route35(req,url,s,u,env,etag);if(response35)return response35;
  const notificationsResponse32=await notificationsRoute32(req,url,s,u,env,etag);if(notificationsResponse32)return notificationsResponse32;
  const demoResponse30=await demoRoute30(req,url,s,u,env,etag);if(demoResponse30)return demoResponse30;

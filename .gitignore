@@ -20,3 +20,9 @@ data/
 backups/
 *.sqlite
 *.sqlite-*
+
+# Private database/backups and administrator handoff files.
+*.clbackup
+*.db
+*.sqlite.json
+ACCESO-ADMINISTRADOR.txt

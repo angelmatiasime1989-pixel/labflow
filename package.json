@@ -11,7 +11,9 @@
     "setup": "node --env-file-if-exists=.env scripts/setup.mjs",
     "backup": "node --env-file-if-exists=.env scripts/backup.mjs",
     "test:standalone": "node scripts/standalone-test.mjs",
-    "restore": "node --env-file-if-exists=.env scripts/restore.mjs"
+    "restore": "node --env-file-if-exists=.env scripts/restore.mjs",
+    "sync:hostinger": "node scripts/sync-hostinger.mjs",
+    "check:hostinger-source": "node scripts/sync-hostinger.mjs --check"
   },
   "version": "1.0.0",
   "engines": {

@@ -1,9 +1,26 @@
 {
-  "name": "sites-worker-esm-starter",
+  "name": "cubolabs-saas",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "bash scripts/build.sh",
-    "validate": "node scripts/validate-artifact.mjs"
+    "build": "node scripts/build-portable.mjs",
+    "validate": "node scripts/validate-artifact.mjs",
+    "dev": "node scripts/dev.mjs",
+    "test": "node scripts/audit-tests.mjs && node scripts/standalone-test.mjs && node --test scripts/landing-experience-test.mjs",
+    "start": "node --env-file-if-exists=.env server/index.mjs",
+    "setup": "node --env-file-if-exists=.env scripts/setup.mjs",
+    "backup": "node --env-file-if-exists=.env scripts/backup.mjs",
+    "test:standalone": "node scripts/standalone-test.mjs",
+    "restore": "node --env-file-if-exists=.env scripts/restore.mjs",
+    "sync:hostinger": "node scripts/sync-hostinger.mjs",
+    "check:hostinger-source": "node scripts/sync-hostinger.mjs --check"
+  },
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "devDependencies": {
+    "pdf-lib": "1.17.1",
+    "jszip": "3.10.1"
   }
 }

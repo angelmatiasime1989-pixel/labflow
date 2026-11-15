@@ -1,0 +1,18 @@
+// Portable Node assembler; Python is retained only as a parity reference.
+import {readFileSync,writeFileSync,readdirSync} from 'node:fs';
+const root=new URL('../',import.meta.url);
+const read=path=>readFileSync(new URL(path,root),'utf8').replaceAll('\r\n','\n');
+const join=paths=>paths.map(read).join('\n');
+const model=join(['worker/model.js','worker/v28-model.js','worker/checklist28.js','worker/sat-catalog30.js','worker/v42-model.js']).replaceAll('export const ','const ');
+const uiFiles=['extra-ui','v4-ui','kpi-common','v30-model','v6-ui','v7-ui','v8-ui','v9-ui','v10-ui','v11-ui','v12-ui','v13-ui','v14-ui','v15-ui','v16-ui','v17-ui','v18-ui','v19-ui','v22-ui','v23-ui','v24-ui','v25-ui','v27-ui','v28-ui','v30-ui','v32-ui','v33-ui','v35-common','v35-ui','v38-ui','v42-ui','saas-client-ui','cubolabs-ui','cubolabs-tabs'].map(name=>'worker/'+name+'.js');
+let ui=read('worker/ui.html').replaceAll('/*MODEL*/',()=>model).replaceAll('/*EXTRA_UI*/',()=>join(uiFiles)).replaceAll('LabFlow','cubolabs').replaceAll('LABFLOW','CUBOLABS');
+ui=ui.replace('</head>',()=>'<style>'+read('worker/theme.css')+'\n'+read('worker/cubolabs.css')+'</style></head>');
+const vendor=read('vendor/jszip.min.js')+'\nconst JSZip=globalThis.JSZip;\n'+read('vendor/pdf-lib.min.js').replaceAll('}(this,','}(globalThis,')+'\nconst PDFLib=globalThis.PDFLib;\n'+read('vendor/font-data.js')+'\n';
+const domainFiles=['worker/domain.js','worker/pdf.js','worker/v4-domain.js','worker/quote-pdf.js','worker/password-auth.js','worker/kpi-common.js','worker/v30-model.js','worker/v6-domain.js','worker/v7-domain.js','worker/v8-domain.js','worker/institutional-pdf.js','worker/v9-domain.js','worker/v10-domain.js','worker/v11-domain.js','worker/v12-domain.js','worker/v13-domain.js','worker/v14-domain.js','worker/v15-domain.js','worker/v16-domain.js','worker/v17-domain.js','worker/v18-domain.js','worker/v19-domain.js','vendor/rich-fonts24.js','worker/logo24.js','worker/v24-domain.js','worker/v27-domain.js','worker/v28-domain.js','worker/v30-domain.js','worker/v32-domain.js','worker/v35-common.js','worker/v35-domain.js','worker/v42-domain.js','worker/saas-entitlements.js'];
+const landing=read('worker/cubolabs-landing.html').replaceAll('/*LANDING_EXPERIENCE_CSS*/',()=>read('worker/landing-experience.css')).replaceAll('/*LANDING_EXPERIENCE_JS*/',()=>read('worker/landing-experience.js'));
+// Match Python json.dumps spacing for the ASCII asset map.
+const assets='{'+readdirSync(new URL('worker/assets/',root)).filter(name=>/\.(png|jpg|jpeg)$/i.test(name)).sort().map(name=>JSON.stringify(name)+': '+JSON.stringify(readFileSync(new URL('worker/assets/'+name,root)).toString('base64'))).join(', ')+'}';
+const gateway=join(['worker/sales-channel.js','worker/saas-gateway.js']).replaceAll('/*SAAS_ADMIN_HTML*/',()=>JSON.stringify(read('worker/saas-admin.html'))).replaceAll('/*CUBO_LANDING_HTML*/',()=>JSON.stringify(landing)).replaceAll('/*CUBO_ASSETS*/',()=>assets);
+const server=read('worker/server.js').replaceAll('/*DOMAIN*/',()=>join(domainFiles)).replaceAll('/*SAAS_GATEWAY*/',()=>gateway);
+const source=vendor+model+'\n'+read('worker/seed.js')+'\n'+read('worker/migration.js')+'\nconst HTML='+JSON.stringify(ui)+';\n'+server;
+writeFileSync(new URL('worker/index.js',root),source);

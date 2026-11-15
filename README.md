@@ -1,3 +1,6 @@
+> **Hostinger:** selecciona **`labflow-saas`** como directorio raíz, rama `main`, Node **24.x**, build `npm run build`, salida `.` y entrada **`server/index.mjs`**. Esa carpeta contiene una copia sincronizada de la aplicación nueva, incluido el cubo y Qubito. La compilación solo necesita Node.
+> Para desarrollar, edita las fuentes de la raíz y ejecuta `npm run sync:hostinger` antes de guardar los cambios. CI verifica la sincronización. Nunca se copian datos ni `.env` privados.
+
 # cubolabs · SaaS independiente
 
 Aplicación de gestión de laboratorios preparada para ejecutarse en Node.js sin Sites ni una sesión de ChatGPT. Conserva los módulos y flujos del software; incorpora servidor HTTP propio, autenticación del proveedor, persistencia SQLite y respaldos cifrados.
@@ -11,7 +14,7 @@ Descomprime el ZIP y publica la carpeta `cubolabs` completa mediante GitHub Desk
 ## Requisitos
 
 - Node.js **24 o superior**, con el módulo incorporado `node:sqlite`.
-- Python 3.10 o superior para recompilar las fuentes.
+- La compilación de producción solo necesita Node. Python 3 se conserva como referencia de ensamblado y para comprobaciones opcionales.
 - npm e Internet para instalar las dependencias de pruebas.
 - Disco persistente y permisos de escritura para `DATA_DIR` y `BACKUP_DIR`.
 

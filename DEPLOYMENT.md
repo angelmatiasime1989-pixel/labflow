@@ -22,7 +22,7 @@ El servidor elimina las cabeceras de identidad que envíe el navegador. Solo la 
 ## GoDaddy Node.js Hosting o plataforma similar
 
 1. Verifica que permita Node 24, procesos Node persistentes y acceso a disco persistente.
-2. Conecta el repositorio y usa `npm ci` y `npm run build` para compilar; Python 3 debe estar disponible durante esa etapa. Si la plataforma no ofrece Python, compila con GitHub Actions o localmente y despliega también el `worker/index.js` generado que ya se incluye.
+2. Conecta el repositorio. En Hostinger selecciona `labflow-saas` como directorio raíz, Node 24.x, salida `.`, entrada `server/index.mjs`. Usa `npm ci` y `npm run build`; la compilación es nativa de Node y no necesita Python. La raíz del repositorio también permite ejecutar la aplicación fuera de ese selector.
 3. Selecciona **`server/index.mjs`** como archivo de entrada, o `npm start` como comando si permite comandos de arranque.
 4. Carga las variables del `.env` privado en el panel de variables de Node o instala el archivo `.env` en la raíz de la aplicación. Si el hosting ejecuta directamente `node server/index.mjs`, usa las variables del panel; ese comando directo no carga `.env` automáticamente.
 5. Configura `PUBLIC_URL` con el dominio HTTPS real y `NODE_ENV=production`. Respeta el puerto asignado por el proveedor.
@@ -33,7 +33,7 @@ La configuración exacta del panel depende del producto contratado. Esta edició
 
 ## VPS Linux
 
-Ejemplo de organización: código en `/opt/cubolabs`, datos en `/var/lib/cubolabs` y respaldos en `/var/backups/cubolabs`. Ejecuta con un usuario del sistema dedicado que tenga permisos sobre datos y respaldos. Instala Node 24 y Python 3, copia el código y ejecuta `npm ci` y `npm run build`.
+Ejemplo de organización: código en `/opt/cubolabs`, datos en `/var/lib/cubolabs` y respaldos en `/var/backups/cubolabs`. Ejecuta con un usuario del sistema dedicado que tenga permisos sobre datos y respaldos. Instala Node 24, copia el código y ejecuta `npm ci` y `npm run build`.
 
 Copia la configuración privada a `/etc/cubolabs.env` con permisos `600`; adapta dominio y rutas. El servicio de ejemplo lee ese archivo mediante systemd. El archivo no debe estar bajo una raíz web ni en GitHub.
 

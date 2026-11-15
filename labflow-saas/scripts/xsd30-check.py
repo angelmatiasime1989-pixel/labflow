@@ -2,7 +2,7 @@
 from pathlib import Path
 from lxml import etree
 base = Path(__file__).resolve().parent / 'fixtures' / 'sat30'
-qa = Path('/workspace/scratch/2dce74215f64/qa30')
+qa = Path('/tmp/cubolabs-audit/legacy/qa30')
 for schema_file, data_file in [('catalog.xsd','catalog.xml'),('balance.xsd','balance.xml')]:
     doc=etree.parse(str(base/schema_file))
     for item in doc.findall('{http://www.w3.org/2001/XMLSchema}import'):
