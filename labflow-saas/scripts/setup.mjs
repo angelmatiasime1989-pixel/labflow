@@ -7,5 +7,5 @@ async function hidden(prompt){if(!stdin.isTTY)throw Error('Para ejecución no in
 const db=openDatabase(resolve(process.env.DATA_DIR||'data','cubolabs.sqlite'));
 try{let username=process.env.CUBOLABS_ADMIN_USERNAME,name=process.env.CUBOLABS_ADMIN_NAME,password=process.env.CUBOLABS_ADMIN_PASSWORD;
  if(!password){const rl=createInterface({input:stdin,output:stdout});username=(await rl.question('Usuario administrador [admin]: ')).trim()||'admin';name=(await rl.question('Nombre [Administrador del servicio]: ')).trim()||'Administrador del servicio';rl.close();password=await hidden('Contraseña nueva (mínimo 12 caracteres, no se muestra): ');if(password!==await hidden('Repite la contraseña: '))throw Error('Las contraseñas no coinciden.');}
- setProvider(db,{username:username||'admin',name:name||'Administrador del servicio',password},process.argv.includes('--reset'));console.log('Administrador configurado. Las sesiones anteriores fueron revocadas.');
+ setProvider(db,{username:username||'admin',name:name||'Administrador del servicio',password,mustChangePassword:process.env.CUBOLABS_ADMIN_FORCE_PASSWORD_CHANGE==='true'},process.argv.includes('--reset'));console.log('Administrador configurado. Las sesiones anteriores fueron revocadas.');
 }catch(e){console.error(e.message);process.exitCode=1;}finally{db.close();}

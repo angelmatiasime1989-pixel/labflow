@@ -11,7 +11,7 @@ if(process.env.NODE_ENV==='production'&&parsed.protocol!=='https:')throw Error('
 const db=openDatabase(resolve(process.env.DATA_DIR||'data','cubolabs.sqlite'));
 if(!db.prepare('SELECT id FROM provider WHERE slot=1').get()){
  if(!process.env.CUBOLABS_ADMIN_PASSWORD)throw Error('Falta administrador. Ejecuta npm run setup o configura CUBOLABS_ADMIN_PASSWORD en el .env privado.');
- setProvider(db,{username:process.env.CUBOLABS_ADMIN_USERNAME||'admin',name:process.env.CUBOLABS_ADMIN_NAME||'Administrador del servicio',password:process.env.CUBOLABS_ADMIN_PASSWORD});
+ setProvider(db,{username:process.env.CUBOLABS_ADMIN_USERNAME||'admin',name:process.env.CUBOLABS_ADMIN_NAME||'Administrador del servicio',password:process.env.CUBOLABS_ADMIN_PASSWORD,mustChangePassword:process.env.CUBOLABS_ADMIN_FORCE_PASSWORD_CHANGE==='true'});
 }
 const handle=createApp({db,publicUrl,env:process.env}),pending=new Set();
 const server=createServer(async(req,res)=>{try{

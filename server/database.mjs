@@ -9,6 +9,7 @@ export function openDatabase(path){
  CREATE TABLE IF NOT EXISTS provider(slot INTEGER PRIMARY KEY CHECK(slot=1),id TEXT NOT NULL,username TEXT NOT NULL,name TEXT NOT NULL,salt TEXT NOT NULL,password_hash TEXT NOT NULL,version INTEGER NOT NULL);
  CREATE TABLE IF NOT EXISTS provider_sessions(token_hash TEXT PRIMARY KEY,provider_id TEXT NOT NULL,version INTEGER NOT NULL,expires INTEGER NOT NULL);
  CREATE TABLE IF NOT EXISTS login_attempts(client TEXT PRIMARY KEY,attempts INTEGER NOT NULL,expires INTEGER NOT NULL);`);
+ if(!db.prepare('PRAGMA table_info(provider)').all().some(column=>column.name==='must_change_password'))db.exec('ALTER TABLE provider ADD COLUMN must_change_password INTEGER NOT NULL DEFAULT 0');
  return db;
 }
 export class SqliteBucket{

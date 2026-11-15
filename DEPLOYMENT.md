@@ -13,6 +13,7 @@
 | `BACKUP_ENCRYPTION_KEY` | Clave privada hexadecimal de 64 caracteres. No cambiar sin conservar la clave de respaldos anteriores. |
 | `CUBOLABS_ADMIN_USERNAME` | Usuario del proveedor para el primer arranque o restablecimiento. |
 | `CUBOLABS_ADMIN_PASSWORD` | Contraseña privada de primer arranque/restablecimiento. No reemplaza una cuenta ya existente durante un arranque normal. |
+| `CUBOLABS_ADMIN_FORCE_PASSWORD_CHANGE` | `true` exige cambiar la contraseña después del primer login; solo al crear/restablecer la cuenta. |
 | `CUBOLABS_ADMIN_NAME` | Nombre inicial del proveedor. |
 | `TRUST_PROXY` | `true` solo si existe un proxy local confiable que sustituye X-Forwarded-For. |
 | `RESEND_API_KEY`, `EMAIL_FROM` | Opcionales; deben provenir de la cuenta del remitente. |
@@ -46,3 +47,7 @@ SQLite y los adjuntos están en una sola base local: inicia con **una instancia*
 Programa `npm run backup` con el planificador del servidor, usando el mismo archivo de variables, y copia los `.clbackup` a almacenamiento externo. Prueba periódicamente la restauración en otro directorio antes de necesitarla. El comando `restore` conserva la base anterior y rechaza respaldos alterados o claves incorrectas.
 
 Los avisos legales requieren completar la identidad y datos del responsable en el panel SaaS antes de captar prospectos. No se han inventado esos datos ni claves de terceros.
+
+## Contraseña temporal del proveedor
+
+Configurar `CUBOLABS_ADMIN_FORCE_PASSWORD_CHANGE=true` junto con las credenciales iniciales. Tras validar la contraseña temporal, el acceso al panel y sus API se bloquea hasta cambiarla en `/administrador/cambiar-contrasena`. El cambio revoca todas las sesiones anteriores y crea una sesión nueva; reiniciar no vuelve a aplicar la contraseña temporal. Si ya existe un administrador, las variables no lo sobrescriben. Para un restablecimiento expresamente autorizado, ejecutar `npm run setup -- --reset` desde el entorno configurado. No cambiar claves de respaldo existentes ni rutas de datos al restablecer credenciales.
