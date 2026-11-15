@@ -1,7 +1,7 @@
 import {spawn} from 'node:child_process';
 import {readFile} from 'node:fs/promises';
 const env=process.env,request=env.GITHUB_EVENT_NAME==='push'?JSON.parse(await readFile('.github/hostinger-maintenance-request.json','utf8')):{},mode=request.mode||env.MAINTENANCE_MODE||'inspect',source=request.source||env.SQLITE_SOURCE,writesPaused=request.writesPaused===true||env.WRITES_PAUSED==='true',host=env.HOSTINGER_SSH_HOST||'201.58.99.66',user=env.HOSTINGER_SSH_USER||'u187670937',port=env.HOSTINGER_SSH_PORT||'65002',node=env.HOSTINGER_NODE_BIN||'node',run=env.GITHUB_RUN_ID+'-'+env.GITHUB_RUN_ATTEMPT;
-if(!['inspect','migrate'].includes(mode)||!/^[-a-zA-Z0-9.]+$/.test(host)||!/^[-a-zA-Z0-9_]+$/.test(user)||!/^\d{1,5}$/.test(port)||Number(port)>65535||!/^\d+-\d+$/.test(run)||!(node==='node'||/^\/[a-zA-Z0-9_./-]+$/.test(node)))throw Error('Configuración SSH inválida.');
+if(!['inspect','migrate'].includes(mode)||!/^[a-zA-Z0-9][a-zA-Z0-9.-]*$/.test(host)||!/^[-a-zA-Z0-9_]+$/.test(user)||!/^\d{1,5}$/.test(port)||Number(port)>65535||!/^\d+-\d+$/.test(run)||!(node==='node'||/^\/[a-zA-Z0-9_./-]+$/.test(node)))throw Error('Configuración SSH inválida.');
 if(mode==='migrate'&&(!writesPaused||!source))throw Error('La migración exige origen explícito y escrituras detenidas.');
 const options=['-p',port,'-i',env.SSH_KEY_FILE,'-o','BatchMode=yes','-o','StrictHostKeyChecking=yes','-o','UserKnownHostsFile='+env.SSH_KNOWN_HOSTS_FILE,'-o','ConnectTimeout=20',user+'@'+host];
 const quote=value=>"'"+value.replaceAll("'","'\\''")+"'";

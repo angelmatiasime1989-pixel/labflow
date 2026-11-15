@@ -27,3 +27,23 @@ test('GitHub runner pins SSH identity and sends MySQL secrets only through stdin
  const before=trace,bad=spawnSync(process.execPath,[script],{env:{...env,HOSTINGER_SSH_HOST:'bad;command'},encoding:'utf8'});assert.notEqual(bad.status,0);assert.equal(await readFile(env.QA_TRACE,'utf8'),before);
  const unpaused=spawnSync(process.execPath,[script],{env:{...env,WRITES_PAUSED:'false'},encoding:'utf8'});assert.notEqual(unpaused.status,0);assert.equal(await readFile(env.QA_TRACE,'utf8'),before);
 });
+
+test('SSH server identity is accepted only for the pinned ED25519 fingerprint and exact destination',async()=>{
+ const {createHash,generateKeyPairSync}=await import('node:crypto'),{verifiedHostEntry,HOSTINGER_ED25519}=await import('./hostinger-ssh-prepare.mjs');
+ function wire(){const {publicKey}=generateKeyPairSync('ed25519');return Buffer.concat([Buffer.from([0,0,0,11]),Buffer.from('ssh-ed25519'),Buffer.from([0,0,0,32]),publicKey.export({type:'spki',format:'der'}).subarray(-32)]);}
+ const key=wire(),fingerprint='SHA256:'+createHash('sha256').update(key).digest('base64').replace(/=+$/,''),line='[synthetic.test]:65002 ssh-ed25519 '+key.toString('base64'),options={host:'synthetic.test',port:'65002',fingerprint};
+ assert.equal(verifiedHostEntry('# SSH banner\n'+line+'\r\n',options),line+'\n');assert.throws(()=>verifiedHostEntry(line,{...options,fingerprint:HOSTINGER_ED25519}),/no coincide/);assert.throws(()=>verifiedHostEntry(line,{...options,host:'other.test'}),/no coincide/);assert.throws(()=>verifiedHostEntry(line,{...options,port:'22'}),/no coincide/);assert.throws(()=>verifiedHostEntry('[synthetic.test]:65002 ssh-ed25519 '+wire().toString('base64'),options),/no coincide/);assert.throws(()=>verifiedHostEntry('[synthetic.test]:65002 ssh-ed25519 AAAA',options),/no coincide/);assert.throws(()=>verifiedHostEntry(line,{...options,host:'-o ProxyCommand=bad'}),/inválida/);
+});
+
+test('SSH preparation builds known_hosts automatically with a verified pin and rejects a substituted key',async t=>{
+ const {spawnSync}=await import('node:child_process'),{chmod,stat}=await import('node:fs/promises'),{createHash}=await import('node:crypto'),{prepareSsh}=await import('./hostinger-ssh-prepare.mjs');
+ const folder=await mkdtemp(join(tmpdir(),'qubolabs-host-pin-'));t.after(()=>rm(folder,{recursive:true,force:true}));const pair=join(folder,'pair');
+ const gen=spawnSync('ssh-keygen',['-q','-t','ed25519','-N','','-f',pair],{encoding:'utf8'});assert.equal(gen.status,0,gen.stderr);
+ const pub=(await readFile(pair+'.pub','utf8')).trim().split(/\s+/),wire=Buffer.from(pub[1],'base64'),pin='SHA256:'+createHash('sha256').update(wire).digest('base64').replace(/=+$/,''),scan=join(folder,'ssh-keyscan');
+ await writeFile(scan,'#!'+process.execPath+'\nprocess.stdout.write('+JSON.stringify('[synthetic.test]:65002 ssh-ed25519 '+pub[1]+'\n')+');');await chmod(scan,0o700);
+ const oldPath=process.env.PATH;process.env.PATH=folder+':'+oldPath;t.after(()=>{process.env.PATH=oldPath;});
+ const config={PRIVATE_KEY:(await readFile(pair,'utf8')).replace(/\n/g,'\r\n'),HOSTINGER_SSH_HOST:'synthetic.test',HOSTINGER_SSH_PORT:'65002',HOSTINGER_SSH_FINGERPRINT:pin,SSH_KEY_FILE:join(folder,'private'),SSH_KNOWN_HOSTS_FILE:join(folder,'known')};
+ await prepareSsh(config);assert.equal(await readFile(config.SSH_KNOWN_HOSTS_FILE,'utf8'),'[synthetic.test]:65002 ssh-ed25519 '+pub[1]+'\n');assert.equal((await stat(config.SSH_KEY_FILE)).mode&0o777,0o600);
+ await assert.rejects(prepareSsh({...config,HOSTINGER_SSH_FINGERPRINT:'SHA256:'+'A'.repeat(43),SSH_KEY_FILE:join(folder,'bad-private'),SSH_KNOWN_HOSTS_FILE:join(folder,'bad-known')}),/no coincide/);await assert.rejects(stat(join(folder,'bad-known')),{code:'ENOENT'});
+ await assert.rejects(prepareSsh({...config,PRIVATE_KEY:'HOSTINGER_SSH_PRIVATE_KEY'}),/no contiene/);
+});

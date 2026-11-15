@@ -7,6 +7,7 @@ on:
       - .github/workflows/hostinger-maintenance.yml
       - scripts/hostinger-maintenance.mjs
       - scripts/hostinger-github-runner.mjs
+      - scripts/hostinger-ssh-prepare.mjs
   workflow_dispatch:
     inputs:
       mode:
@@ -39,12 +40,12 @@ jobs:
       - name: Preparar acceso SSH verificado
         env:
           PRIVATE_KEY: ${{ secrets.HOSTINGER_SSH_PRIVATE_KEY }}
-          KNOWN_HOSTS: ${{ secrets.HOSTINGER_SSH_KNOWN_HOSTS }}
-        run: |
-          test -n "$PRIVATE_KEY" && test -n "$KNOWN_HOSTS" || { echo 'Configura los dos secretos SSH del entorno hostinger-maintenance.'; exit 1; }
-          umask 077
-          printf '%s\n' "$PRIVATE_KEY" > "$RUNNER_TEMP/hostinger-key"
-          printf '%s\n' "$KNOWN_HOSTS" > "$RUNNER_TEMP/hostinger-known-hosts"
+          HOSTINGER_SSH_HOST: ${{ vars.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_PORT: ${{ vars.HOSTINGER_SSH_PORT }}
+          HOSTINGER_SSH_FINGERPRINT: ${{ vars.HOSTINGER_SSH_FINGERPRINT }}
+          SSH_KEY_FILE: ${{ runner.temp }}/hostinger-key
+          SSH_KNOWN_HOSTS_FILE: ${{ runner.temp }}/hostinger-known-hosts
+        run: node scripts/hostinger-ssh-prepare.mjs
       - name: Ejecutar mantenimiento sin desplegar
         env:
           MAINTENANCE_MODE: ${{ inputs.mode || 'inspect' }}

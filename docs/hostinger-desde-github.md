@@ -15,14 +15,16 @@ Agregar estos secretos al entorno:
 | Secreto | Contenido |
 |---|---|
 | `HOSTINGER_SSH_PRIVATE_KEY` | Clave privada de una llave SSH dedicada cuyo componente público se agregó a la cuenta Hostinger. Nunca pegarla en el chat ni en archivos del repositorio. |
-| `HOSTINGER_SSH_KNOWN_HOSTS` | Entrada OpenSSH verificada para `[201.58.99.66]:65002`. Comparar su huella con hPanel antes de confiar en ella. |
+
 | `HOSTINGER_MYSQL_PASSWORD` | La contraseña de MySQL ya configurada en el panel. Sólo necesaria para migrar. |
 | `HOSTINGER_BACKUP_ENCRYPTION_KEY` | El mismo valor privado de `BACKUP_ENCRYPTION_KEY` existente; 64 caracteres hexadecimales. Sólo necesario para migrar. |
 | `HOSTINGER_MYSQL_SSL_CA` | CA del proveedor, si requiere una específica. No desactivar TLS para evitar errores de certificado. |
 
+El segundo secreto `HOSTINGER_SSH_KNOWN_HOSTS` ya no se usa: el workflow obtiene automáticamente la clave pública ED25519 del servidor y calcula su huella SHA-256. Sólo la acepta si coincide exactamente con la huella pública de hPanel confirmada por el propietario, fijada en `scripts/hostinger-ssh-prepare.mjs`. Una clave distinta bloquea el acceso. El secreto anterior puede conservarse sin efecto; no contiene credenciales de acceso.
+
 No es necesario crear tokens de GitHub personales ni compartir la contraseña SSH. Si Hostinger no admite llaves SSH para esta cuenta, esta vía debe revisarse con el proveedor antes de ejecutarla. Para preparar una llave en una computadora de confianza puede usarse `ssh-keygen -t ed25519 -f qubolabs-actions`; no reutilizar una llave personal. La automatización requiere una llave sin frase de paso o un agente de llaves adaptado; protegerla como secreto, limitar el acceso al repositorio y revocarla al terminar si es temporal. La clave pública `.pub` va en Hostinger; la privada sólo en Secrets de GitHub.
 
-`ssh-keyscan -p 65002 201.58.99.66` obtiene una entrada candidata, no prueba su identidad. Guardarla temporalmente, comprobar la huella con `ssh-keygen -lf archivo` y compararla con hPanel antes de cargarla en `HOSTINGER_SSH_KNOWN_HOSTS`. No aceptar una huella únicamente por provenir de la misma red que se intenta verificar.
+Si el proveedor cambia la identidad del servidor o se configura otro host, verificar la nueva huella ED25519 por un canal confiable (hPanel o soporte) y actualizar la variable `HOSTINGER_SSH_FINGERPRINT`. Nunca tomar como referencia la huella obtenida únicamente de la conexión que se intenta verificar. No se usa aceptación automática ni se desactiva `StrictHostKeyChecking`. La automatización valida además que la clave privada se pueda abrir sin frase de paso; los errores se muestran sin imprimirla.
 
 El workflow incluye host, puerto y usuario SSH facilitados por el propietario. Se pueden reemplazar con variables `HOSTINGER_SSH_HOST`, `HOSTINGER_SSH_PORT`, `HOSTINGER_SSH_USER` del entorno. Incluye también los identificadores MySQL del alojamiento; no incluye contraseñas. TLS está activado por defecto. Sólo permitir `HOSTINGER_MYSQL_SSL=false` si el proveedor confirma que la conexión ocurre en localhost y se ajusta el host en el workflow; el backend rechaza conexiones remotas de producción sin TLS.
 
@@ -30,7 +32,7 @@ El workflow incluye host, puerto y usuario SSH facilitados por el propietario. S
 
 El workflow `Preparar MySQL en Hostinger` se ejecuta al cambiar sus herramientas o `.github/hostinger-maintenance-request.json` en la rama `fix/persistent-storage-password-eye`. La solicitud inicial usa `inspect`.
 
-Después de agregar los dos secretos SSH, abrir Actions → Preparar MySQL en Hostinger y volver a ejecutar todos los jobs de la ejecución inicial, o editar el archivo de solicitud en esa rama y confirmar un nuevo commit. La salida muestra todas las bases accesibles hasta profundidad 12, ruta absoluta, fecha, tamaño, número de objetos y presencia de administrador; no imprime nombres de clientes ni contraseñas. No decide cuál es la base activa sólo por su fecha o cantidad de objetos. Si hay registros repartidos entre versiones, reconciliarlos antes de elegir una sola base; la migración no fusiona automáticamente versiones divergentes.
+Después de agregar el secreto de clave privada SSH, abrir Actions → Preparar MySQL en Hostinger y volver a ejecutar todos los jobs de la ejecución inicial, o editar el archivo de solicitud en esa rama y confirmar un nuevo commit. La salida muestra todas las bases accesibles hasta profundidad 12, ruta absoluta, fecha, tamaño, número de objetos y presencia de administrador; no imprime nombres de clientes ni contraseñas. No decide cuál es la base activa sólo por su fecha o cantidad de objetos. Si hay registros repartidos entre versiones, reconciliarlos antes de elegir una sola base; la migración no fusiona automáticamente versiones divergentes.
 
 `workflow_dispatch` permite seleccionar la rama en la interfaz cuando el workflow también exista en la rama predeterminada. Para evitar publicar prematuramente `main`, la alternativa de commits sobre el archivo de solicitud funciona desde la rama independiente y no depende de `workflow_dispatch`.
 
