@@ -1,0 +1,181 @@
+{
+  "date": "2026-10-30",
+  "isolated": true,
+  "productionDataModified": false,
+  "tools": 104,
+  "users": 10,
+  "rejectedWrites": 697,
+  "generatedPDFPreviews": 263,
+  "suites": [
+    {
+      "name": "cubolabs-test",
+      "code": 0,
+      "seconds": 0.3
+    },
+    {
+      "name": "module-tabs-test",
+      "code": 0,
+      "seconds": 0.4
+    },
+    {
+      "name": "saas-test",
+      "code": 0,
+      "seconds": 1.2
+    },
+    {
+      "name": "sales-profile-test",
+      "code": 0,
+      "seconds": 0.4
+    },
+    {
+      "name": "test",
+      "code": 0,
+      "seconds": 8.7
+    },
+    {
+      "name": "v11-test",
+      "code": 0,
+      "seconds": 14.1
+    },
+    {
+      "name": "v12-test",
+      "code": 0,
+      "seconds": 4.2
+    },
+    {
+      "name": "v13-test",
+      "code": 0,
+      "seconds": 4.7
+    },
+    {
+      "name": "v14-test",
+      "code": 0,
+      "seconds": 5.1
+    },
+    {
+      "name": "v15-test",
+      "code": 0,
+      "seconds": 5
+    },
+    {
+      "name": "v16-test",
+      "code": 0,
+      "seconds": 4.1
+    },
+    {
+      "name": "v17-test",
+      "code": 0,
+      "seconds": 2.7
+    },
+    {
+      "name": "v18-test",
+      "code": 0,
+      "seconds": 11.3
+    },
+    {
+      "name": "v19-test",
+      "code": 0,
+      "seconds": 3.8
+    },
+    {
+      "name": "v24-test",
+      "code": 0,
+      "seconds": 2.8
+    },
+    {
+      "name": "v27-test",
+      "code": 0,
+      "seconds": 1.1
+    },
+    {
+      "name": "v28-test",
+      "code": 0,
+      "seconds": 11.5
+    },
+    {
+      "name": "v29-test",
+      "code": 0,
+      "seconds": 1.8
+    },
+    {
+      "name": "v30-test",
+      "code": 0,
+      "seconds": 6.1
+    },
+    {
+      "name": "v32-test",
+      "code": 0,
+      "seconds": 1.5
+    },
+    {
+      "name": "v33-test",
+      "code": 0,
+      "seconds": 0.1
+    },
+    {
+      "name": "v34-test",
+      "code": 0,
+      "seconds": 0.9
+    },
+    {
+      "name": "v35-test",
+      "code": 0,
+      "seconds": 2.2
+    },
+    {
+      "name": "v37-test",
+      "code": 0,
+      "seconds": 2.1
+    },
+    {
+      "name": "v40-test",
+      "code": 0,
+      "seconds": 0.4
+    },
+    {
+      "name": "v42-test",
+      "code": 0,
+      "seconds": 4.6
+    },
+    {
+      "name": "v6-test",
+      "code": 0,
+      "seconds": 1.9
+    },
+    {
+      "name": "v7-test",
+      "code": 0,
+      "seconds": 1.7
+    },
+    {
+      "name": "v8-test",
+      "code": 0,
+      "seconds": 3.8
+    },
+    {
+      "name": "v9-test",
+      "code": 0,
+      "seconds": 3.5
+    },
+    {
+      "name": "workflow-audit-test",
+      "code": 0,
+      "seconds": 66.2
+    },
+    {
+      "name": "ui-test",
+      "code": 0,
+      "note": "Prueba ejecutada separadamente tras actualizar el adaptador de interfaz / fixture autónomo."
+    },
+    {
+      "name": "startup31-test",
+      "code": 0,
+      "note": "Prueba ejecutada separadamente tras actualizar el adaptador de interfaz / fixture autónomo."
+    },
+    {
+      "name": "v38-test",
+      "code": 0,
+      "note": "Prueba ejecutada separadamente tras actualizar el adaptador de interfaz / fixture autónomo."
+    }
+  ]
+}

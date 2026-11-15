@@ -1,0 +1,4 @@
+// Consistent presentation of all record forms. Names, IDs and workflow handlers stay unchanged.
+function fieldIcon23(type,key){let m=type==='date'?'calendar':type.startsWith('ref:')?type.slice(4):type.startsWith('multi:')?type.slice(6):/email|phone|contact|address/i.test(key)?'clients':type==='number'?'accounting':'policies';return moduleIcon(m);}
+const fieldBefore23=field;field=function(m,f,x){const h=fieldBefore23(m,f,x);return h.replace('<span>','<span class="field-label23">'+fieldIcon23(f[2],f[0]));};
+const formBefore23=openForm;openForm=function(m,id,preset={}){formBefore23(m,id,preset);$('#editform')?.classList?.add('record-form23');const headEl=document.querySelector('#overlay .modalhead');if(headEl&&headEl.insertAdjacentHTML)headEl.insertAdjacentHTML('afterbegin','<span class="record-icon23">'+moduleIcon(m)+'</span>');};

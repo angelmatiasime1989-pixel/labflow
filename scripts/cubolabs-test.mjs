@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import vm from 'node:vm';
+import worker from '../worker/index.js';
+class Bucket{constructor(){this.data=new Map();this.n=0;}async get(k){const x=this.data.get(k);return x?{etag:x.etag,json:async()=>JSON.parse(x.bytes.toString()),arrayBuffer:async()=>x.bytes.buffer.slice(x.bytes.byteOffset,x.bytes.byteOffset+x.bytes.byteLength)}:null;}async put(k,v,o={}){const old=this.data.get(k);if(o.onlyIf?.etagMatches&&old?.etag!==o.onlyIf.etagMatches||o.onlyIf?.etagDoesNotMatch==='*'&&old)return null;const etag=String(++this.n);this.data.set(k,{bytes:Buffer.from(v),etag});return {etag};}async delete(k){this.data.delete(k);}}
+const env={BUCKET:new Bucket()},req=(path,identity)=>worker.fetch(new Request('https://qa.example'+path,{headers:identity?{'oai-authenticated-user-id':identity}:{}}),env);
+for(const path of ['/','/entrar','/entrar/']){const r=await req(path);assert.equal(r.status,200);const html=await r.text();assert.ok(html.includes('cubolabs'));assert.ok(html.includes('href="/entrar"'));assert.ok(!html.includes('Dar de alta cliente'));new vm.Script(html.match(/<script>([\s\S]*?)<\/script>/)[1]);}
+assert.equal(env.BUCKET.data.size,0,'landing never creates or claims operator state');
+assert.equal((await req('/api/saas/state')).status,401);let state=await(await req('/api/saas/state','owner')).json();assert.ok(state.operator);assert.equal((await req('/api/saas/state','laboratory-admin')).status,403);
+for(const [url,file]of [['/assets/cubolabs-color.png','cubolabs-color.png'],['/assets/cubolabs-white.png','cubolabs-white.png']]){const r=await req(url);assert.equal(r.status,200);assert.equal(r.headers.get('content-type'),'image/png');assert.deepEqual(Buffer.from(await r.arrayBuffer()),await readFile('worker/assets/'+file));}
+assert.equal((await req('/assets/not-real.png')).status,404);
+const landing=(await(await req('/')).text()).match(/<script>([\s\S]*?)<\/script>/)[1];
+for(const status of [200,401,403,503]){const els=new Map(),get=id=>{if(!els.has(id))els.set(id,{disabled:false,hidden:true,textContent:'',value:'',addEventListener(){}});return els.get(id);};let redirect=null;const ctx=vm.createContext({document:{getElementById:get,querySelectorAll:()=>[],body:{classList:{add(){}}}},location:{pathname:'/',replace(url){redirect=url},assign(url){redirect=url}},fetch:async()=>({ok:status===200,status}),localStorage:{getItem(){return null},setItem(){}},Error,encodeURIComponent});vm.runInContext(landing,ctx);await vm.runInContext('checkAdministrator()',ctx);assert.equal(redirect,status===200?'/admin/':null);assert.equal(get('check-admin').disabled,false);if(status!==200)assert.equal(get('lab-entry').hidden,false);}
+// Membership dependency integrity and suspension stay covered by saas-test.mjs.
+const admin=await(await req('/admin/','owner')).text();new vm.Script(admin.match(/<script>([\s\S]*?)<\/script>/)[1]);assert.ok(admin.includes('validateCustomerCube'));assert.ok(admin.includes('data-cube-step'));assert.ok(admin.includes('Navegación móvil'));
+console.log('PASS landing without administrative state mutation, administrator recognition, unauthorized isolation, entry recovery, faithful logo bytes, missing assets and valid admin wizard script');

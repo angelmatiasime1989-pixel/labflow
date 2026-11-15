@@ -1,0 +1,22 @@
+[Unit]
+Description=cubolabs SaaS
+After=network.target
+
+[Service]
+Type=simple
+User=cubolabs
+Group=cubolabs
+WorkingDirectory=/opt/cubolabs
+EnvironmentFile=/etc/cubolabs.env
+ExecStart=/usr/bin/node /opt/cubolabs/server/index.mjs
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/cubolabs /var/backups/cubolabs
+TimeoutStopSec=20
+
+[Install]
+WantedBy=multi-user.target

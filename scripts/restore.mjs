@@ -1,0 +1,9 @@
+import {createDecipheriv} from 'node:crypto';
+import {DatabaseSync} from 'node:sqlite';
+import {readFile,writeFile,rename,access,rm,mkdir} from 'node:fs/promises';
+import {resolve,dirname} from 'node:path';
+const file=process.argv[2];if(!file||!process.argv.includes('--confirm'))throw Error('Detén el servidor. Uso: npm run restore -- archivo.clbackup --confirm');
+const key=process.env.BACKUP_ENCRYPTION_KEY||'';if(!/^[a-f0-9]{64}$/i.test(key))throw Error('Falta la clave de cifrado del respaldo.');
+const target=resolve(process.env.DATA_DIR||'data','cubolabs.sqlite');try{await access(target+'-wal');throw Error('La base parece estar en uso. Detén el servicio antes de restaurar.');}catch(e){if(e.code!=='ENOENT')throw e;}
+const bytes=await readFile(file);if(bytes.length<37||bytes.subarray(0,9).toString()!=='CUBOLABS1')throw Error('Formato de respaldo no reconocido.');const decipher=createDecipheriv('aes-256-gcm',Buffer.from(key,'hex'),bytes.subarray(9,21));decipher.setAuthTag(bytes.subarray(21,37));let plain;try{plain=Buffer.concat([decipher.update(bytes.subarray(37)),decipher.final()]);}catch{throw Error('Clave incorrecta o archivo alterado.');}
+await mkdir(dirname(target),{recursive:true,mode:0o700});const temporary=target+'.restore-'+Date.now();await writeFile(temporary,plain,{mode:0o600,flag:'wx'});try{const db=new DatabaseSync(temporary,{readOnly:true});try{if(db.prepare('PRAGMA quick_check').get().quick_check!=='ok')throw Error('El respaldo no supera la validación de integridad.');db.prepare('SELECT id FROM provider LIMIT 1').get();db.prepare('SELECT key FROM objects LIMIT 1').get();}finally{db.close();}try{await access(target);await rename(target,target+'.before-restore-'+Date.now());}catch(e){if(e.code!=='ENOENT')throw e;}await rm(target+'-shm',{force:true});await rename(temporary,target);console.log('Respaldo restaurado. Se conservó la base anterior.');}finally{await rm(temporary,{force:true});}
