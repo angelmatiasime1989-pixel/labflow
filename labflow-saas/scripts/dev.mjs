@@ -1,3 +1,4 @@
+if(process.env.NODE_ENV==='production')throw Error('El modo dev usa datos temporales. Para producción inicia npm start con almacenamiento persistente.');
 // Development preview only. Never use this server for production: provider identity is simulated.
 import {createServer} from 'node:http';
 import worker from '../worker/index.js';

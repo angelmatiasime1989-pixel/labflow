@@ -2,6 +2,7 @@ import {createDecipheriv} from 'node:crypto';
 import {DatabaseSync} from 'node:sqlite';
 import {readFile,writeFile,rename,access,rm,mkdir} from 'node:fs/promises';
 import {resolve,dirname} from 'node:path';
+if(process.env.DB_DRIVER==='mysql')throw Error('Para MySQL utiliza npm run mysql:restore. No se modificó SQLite ni MySQL.');
 const file=process.argv[2];if(!file||!process.argv.includes('--confirm'))throw Error('Detén el servidor. Uso: npm run restore -- archivo.clbackup --confirm');
 const key=process.env.BACKUP_ENCRYPTION_KEY||'';if(!/^[a-f0-9]{64}$/i.test(key))throw Error('Falta la clave de cifrado del respaldo.');
 const target=resolve(process.env.DATA_DIR||'data','cubolabs.sqlite');try{await access(target+'-wal');throw Error('La base parece estar en uso. Detén el servicio antes de restaurar.');}catch(e){if(e.code!=='ENOENT')throw e;}

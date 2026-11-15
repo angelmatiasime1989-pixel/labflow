@@ -1,0 +1,10 @@
+import {existsSync,realpathSync,readFileSync,statSync} from 'node:fs';
+import {resolve,dirname,relative,isAbsolute,join,basename} from 'node:path';
+import {fileURLToPath} from 'node:url';
+export const applicationRoot=fileURLToPath(new URL('../',import.meta.url));
+function physical(path){let parent=resolve(path),tail=[];while(!existsSync(parent)){tail.unshift(basename(parent));const next=dirname(parent);if(next===parent)break;parent=next;}return resolve(realpathSync(parent),...tail);}
+function inside(path,parent){const rest=relative(parent,path);return rest===''||(!rest.startsWith('..'+(process.platform==='win32'?'\\':'/'))&&rest!=='..'&&!isAbsolute(rest));}
+function sourceRoots(root){const roots=[physical(root)];let dir=dirname(resolve(root));while(dirname(dir)!==dir){try{if(JSON.parse(readFileSync(join(dir,'package.json'),'utf8')).name==='cubolabs-saas')roots.push(physical(dir));}catch{}dir=dirname(dir);}return roots;}
+export function persistentDirectory(value,label,root=applicationRoot){if(!value||!isAbsolute(value))throw Error(label+' debe ser una ruta absoluta en almacenamiento persistente, fuera del código de despliegue.');const path=physical(value);if(dirname(path)===path||sourceRoots(root).some(source=>inside(path,source)))throw Error(label+' no puede estar dentro del código ni apuntar a la raíz del disco.');if(existsSync(path)&&!statSync(path).isDirectory())throw Error(label+' debe ser un directorio.');return path;}
+export function storagePaths(env=process.env,root=applicationRoot){const production=env.NODE_ENV==='production'||!env.NODE_ENV&&/^https:/i.test(env.PUBLIC_URL||''),data=production?persistentDirectory(env.DATA_DIR,'DATA_DIR',root):resolve(env.DATA_DIR||'data'),backups=production?persistentDirectory(env.BACKUP_DIR,'BACKUP_DIR',root):resolve(env.BACKUP_DIR||'backups');return {data,backups,file:join(data,'cubolabs.sqlite'),production};}
+export function assertExistingDatabase(file){if(!existsSync(file)||!statSync(file).isFile())throw Error('Base de datos no encontrada. Se detuvo el arranque para evitar una instalación vacía. Revisa el volumen persistente y DATA_DIR; no reinicialices datos existentes.');}
