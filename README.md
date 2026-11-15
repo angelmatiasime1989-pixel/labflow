@@ -11,18 +11,21 @@ Descomprime el ZIP y publica la carpeta `cubolabs` completa mediante GitHub Desk
 
 **La configuración privada entregada por separado pertenece al servidor, no al repositorio.** `.env`, bases de datos y respaldos están ignorados por Git. El ZIP de código no incluye claves reales.
 
+Consulta [la configuración MySQL y migración](docs/mysql-hostinger-y-conservacion.md) y [la conservación de datos y respaldos automáticos](docs/almacenamiento-y-respaldos-automaticos.md) antes de actualizar producción.
+
 ## Requisitos
 
 - Node.js **24 o superior**, con el módulo incorporado `node:sqlite`.
 - La compilación de producción solo necesita Node. Python 3 se conserva como referencia de ensamblado y para comprobaciones opcionales.
-- npm e Internet para instalar las dependencias de pruebas.
-- Disco persistente y permisos de escritura para `DATA_DIR` y `BACKUP_DIR`.
+- npm e Internet para instalar las dependencias de producción y de pruebas.
+- SQLite: disco persistente y permisos de escritura para `DATA_DIR` y `BACKUP_DIR`. MySQL: servidor accesible, credenciales privadas y respaldo externo o administrado verificado.
 
-## Arranque con el administrador entregado
+## Arranque de una instalación existente
 
 1. Instala el contenido del ZIP de código.
 2. Copia el `.env` del paquete privado a la raíz de `cubolabs` en tu servidor o computadora.
-3. Ejecuta:
+3. Confirma que la base existente esté en el almacenamiento persistente configurado. No inicialices otra base para recuperar registros.
+4. Ejecuta:
 
 ```bash
 npm ci
@@ -31,15 +34,15 @@ npm run validate
 npm start
 ```
 
-Abre **http://localhost:3000**. En el primer arranque se crea `admin` con la contraseña privada entregada; solo se guarda su hash en la base. En **Entrar al sistema → Acceso de administrador del servicio** puedes abrir el panel SaaS. Desde el panel da de alta a cada cliente, su administrador y los módulos de su membresía.
+Abre **http://localhost:3000** en desarrollo o el dominio HTTPS configurado. El servidor exige una base ya inicializada: no crea automáticamente usuarios ni bases al arrancar. El acceso del proveedor está en `/admin`. Desde ese panel puedes dar de alta a cada cliente, su administrador y los módulos de su membresía.
 
-El sistema inicia **vacío, sin laboratorios ni datos de demostración**. Las contraseñas de los laboratorios las define el proveedor al darlos de alta. La contraseña del proveedor no permite entrar como usuario de laboratorio.
+Una instalación expresamente nueva empieza **vacía, sin laboratorios ni datos de demostración**; una actualización debe conservar la base existente. Las contraseñas de los laboratorios las define el proveedor al darlos de alta. La contraseña del proveedor no permite entrar como usuario de laboratorio.
 
-Después del primer arranque, la identidad se conserva en `data/cubolabs.sqlite`. Reiniciar no reemplaza usuarios, contraseñas ni registros existentes. Guarda de forma segura el paquete privado y la clave de respaldo.
+Con SQLite, la identidad se conserva en el archivo `cubolabs.sqlite` de `DATA_DIR`; en producción ese directorio debe ser persistente y estar fuera de las versiones del código. Con `DB_DRIVER=mysql` se conserva en la base configurada, después de migrar los datos. Reiniciar no reemplaza usuarios, contraseñas ni registros existentes. Guarda de forma segura el paquete privado y la clave de respaldo.
 
 ## Instalar sin paquete privado
 
-Copia `.env.example` como `.env` y ejecuta `npm run setup`. El asistente solicita un usuario y contraseña nuevos; la contraseña no se muestra al escribirla. Después ejecuta `npm start`. Define una clave hexadecimal de 32 bytes en `BACKUP_ENCRYPTION_KEY` antes de generar respaldos cifrados.
+Sólo para una instalación realmente nueva, copia `.env.example` como `.env` y ejecuta `npm run setup -- --initialize-new-installation`. El asistente solicita un usuario y contraseña nuevos; la contraseña no se muestra al escribirla. Después ejecuta `npm start`. Define una clave hexadecimal de 32 bytes en `BACKUP_ENCRYPTION_KEY` antes de generar respaldos cifrados.
 
 Para restablecer al proveedor, con acceso al servidor:
 

@@ -53,4 +53,4 @@ La integración de GitHub incluye un servicio MySQL de prueba. Las credenciales 
 
 ## Pendiente en el alojamiento real
 
-Autorizar Hostinger Connector o disponer del acceso operativo necesario, localizar el SQLite vigente, confirmar conectividad y copias de MySQL, configurar secretos y realizar el corte. La rama no se publica en `main` mientras no se preserve el origen: un cambio de código por sí solo no recupera ni transporta los datos almacenados en una carpeta efímera.
+Autorizar Hostinger Connector o disponer del acceso operativo necesario, localizar el SQLite vigente, confirmar conectividad y copias de MySQL, configurar secretos y realizar el corte. El código se integra en `main` por solicitud del propietario. La activación en el alojamiento sigue pendiente: un cambio de código por sí solo no recupera ni transporta los datos almacenados en una carpeta efímera. No redesplegar antes de preservar el origen y coordinar la conexión y migración.

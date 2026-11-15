@@ -4,9 +4,13 @@
 
 El botón de mostrar contraseña utiliza una columna independiente de 44 px: no se superpone al texto y respeta las reglas del formulario de acceso. Se corrigieron tanto el acceso de laboratorios como el administrativo.
 
-Las herramientas de almacenamiento y respaldo están preparadas en una rama independiente. No publicar esta rama en producción hasta identificar la base vigente, confirmar el almacenamiento persistente y conservar una copia consistente fuera del directorio que se sustituye al desplegar.
+Las herramientas de almacenamiento y respaldo se integran en `main` por solicitud del propietario. Antes de desplegarlas en producción, identificar la base vigente, confirmar el almacenamiento persistente y conservar una copia consistente fuera del directorio que se sustituye al desplegar.
 
 El código no puede convertir una carpeta efímera en un volumen persistente ni recuperar registros que ya fueron borrados por el proveedor. Si faltan datos, revisar primero las copias de Hostinger y preservar cualquier base encontrada.
+
+El arranque Node ya no crea una base ni un administrador automáticamente, incluso si `NODE_ENV` se configuró por error como desarrollo. Las variables de contraseña no inicializan ni restablecen instalaciones al publicar código. Para una instalación nueva se ejecuta `npm run setup` de forma explícita (en producción con `--initialize-new-installation`); no hacerlo para intentar recuperar registros.
+
+Si falta la base, el servidor detiene el arranque con un diagnóstico en lugar de presentar un sistema vacío. Este comportamiento evita nuevas instalaciones silenciosas, pero no puede crear un volumen persistente del proveedor ni recuperar registros de una carpeta de versión anterior por sí solo. Antes de redesplegar se deben preservar los datos reales y configurar el destino.
 
 ## Protección de arranque
 

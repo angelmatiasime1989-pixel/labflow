@@ -7,7 +7,6 @@ import {createServer} from 'node:http';
 import {resolve} from 'node:path';
 import {openDatabase} from './database.mjs';
 import {createApp} from './app.mjs';
-import {setProvider} from './auth.mjs';
 process.umask(0o077);
 const port=Number(process.env.PORT||3000),publicUrl=process.env.PUBLIC_URL||'http://localhost:'+port;
 if(!Number.isInteger(port)||port<0||port>65535)throw Error('PORT no válido.');
@@ -20,10 +19,14 @@ if(driver==='mysql'){
  const {openMySqlStorage}=await import('./mysql-storage.mjs'),{MySqlProviderAuth}=await import('./mysql-auth.mjs'),{mysqlBackupOptions}=await import('./mysql-snapshots.mjs');mysql=await openMySqlStorage(process.env);try{await mysql.ensureSchema();const [providers]=await mysql.pool.query('SELECT id FROM qubolabs_provider WHERE slot=1');if(!providers[0])throw Error('MySQL está vacío: migra SQLite o inicializa expresamente una instalación nueva antes de arrancar.');authentication=new MySqlProviderAuth(mysql.pool);bucket=mysql.bucket;paths={backups:resolve(process.env.BACKUP_DIR||join(tmpdir(),'qubolabs-mysql-backups'))};backupOptions=()=>mysqlBackupOptions(mysql);backupEnv={...process.env,...(production&&process.env.BACKUP_REMOTE_REQUIRED!=='false'?{BACKUP_REMOTE_REQUIRED:'true'}:{})};if(automatic){validateBackupConfiguration(backupEnv);const release=await releaseFingerprint(applicationRoot),[markers]=await mysql.pool.execute('SELECT value FROM qubolabs_storage_meta WHERE meta_key=?',['last-release']);if(!markers[0]||JSON.parse(markers[0].value).release!==release){await createEncryptedBackup(null,{directory:paths.backups,env:backupEnv,...await backupOptions()});await mysql.pool.execute('INSERT INTO qubolabs_storage_meta(meta_key,value) VALUES(?,?) ON DUPLICATE KEY UPDATE value=VALUES(value)',['last-release',JSON.stringify({release,at:new Date().toISOString()})]);}}}catch(e){await mysql.close();throw Error(e.code?'No se pudo preparar el almacenamiento MySQL; revisa sus permisos y límites.':e.message);}
 }else{
  paths=storagePaths(process.env);
- if(paths.production){assertExistingDatabase(paths.file);const existing=readExistingDatabase(paths.file);try{if(!existing.prepare('SELECT id FROM provider WHERE slot=1').get())throw Error('La instalación no está inicializada. No se creará un administrador vacío automáticamente en producción.');}finally{existing.close();}}
+ // Starting a server never creates an installation, even if NODE_ENV was misconfigured.
+ assertExistingDatabase(paths.file);
+ const existing=readExistingDatabase(paths.file);
+ try{
+  if(!existing.prepare('SELECT id FROM provider WHERE slot=1').get())throw Error('La instalación no está inicializada. El arranque no crea administradores automáticamente; recupera la base existente o usa setup expresamente para una instalación nueva.');
+ }finally{existing.close();}
  if(automatic){validateBackupConfiguration(process.env);if(paths.production)await backupBeforeRelease({...paths,root:applicationRoot,env:process.env});}
  db=openDatabase(paths.file);
- if(!db.prepare('SELECT id FROM provider WHERE slot=1').get()){if(!process.env.CUBOLABS_ADMIN_PASSWORD)throw Error('Falta administrador. Ejecuta npm run setup o configura CUBOLABS_ADMIN_PASSWORD en el entorno privado.');setProvider(db,{username:process.env.CUBOLABS_ADMIN_USERNAME||'admin',name:process.env.CUBOLABS_ADMIN_NAME||'Administrador del servicio',password:process.env.CUBOLABS_ADMIN_PASSWORD,mustChangePassword:process.env.CUBOLABS_ADMIN_FORCE_PASSWORD_CHANGE==='true'});}
 }
 const handle=createApp({db,publicUrl,env:process.env,bucket,authentication}),pending=new Set();
 const backups=automatic?startBackupSchedule(db,{directory:paths.backups,env:backupEnv,backupOptions,onError:()=>console.error('Error de respaldo automático: revisa almacenamiento y configuración privada.'),onSuccess:()=>console.log('Respaldo automático cifrado completado.')}):null;
