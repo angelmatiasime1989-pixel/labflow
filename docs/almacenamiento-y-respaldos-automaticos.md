@@ -76,3 +76,13 @@ Si falla el nuevo código, volver a la revisión anterior manteniendo `DATA_DIR`
 Pruebas con datos sintéticos: rutas inseguras y symlinks, arranque sin base, snapshot de WAL, cifrado y restauración, firma/carga R2 simulada, fallos remotos sin borrar la copia local, retención y concurrencia, migración sin sobrescritura y cambio de directorio de versión manteniendo registros y sesiones. La carga real a un bucket del usuario requiere las credenciales y permisos del proveedor; no se han hecho llamadas reales ni compras.
 
 El diseño del ojo se verifica en Chromium a 1280, 390 y 320 px: campo y botón separados, ancho del botón de 44 px, escritura, alternancia de visibilidad y ausencia de envíos accidentales.
+
+## Recuperación del arranque heredado de Hostinger
+
+Cuando la aplicación se ejecuta dentro de `domains/<dominio>/hbuilds/versions/<versión>/nodejs`, `PUBLIC_URL` corresponde a ese dominio y `DATA_DIR` conserva el valor heredado `./data`, `data` o está ausente, el arranque puede recuperar una única base existente. No se activa para otros proveedores, rutas absolutas explícitas ni MySQL. Puede desactivarse con `HOSTINGER_STORAGE_RECOVERY=false`.
+
+La recuperación busca únicamente las ubicaciones SQLite conocidas bajo las versiones, exige un único archivo, administrador existente e integridad válida. Antes de copiarlo genera un respaldo cifrado con la clave actual. Usa una instantánea SQLite que incluye las transacciones confirmadas del WAL, publica el destino de forma atómica y no sobrescribe ni elimina el origen. Si hay varias bases, falta la clave, no existe un administrador o falla la integridad, se detiene; no elige la versión más reciente ni inicializa cuentas nuevas. Ejecutar durante el corte de mantenimiento, sin escrituras por otras instancias.
+
+El destino está junto a `hbuilds`, en `qubolabs-data`, y las copias en `qubolabs-backups`, fuera del código y de `public_html`. El proceso usa esas rutas efectivas aunque las variables antiguas sigan siendo relativas. El log informa las rutas sin claves. En los siguientes despliegues reutiliza la base y la identidad recuperadas. Si después desaparece ese destino, un marcador impide volver silenciosamente a la copia antigua. La recuperación sólo conserva lo que exista en la base disponible; no reconstruye información eliminada anteriormente.
+
+Esto separa los registros de las carpetas de versiones, pero se debe confirmar con Hostinger la política de conservación de esas carpetas y respaldar externamente para cubrir pérdida del alojamiento. La migración MySQL sigue siendo una operación explícita aparte.

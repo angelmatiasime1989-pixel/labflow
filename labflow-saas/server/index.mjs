@@ -1,5 +1,6 @@
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
+import {recoverHostingerStorage} from './hostinger-recovery.mjs';
 import {storagePaths,assertExistingDatabase,applicationRoot} from './storage-paths.mjs';
 import {backupBeforeRelease,releaseFingerprint} from './release-backup.mjs';
 import {startBackupSchedule,validateBackupConfiguration,readExistingDatabase,createEncryptedBackup} from './backup-service.mjs';
@@ -18,7 +19,8 @@ let db,mysql,authentication,bucket,paths,backupOptions=async()=>({}),backupEnv=p
 if(driver==='mysql'){
  const {openMySqlStorage}=await import('./mysql-storage.mjs'),{MySqlProviderAuth}=await import('./mysql-auth.mjs'),{mysqlBackupOptions}=await import('./mysql-snapshots.mjs');mysql=await openMySqlStorage(process.env);try{await mysql.ensureSchema();const [providers]=await mysql.pool.query('SELECT id FROM qubolabs_provider WHERE slot=1');if(!providers[0])throw Error('MySQL está vacío: migra SQLite o inicializa expresamente una instalación nueva antes de arrancar.');authentication=new MySqlProviderAuth(mysql.pool);bucket=mysql.bucket;paths={backups:resolve(process.env.BACKUP_DIR||join(tmpdir(),'qubolabs-mysql-backups'))};backupOptions=()=>mysqlBackupOptions(mysql);backupEnv={...process.env,...(production&&process.env.BACKUP_REMOTE_REQUIRED!=='false'?{BACKUP_REMOTE_REQUIRED:'true'}:{})};if(automatic){validateBackupConfiguration(backupEnv);const release=await releaseFingerprint(applicationRoot),[markers]=await mysql.pool.execute('SELECT value FROM qubolabs_storage_meta WHERE meta_key=?',['last-release']);if(!markers[0]||JSON.parse(markers[0].value).release!==release){await createEncryptedBackup(null,{directory:paths.backups,env:backupEnv,...await backupOptions()});await mysql.pool.execute('INSERT INTO qubolabs_storage_meta(meta_key,value) VALUES(?,?) ON DUPLICATE KEY UPDATE value=VALUES(value)',['last-release',JSON.stringify({release,at:new Date().toISOString()})]);}}}catch(e){await mysql.close();throw Error(e.code?'No se pudo preparar el almacenamiento MySQL; revisa sus permisos y límites.':e.message);}
 }else{
- paths=storagePaths(process.env);
+ const storageEnv=await recoverHostingerStorage({env:process.env,root:applicationRoot,onRecovered:({reused,data,backups})=>console.log((reused?'Almacenamiento Hostinger persistente reutilizado.':'Base Hostinger recuperada mediante copia consistente; origen conservado.')+' DATA_DIR='+data+' BACKUP_DIR='+backups)});
+ paths=storagePaths(storageEnv);
  // Starting a server never creates an installation, even if NODE_ENV was misconfigured.
  assertExistingDatabase(paths.file);
  const existing=readExistingDatabase(paths.file);
