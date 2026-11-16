@@ -5,24 +5,6 @@ permissions:
 jobs:
   checks:
     runs-on: ubuntu-latest
-    services:
-      mysql:
-        image: mysql:8.4
-        env:
-          MYSQL_ROOT_PASSWORD: Synthetic-Root-QA-2026
-          MYSQL_DATABASE: qubolabs_qa
-          MYSQL_USER: qubolabs_qa
-          MYSQL_PASSWORD: Synthetic-MySQL-QA-2026
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -pSynthetic-Root-QA-2026"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=15
-    env:
-      QUBOLABS_MYSQL_TEST: '1'
-      MYSQL_TEST_PORT: '3306'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

@@ -1,9 +1,0 @@
-import {existsSync} from 'node:fs';import {resolve} from 'node:path';import {storagePaths} from '../server/storage-paths.mjs';import {readExistingDatabase} from '../server/backup-service.mjs';
-if(process.env.DB_DRIVER==='mysql'){const {openMySqlStorage}=await import('../server/mysql-storage.mjs');const storage=await openMySqlStorage(process.env);try{let initialized=false,objectCount=0;try{const [provider]=await storage.pool.query('SELECT id FROM qubolabs_provider WHERE slot=1'),[rows]=await storage.pool.query('SELECT COUNT(*) n FROM qubolabs_objects');initialized=!!provider[0];objectCount=Number(rows[0].n);}catch(e){if(e.code!=='ER_NO_SUCH_TABLE')throw e;}console.log(JSON.stringify({driver:'mysql',connected:true,initialized,objectCount,validation:'Los datos están separados del despliegue; verificar la política de respaldos de la base.'},null,2));}finally{await storage.close();}}else{
-
-const file=resolve(process.env.DATA_DIR||'data','cubolabs.sqlite');let validation='';try{storagePaths({...process.env,NODE_ENV:'production'});validation='Rutas absolutas fuera del código. La persistencia del volumen debe confirmarse con el proveedor.';}catch(e){validation=e.message;}
-const result={database:file,exists:existsSync(file),backupDirectory:process.env.BACKUP_DIR||null,validation,automaticBackups:process.env.BACKUP_AUTO_ENABLED||'activados por defecto en producción',remoteConfigured:!!process.env.R2_ACCOUNT_ID&&!!process.env.R2_BUCKET&&!!process.env.R2_ACCESS_KEY_ID&&!!process.env.R2_SECRET_ACCESS_KEY};
-if(result.exists){const db=readExistingDatabase(file);try{result.objectCount=db.prepare('SELECT count(*) n FROM objects').get().n;result.providerConfigured=!!db.prepare('SELECT id FROM provider WHERE slot=1').get();}finally{db.close();}}
-console.log(JSON.stringify(result,null,2));
-
-}

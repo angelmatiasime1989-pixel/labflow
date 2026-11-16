@@ -1,6 +1,6 @@
 import {randomBytes,randomUUID,scryptSync,timingSafeEqual,createHash} from 'node:crypto';
-export const digest=value=>createHash('sha256').update(value).digest('hex');
-export const passwordHash=(password,salt)=>scryptSync(password,salt,64).toString('hex');
+const digest=value=>createHash('sha256').update(value).digest('hex');
+const passwordHash=(password,salt)=>scryptSync(password,salt,64).toString('hex');
 export function setProvider(db,{username,name='Administrador del servicio',password,mustChangePassword=false},reset=false){
  username=String(username||'').trim().toLowerCase();if(!/^[a-z0-9_.@-]{3,80}$/.test(username))throw Error('Usuario: 3 a 80 letras, números, puntos, @ o guiones.');if(typeof password!=='string'||password.length<12||password.length>128)throw Error('La contraseña debe tener entre 12 y 128 caracteres.');
  const old=db.prepare('SELECT * FROM provider WHERE slot=1').get();if(old&&!reset)throw Error('El administrador ya existe. Usa npm run setup -- --reset para restablecerlo.');const salt=randomBytes(32).toString('hex'),hash=passwordHash(password,salt);

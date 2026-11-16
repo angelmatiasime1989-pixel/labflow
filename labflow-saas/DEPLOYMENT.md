@@ -11,8 +11,8 @@
 | `DATA_DIR` | Directorio persistente fuera de carpetas que se sustituyan al desplegar. |
 | `BACKUP_DIR` | Destino persistente para respaldos cifrados. |
 | `BACKUP_ENCRYPTION_KEY` | Clave privada hexadecimal de 64 caracteres. No cambiar sin conservar la clave de respaldos anteriores. |
-| `CUBOLABS_ADMIN_USERNAME` | Usuario del proveedor para la inicialización explícita o restablecimiento. |
-| `CUBOLABS_ADMIN_PASSWORD` | Contraseña privada para setup/restablecimiento. El arranque no crea ni reemplaza cuentas. |
+| `CUBOLABS_ADMIN_USERNAME` | Usuario del proveedor para el primer arranque o restablecimiento. |
+| `CUBOLABS_ADMIN_PASSWORD` | Contraseña privada de primer arranque/restablecimiento. No reemplaza una cuenta ya existente durante un arranque normal. |
 | `CUBOLABS_ADMIN_FORCE_PASSWORD_CHANGE` | `true` exige cambiar la contraseña después del primer login; solo al crear/restablecer la cuenta. |
 | `CUBOLABS_ADMIN_NAME` | Nombre inicial del proveedor. |
 | `TRUST_PROXY` | `true` solo si existe un proxy local confiable que sustituye X-Forwarded-For. |
@@ -28,10 +28,9 @@ El servidor elimina las cabeceras de identidad que envíe el navegador. Solo la 
 4. Carga las variables del `.env` privado en el panel de variables de Node o instala el archivo `.env` en la raíz de la aplicación. Si el hosting ejecuta directamente `node server/index.mjs`, usa las variables del panel; ese comando directo no carga `.env` automáticamente.
 5. Configura `PUBLIC_URL` con el dominio HTTPS real y `NODE_ENV=production`. Respeta el puerto asignado por el proveedor.
 6. Usa rutas persistentes para `DATA_DIR` y `BACKUP_DIR`, fuera del checkout que sustituya el despliegue. No publiques esos directorios como archivos estáticos.
-7. Si ya hay datos, migra la base original y verifica su conservación antes del corte. Sólo para una instalación nueva ejecuta setup explícitamente; nunca reinicialices para recuperar registros. Revisa también la configuración de respaldo.
-8. Arranca y abre `/administrador/ingresar`. Comprueba el alta de un cliente, su acceso, un registro y su conservación tras reiniciar.
+7. Arranca y abre `/administrador/ingresar`. Comprueba el alta de un cliente, su acceso, un registro y su conservación tras reiniciar.
 
-La configuración exacta del panel depende del producto contratado. SQLite necesita almacenamiento local persistente. Como alternativa puede usarse `DB_DRIVER=mysql` después de migrar y verificar la base original: consulta [MySQL en Hostinger](docs/mysql-hostinger-y-conservacion.md). La identidad del sistema no depende de ChatGPT. R2 es opcional para SQLite; el programador MySQL de producción exige por defecto copia externa R2 salvo una política alternativa expresamente configurada y verificada.
+La configuración exacta del panel depende del producto contratado. Esta edición no necesita R2, una cuenta de Cloudflare ni identidad de Sites.
 
 ## VPS Linux
 
@@ -45,7 +44,7 @@ Adapta `deploy/cubolabs.service` y `deploy/nginx.conf` a tu servidor, habilita H
 
 SQLite y los adjuntos están en una sola base local: inicia con **una instancia** de la aplicación y disco local persistente, no un volumen NFS ni múltiples servidores con copias independientes. No usar un despliegue serverless de disco efímero. Se conserva el control de conflictos de edición.
 
-En producción los respaldos automáticos de la aplicación están activados por defecto y requieren una clave válida y un destino configurado. Hay copia previa a cambios de versión y un intervalo periódico; R2 permite el envío automático sin descargas manuales. No duplicar planificadores sin necesidad. También puede ejecutarse `npm run backup` expresamente. Consulta [configuración y recuperación](docs/almacenamiento-y-respaldos-automaticos.md). Prueba periódicamente la restauración en otro directorio antes de necesitarla. El comando `restore` conserva la base anterior y rechaza respaldos alterados o claves incorrectas.
+Programa `npm run backup` con el planificador del servidor, usando el mismo archivo de variables, y copia los `.clbackup` a almacenamiento externo. Prueba periódicamente la restauración en otro directorio antes de necesitarla. El comando `restore` conserva la base anterior y rechaza respaldos alterados o claves incorrectas.
 
 Los avisos legales requieren completar la identidad y datos del responsable en el panel SaaS antes de captar prospectos. No se han inventado esos datos ni claves de terceros.
 
