@@ -1,0 +1,2511 @@
+{
+  "scope": "Local synthetic fixtures only; no production credentials or Windows session used.",
+  "engines": [
+    "SQLite (Node 24)",
+    "MariaDB 11.8.9 isolated on loopback"
+  ],
+  "sqlite": [
+    {
+      "url": "/",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/entrar",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/preguntas-frecuentes",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/blog",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/privacidad",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LFPDPPP.pdf",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LFPC.pdf",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "/terminos",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LFPDPPP.pdf",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LFPC.pdf",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "/instalar",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/prueba-documental",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/#modulos",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/#qubito",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/#membresias",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/#demo",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/#recorrido",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/#para-tu-equipo",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/#como-empezar",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/assets/screen-dashboard.jpg",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/assets/screen-modules.jpg",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/assets/screen-risks.jpg",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/#contacto",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/preguntas-frecuentes#contratacion",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/preguntas-frecuentes#migracion",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/preguntas-frecuentes#recuperacion",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/entrar#demo",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/entrar#recorrido",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/entrar#modulos",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/entrar#para-tu-equipo",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/entrar#qubito",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/entrar#como-empezar",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/entrar#contacto",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/preguntas-frecuentes#datos",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/preguntas-frecuentes#qubito",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/preguntas-frecuentes#instalacion",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/blog/administracion",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "https://www.iso.org/iso-9001-quality-management.html",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "/blog/gestion-calidad",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "https://www.iso.org/iso-9001-quality-management.html",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "/blog/ley-infraestructura-calidad",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LICal.pdf",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "https://www.dof.gob.mx/",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "/blog/normas-iso",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "https://www.iso.org/standard/66912.html",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "https://www.iso.org/iso-9001-quality-management.html",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "/blog/reglamento-lic",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "https://www.dof.gob.mx/",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "https://www.diputados.gob.mx/LeyesBiblio/",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "/blog/equipos-trazabilidad",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "https://www.iso.org/standard/66912.html",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "/sin-conexion",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/admin",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200,
+      "location": null
+    },
+    {
+      "url": "/admin",
+      "session": "provider",
+      "expected": 200,
+      "actual": 200,
+      "location": null
+    },
+    {
+      "url": "/admin/",
+      "session": "anonymous",
+      "expected": 303,
+      "actual": 303,
+      "location": "https://review.test/admin"
+    },
+    {
+      "url": "/admin/",
+      "session": "provider",
+      "expected": 200,
+      "actual": 200,
+      "location": null
+    },
+    {
+      "url": "/administrador/ingresar",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200,
+      "location": null
+    },
+    {
+      "url": "/administrador/ingresar",
+      "session": "provider",
+      "expected": 303,
+      "actual": 303,
+      "location": "https://review.test/admin/"
+    },
+    {
+      "url": "/entrar",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200,
+      "location": null
+    },
+    {
+      "url": "/entrar",
+      "session": "provider",
+      "expected": 200,
+      "actual": 200,
+      "location": null
+    },
+    {
+      "url": "/entrar/",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200,
+      "location": null
+    },
+    {
+      "url": "/entrar/",
+      "session": "provider",
+      "expected": 200,
+      "actual": 200,
+      "location": null
+    },
+    {
+      "url": "/admin",
+      "session": "laboratory",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/entrar",
+      "session": "laboratory",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/entrar/",
+      "session": "laboratory",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/laboratorio/links-qa/api/state",
+      "session": "anonymous",
+      "expected": 401,
+      "actual": 401
+    },
+    {
+      "url": "/laboratorio/links-qa/api/state",
+      "session": "provider",
+      "expected": 401,
+      "actual": 401
+    },
+    {
+      "url": "/laboratorio/links-qa/api/state",
+      "session": "laboratory",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/laboratorio/links-qa/",
+      "session": "laboratory",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/laboratorio/links-qa/instalar",
+      "session": "laboratory",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/laboratorio/links-qa/manifest.webmanifest",
+      "session": "laboratory",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/manifest.webmanifest",
+      "session": "laboratory",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/sw.js",
+      "session": "laboratory",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/sin-conexion",
+      "session": "laboratory",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/admin",
+      "session": "provider password change required",
+      "expected": 303,
+      "actual": 303
+    },
+    {
+      "url": "/admin/",
+      "session": "provider password change required",
+      "expected": 303,
+      "actual": 303
+    },
+    {
+      "url": "/api/saas/state",
+      "session": "provider password change required",
+      "expected": 403,
+      "actual": 403
+    },
+    {
+      "url": "/entrar",
+      "session": "provider password change required",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/entrar/",
+      "session": "provider password change required",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/",
+      "session": "provider password change required",
+      "expected": 200,
+      "actual": 200
+    }
+  ],
+  "mariadb": [
+    {
+      "url": "/",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/entrar",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/preguntas-frecuentes",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/blog",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/privacidad",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LFPDPPP.pdf",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LFPC.pdf",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "/terminos",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LFPDPPP.pdf",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LFPC.pdf",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "/instalar",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/prueba-documental",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/#modulos",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/#qubito",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/#membresias",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/#demo",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/#recorrido",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/#para-tu-equipo",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/#como-empezar",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/assets/screen-dashboard.jpg",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/assets/screen-modules.jpg",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/assets/screen-risks.jpg",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/#contacto",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/preguntas-frecuentes#contratacion",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/preguntas-frecuentes#migracion",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/preguntas-frecuentes#recuperacion",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/entrar#demo",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/entrar#recorrido",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/entrar#modulos",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/entrar#para-tu-equipo",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/entrar#qubito",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/entrar#como-empezar",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/entrar#contacto",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/preguntas-frecuentes#datos",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/preguntas-frecuentes#qubito",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/preguntas-frecuentes#instalacion",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/blog/administracion",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "https://www.iso.org/iso-9001-quality-management.html",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "/blog/gestion-calidad",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "https://www.iso.org/iso-9001-quality-management.html",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "/blog/ley-infraestructura-calidad",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LICal.pdf",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "https://www.dof.gob.mx/",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "/blog/normas-iso",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "https://www.iso.org/standard/66912.html",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "https://www.iso.org/iso-9001-quality-management.html",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "/blog/reglamento-lic",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "https://www.dof.gob.mx/",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "https://www.diputados.gob.mx/LeyesBiblio/",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "/blog/equipos-trazabilidad",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "https://www.iso.org/standard/66912.html",
+      "session": "external",
+      "expected": "reference only",
+      "actual": "not fetched"
+    },
+    {
+      "url": "/sin-conexion",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/admin",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200,
+      "location": null
+    },
+    {
+      "url": "/admin",
+      "session": "provider",
+      "expected": 200,
+      "actual": 200,
+      "location": null
+    },
+    {
+      "url": "/admin/",
+      "session": "anonymous",
+      "expected": 303,
+      "actual": 303,
+      "location": "https://review.test/admin"
+    },
+    {
+      "url": "/admin/",
+      "session": "provider",
+      "expected": 200,
+      "actual": 200,
+      "location": null
+    },
+    {
+      "url": "/administrador/ingresar",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200,
+      "location": null
+    },
+    {
+      "url": "/administrador/ingresar",
+      "session": "provider",
+      "expected": 303,
+      "actual": 303,
+      "location": "https://review.test/admin/"
+    },
+    {
+      "url": "/entrar",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200,
+      "location": null
+    },
+    {
+      "url": "/entrar",
+      "session": "provider",
+      "expected": 200,
+      "actual": 200,
+      "location": null
+    },
+    {
+      "url": "/entrar/",
+      "session": "anonymous",
+      "expected": 200,
+      "actual": 200,
+      "location": null
+    },
+    {
+      "url": "/entrar/",
+      "session": "provider",
+      "expected": 200,
+      "actual": 200,
+      "location": null
+    },
+    {
+      "url": "/admin",
+      "session": "laboratory",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/entrar",
+      "session": "laboratory",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/entrar/",
+      "session": "laboratory",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/laboratorio/links-qa/api/state",
+      "session": "anonymous",
+      "expected": 401,
+      "actual": 401
+    },
+    {
+      "url": "/laboratorio/links-qa/api/state",
+      "session": "provider",
+      "expected": 401,
+      "actual": 401
+    },
+    {
+      "url": "/laboratorio/links-qa/api/state",
+      "session": "laboratory",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/laboratorio/links-qa/",
+      "session": "laboratory",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/laboratorio/links-qa/instalar",
+      "session": "laboratory",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/laboratorio/links-qa/manifest.webmanifest",
+      "session": "laboratory",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/manifest.webmanifest",
+      "session": "laboratory",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/sw.js",
+      "session": "laboratory",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/sin-conexion",
+      "session": "laboratory",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/admin",
+      "session": "provider password change required",
+      "expected": 303,
+      "actual": 303
+    },
+    {
+      "url": "/admin/",
+      "session": "provider password change required",
+      "expected": 303,
+      "actual": 303
+    },
+    {
+      "url": "/api/saas/state",
+      "session": "provider password change required",
+      "expected": 403,
+      "actual": 403
+    },
+    {
+      "url": "/entrar",
+      "session": "provider password change required",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/entrar/",
+      "session": "provider password change required",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "url": "/",
+      "session": "provider password change required",
+      "expected": 200,
+      "actual": 200
+    }
+  ],
+  "chromiumSqlite": {
+    "platform": "Linux Chromium, not Windows installed PWA",
+    "results": [
+      "UI: approved device, local encryption and automatic download after opening a permitted document.",
+      "IndexedDB: no plaintext document title or PDF content; device signing key is nonextractable.",
+      "Reconnect: an already opened document updates automatically without reopening it.",
+      "Interrupted download: previous complete version preserved; next reconnect replaces it after verification.",
+      "Service worker: only public shell/icons cached; trial and private responses excluded.",
+      "Access routes: anonymous /admin logs in to provider panel; /entrar remains laboratory selection with provider/lab sessions; workspace form opens the actual laboratory; Contact links back to visible marketing.",
+      "Public navigation: visible links, pricing/demo anchors, FAQ, installation, trial, legal pages and published blog articles load; external references are listed separately.",
+      "Commercial root with backend 503: origin error remains visible, document manager is never substituted.",
+      "Commercial root without network: generic unavailable page, never the offline document manager.",
+      "Landing: annual plan persists into enquiry, mobile comparison fits, and a real CRM acceptance precedes confirmation.",
+      "Public trial: save/reload works and two browser contexts cannot share drafts.",
+      "Cold offline start: all app tabs closed and server unreachable; reopening restores encrypted document and PDF/attachment links after local unlock.",
+      "Reconnect after offline cold start: current document refreshes automatically.",
+      "Closed-app reconnect: reopening online validates and updates copies after local unlock, without reopening each document.",
+      "Service-worker update: encrypted document copies survive shell replacement and still unlock.",
+      "Simulated quota denial: previous copy preserved; automatic retry replaces it only after storage accepts the new complete version.",
+      "Individual deletion stays removed on sync; explicitly reopening in the online app prepares it again.",
+      "Device revocation: the next online validation purges local encrypted copies and blocks document access.",
+      "Explicit removal: encrypted document records and visible PDF blobs removed.",
+      "Logout: laboratory session closes and local document copies remain cleared."
+    ],
+    "linkInventory": [
+      {
+        "from": "/",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/#demo",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/entrar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/prueba-documental",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/#recorrido",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/#modulos",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/#para-tu-equipo",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/#qubito",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/#como-empezar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/assets/screen-dashboard.jpg",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/assets/screen-modules.jpg",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/assets/screen-risks.jpg",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/preguntas-frecuentes",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/#contacto",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/preguntas-frecuentes#contratacion",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/preguntas-frecuentes#migracion",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/privacidad",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/terminos",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/blog",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/instalar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/entrar",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/entrar",
+        "url": "/#demo",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/entrar",
+        "url": "/entrar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/entrar",
+        "url": "/preguntas-frecuentes#recuperacion",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/entrar",
+        "url": "/instalar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/entrar",
+        "url": "/privacidad",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/entrar",
+        "url": "/terminos",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/entrar",
+        "url": "/#contacto",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/entrar",
+        "url": "/blog",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/entrar",
+        "url": "/preguntas-frecuentes",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/blog",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/preguntas-frecuentes",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/entrar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/preguntas-frecuentes#contratacion",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/preguntas-frecuentes#migracion",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/preguntas-frecuentes#recuperacion",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/preguntas-frecuentes#datos",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/preguntas-frecuentes#qubito",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/preguntas-frecuentes#instalacion",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/instalar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/#demo",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/#membresias",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog",
+        "url": "/blog",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog",
+        "url": "/preguntas-frecuentes",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog",
+        "url": "/entrar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog",
+        "url": "/blog/administracion",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog",
+        "url": "/blog/gestion-calidad",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog",
+        "url": "/blog/ley-infraestructura-calidad",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog",
+        "url": "/blog/normas-iso",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog",
+        "url": "/blog/reglamento-lic",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog",
+        "url": "/blog/equipos-trazabilidad",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/privacidad",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/privacidad",
+        "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LFPDPPP.pdf",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/privacidad",
+        "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LFPC.pdf",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/privacidad",
+        "url": "/privacidad",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/privacidad",
+        "url": "/terminos",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/privacidad",
+        "url": "/#contacto",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/terminos",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/terminos",
+        "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LFPDPPP.pdf",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/terminos",
+        "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LFPC.pdf",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/terminos",
+        "url": "/privacidad",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/terminos",
+        "url": "/terminos",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/terminos",
+        "url": "/#contacto",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/instalar",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/instalar",
+        "url": "/sin-conexion",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/instalar",
+        "url": "/entrar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/prueba-documental",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/prueba-documental",
+        "url": "/#demo",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/prueba-documental",
+        "url": "/preguntas-frecuentes#instalacion",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/administracion",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/administracion",
+        "url": "/blog",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/administracion",
+        "url": "/preguntas-frecuentes",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/administracion",
+        "url": "/entrar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/administracion",
+        "url": "https://www.iso.org/iso-9001-quality-management.html",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/blog/administracion",
+        "url": "/prueba-documental",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/administracion",
+        "url": "/#modulos",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/administracion",
+        "url": "/#demo",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/gestion-calidad",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/gestion-calidad",
+        "url": "/blog",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/gestion-calidad",
+        "url": "/preguntas-frecuentes",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/gestion-calidad",
+        "url": "/entrar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/gestion-calidad",
+        "url": "https://www.iso.org/iso-9001-quality-management.html",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/blog/gestion-calidad",
+        "url": "/prueba-documental",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/gestion-calidad",
+        "url": "/#modulos",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/gestion-calidad",
+        "url": "/#demo",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/ley-infraestructura-calidad",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/ley-infraestructura-calidad",
+        "url": "/blog",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/ley-infraestructura-calidad",
+        "url": "/preguntas-frecuentes",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/ley-infraestructura-calidad",
+        "url": "/entrar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/ley-infraestructura-calidad",
+        "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LICal.pdf",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/blog/ley-infraestructura-calidad",
+        "url": "https://www.dof.gob.mx/",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/blog/ley-infraestructura-calidad",
+        "url": "/prueba-documental",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/ley-infraestructura-calidad",
+        "url": "/#modulos",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/ley-infraestructura-calidad",
+        "url": "/#demo",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/normas-iso",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/normas-iso",
+        "url": "/blog",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/normas-iso",
+        "url": "/preguntas-frecuentes",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/normas-iso",
+        "url": "/entrar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/normas-iso",
+        "url": "https://www.iso.org/standard/66912.html",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/blog/normas-iso",
+        "url": "https://www.iso.org/iso-9001-quality-management.html",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/blog/normas-iso",
+        "url": "/prueba-documental",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/normas-iso",
+        "url": "/#modulos",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/normas-iso",
+        "url": "/#demo",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/reglamento-lic",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/reglamento-lic",
+        "url": "/blog",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/reglamento-lic",
+        "url": "/preguntas-frecuentes",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/reglamento-lic",
+        "url": "/entrar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/reglamento-lic",
+        "url": "https://www.dof.gob.mx/",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/blog/reglamento-lic",
+        "url": "https://www.diputados.gob.mx/LeyesBiblio/",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/blog/reglamento-lic",
+        "url": "/prueba-documental",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/reglamento-lic",
+        "url": "/#modulos",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/reglamento-lic",
+        "url": "/#demo",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/equipos-trazabilidad",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/equipos-trazabilidad",
+        "url": "/blog",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/equipos-trazabilidad",
+        "url": "/preguntas-frecuentes",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/equipos-trazabilidad",
+        "url": "/entrar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/equipos-trazabilidad",
+        "url": "https://www.iso.org/standard/66912.html",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/blog/equipos-trazabilidad",
+        "url": "/prueba-documental",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/equipos-trazabilidad",
+        "url": "/#modulos",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/equipos-trazabilidad",
+        "url": "/#demo",
+        "expected": 200,
+        "actual": 200
+      }
+    ],
+    "windowsInstalledAcceptance": "pending manual test on Windows"
+  },
+  "chromiumMariadb": {
+    "platform": "Linux Chromium, not Windows installed PWA",
+    "results": [
+      "UI: approved device, local encryption and automatic download after opening a permitted document.",
+      "IndexedDB: no plaintext document title or PDF content; device signing key is nonextractable.",
+      "Reconnect: an already opened document updates automatically without reopening it.",
+      "Interrupted download: previous complete version preserved; next reconnect replaces it after verification.",
+      "Service worker: only public shell/icons cached; trial and private responses excluded.",
+      "Access routes: anonymous /admin logs in to provider panel; /entrar remains laboratory selection with provider/lab sessions; workspace form opens the actual laboratory; Contact links back to visible marketing.",
+      "Public navigation: visible links, pricing/demo anchors, FAQ, installation, trial, legal pages and published blog articles load; external references are listed separately.",
+      "Commercial root with backend 503: origin error remains visible, document manager is never substituted.",
+      "Commercial root without network: generic unavailable page, never the offline document manager.",
+      "Landing: annual plan persists into enquiry, mobile comparison fits, and a real CRM acceptance precedes confirmation.",
+      "Public trial: save/reload works and two browser contexts cannot share drafts.",
+      "Cold offline start: all app tabs closed and server unreachable; reopening restores encrypted document and PDF/attachment links after local unlock.",
+      "Reconnect after offline cold start: current document refreshes automatically.",
+      "Closed-app reconnect: reopening online validates and updates copies after local unlock, without reopening each document.",
+      "Service-worker update: encrypted document copies survive shell replacement and still unlock.",
+      "Simulated quota denial: previous copy preserved; automatic retry replaces it only after storage accepts the new complete version.",
+      "Individual deletion stays removed on sync; explicitly reopening in the online app prepares it again.",
+      "Device revocation: the next online validation purges local encrypted copies and blocks document access.",
+      "Explicit removal: encrypted document records and visible PDF blobs removed.",
+      "Logout: laboratory session closes and local document copies remain cleared."
+    ],
+    "linkInventory": [
+      {
+        "from": "/",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/#demo",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/entrar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/prueba-documental",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/#recorrido",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/#modulos",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/#para-tu-equipo",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/#qubito",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/#como-empezar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/assets/screen-dashboard.jpg",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/assets/screen-modules.jpg",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/assets/screen-risks.jpg",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/preguntas-frecuentes",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/#contacto",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/preguntas-frecuentes#contratacion",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/preguntas-frecuentes#migracion",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/privacidad",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/terminos",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/blog",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/",
+        "url": "/instalar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/entrar",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/entrar",
+        "url": "/#demo",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/entrar",
+        "url": "/entrar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/entrar",
+        "url": "/preguntas-frecuentes#recuperacion",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/entrar",
+        "url": "/instalar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/entrar",
+        "url": "/privacidad",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/entrar",
+        "url": "/terminos",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/entrar",
+        "url": "/#contacto",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/entrar",
+        "url": "/blog",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/entrar",
+        "url": "/preguntas-frecuentes",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/blog",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/preguntas-frecuentes",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/entrar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/preguntas-frecuentes#contratacion",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/preguntas-frecuentes#migracion",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/preguntas-frecuentes#recuperacion",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/preguntas-frecuentes#datos",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/preguntas-frecuentes#qubito",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/preguntas-frecuentes#instalacion",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/instalar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/#demo",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/preguntas-frecuentes",
+        "url": "/#membresias",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog",
+        "url": "/blog",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog",
+        "url": "/preguntas-frecuentes",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog",
+        "url": "/entrar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog",
+        "url": "/blog/administracion",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog",
+        "url": "/blog/gestion-calidad",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog",
+        "url": "/blog/ley-infraestructura-calidad",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog",
+        "url": "/blog/normas-iso",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog",
+        "url": "/blog/reglamento-lic",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog",
+        "url": "/blog/equipos-trazabilidad",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/privacidad",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/privacidad",
+        "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LFPDPPP.pdf",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/privacidad",
+        "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LFPC.pdf",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/privacidad",
+        "url": "/privacidad",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/privacidad",
+        "url": "/terminos",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/privacidad",
+        "url": "/#contacto",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/terminos",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/terminos",
+        "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LFPDPPP.pdf",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/terminos",
+        "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LFPC.pdf",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/terminos",
+        "url": "/privacidad",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/terminos",
+        "url": "/terminos",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/terminos",
+        "url": "/#contacto",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/instalar",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/instalar",
+        "url": "/sin-conexion",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/instalar",
+        "url": "/entrar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/prueba-documental",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/prueba-documental",
+        "url": "/#demo",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/prueba-documental",
+        "url": "/preguntas-frecuentes#instalacion",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/administracion",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/administracion",
+        "url": "/blog",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/administracion",
+        "url": "/preguntas-frecuentes",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/administracion",
+        "url": "/entrar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/administracion",
+        "url": "https://www.iso.org/iso-9001-quality-management.html",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/blog/administracion",
+        "url": "/prueba-documental",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/administracion",
+        "url": "/#modulos",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/administracion",
+        "url": "/#demo",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/gestion-calidad",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/gestion-calidad",
+        "url": "/blog",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/gestion-calidad",
+        "url": "/preguntas-frecuentes",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/gestion-calidad",
+        "url": "/entrar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/gestion-calidad",
+        "url": "https://www.iso.org/iso-9001-quality-management.html",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/blog/gestion-calidad",
+        "url": "/prueba-documental",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/gestion-calidad",
+        "url": "/#modulos",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/gestion-calidad",
+        "url": "/#demo",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/ley-infraestructura-calidad",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/ley-infraestructura-calidad",
+        "url": "/blog",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/ley-infraestructura-calidad",
+        "url": "/preguntas-frecuentes",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/ley-infraestructura-calidad",
+        "url": "/entrar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/ley-infraestructura-calidad",
+        "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LICal.pdf",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/blog/ley-infraestructura-calidad",
+        "url": "https://www.dof.gob.mx/",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/blog/ley-infraestructura-calidad",
+        "url": "/prueba-documental",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/ley-infraestructura-calidad",
+        "url": "/#modulos",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/ley-infraestructura-calidad",
+        "url": "/#demo",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/normas-iso",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/normas-iso",
+        "url": "/blog",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/normas-iso",
+        "url": "/preguntas-frecuentes",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/normas-iso",
+        "url": "/entrar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/normas-iso",
+        "url": "https://www.iso.org/standard/66912.html",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/blog/normas-iso",
+        "url": "https://www.iso.org/iso-9001-quality-management.html",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/blog/normas-iso",
+        "url": "/prueba-documental",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/normas-iso",
+        "url": "/#modulos",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/normas-iso",
+        "url": "/#demo",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/reglamento-lic",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/reglamento-lic",
+        "url": "/blog",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/reglamento-lic",
+        "url": "/preguntas-frecuentes",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/reglamento-lic",
+        "url": "/entrar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/reglamento-lic",
+        "url": "https://www.dof.gob.mx/",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/blog/reglamento-lic",
+        "url": "https://www.diputados.gob.mx/LeyesBiblio/",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/blog/reglamento-lic",
+        "url": "/prueba-documental",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/reglamento-lic",
+        "url": "/#modulos",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/reglamento-lic",
+        "url": "/#demo",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/equipos-trazabilidad",
+        "url": "/",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/equipos-trazabilidad",
+        "url": "/blog",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/equipos-trazabilidad",
+        "url": "/preguntas-frecuentes",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/equipos-trazabilidad",
+        "url": "/entrar",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/equipos-trazabilidad",
+        "url": "https://www.iso.org/standard/66912.html",
+        "expected": "external reference",
+        "actual": "not fetched"
+      },
+      {
+        "from": "/blog/equipos-trazabilidad",
+        "url": "/prueba-documental",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/equipos-trazabilidad",
+        "url": "/#modulos",
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "from": "/blog/equipos-trazabilidad",
+        "url": "/#demo",
+        "expected": 200,
+        "actual": 200
+      }
+    ],
+    "windowsInstalledAcceptance": "pending manual test on Windows"
+  }
+}
