@@ -3,7 +3,7 @@
 
 # cubolabs · SaaS independiente
 
-Aplicación de gestión de laboratorios preparada para ejecutarse en Node.js sin Sites ni una sesión de ChatGPT. Conserva los módulos y flujos del software; incorpora servidor HTTP propio, autenticación del proveedor, persistencia SQLite y respaldos cifrados.
+Aplicación de gestión de laboratorios preparada para ejecutarse en Node.js sin Sites ni una sesión de ChatGPT. Conserva los módulos y flujos del software; incorpora servidor HTTP propio, autenticación del proveedor, persistencia MySQL para hosting o SQLite local. Los respaldos cifrados del comando integrado son exclusivos de SQLite.
 
 ## Subir a GitHub
 
@@ -15,8 +15,8 @@ Descomprime el ZIP y publica la carpeta `cubolabs` completa mediante GitHub Desk
 
 - Node.js **24 o superior**, con el módulo incorporado `node:sqlite`.
 - La compilación de producción solo necesita Node. Python 3 se conserva como referencia de ensamblado y para comprobaciones opcionales.
-- npm e Internet para instalar las dependencias de pruebas.
-- Disco persistente y permisos de escritura para `DATA_DIR` y `BACKUP_DIR`.
+- npm e Internet para instalar dependencias de producción (mysql2) y de pruebas.
+- MySQL 8.x o MariaDB 11.8 con paquete mínimo de 64 MiB para hosting; o disco persistente y permisos para `DATA_DIR` y `BACKUP_DIR` si se usa SQLite.
 
 ## Arranque con el administrador entregado
 
@@ -35,7 +35,7 @@ Abre **http://localhost:3000**. En el primer arranque se crea `admin` con la con
 
 El sistema inicia **vacío, sin laboratorios ni datos de demostración**. Las contraseñas de los laboratorios las define el proveedor al darlos de alta. La contraseña del proveedor no permite entrar como usuario de laboratorio.
 
-Después del primer arranque, la identidad se conserva en `data/cubolabs.sqlite`. Reiniciar no reemplaza usuarios, contraseñas ni registros existentes. Guarda de forma segura el paquete privado y la clave de respaldo.
+Después del primer arranque, la identidad se conserva en MySQL cuando se configuran DB_*, o en `data/cubolabs.sqlite` para SQLite local. Reiniciar no reemplaza usuarios, contraseñas ni registros existentes. Guarda de forma segura el paquete privado y la clave de respaldo.
 
 ## Instalar sin paquete privado
 
@@ -61,9 +61,13 @@ npm test
 
 `npm run dev` conserva una demostración **efímera** para desarrollo de interfaz, con datos en memoria y acceso simulado. No es el servidor real. Para operación usa `npm start`.
 
+## MySQL en Hostinger
+
+Consulta [activación, esquema, pruebas y respaldos MySQL](docs/mysql.md). Configura las cinco variables DB_* en el panel privado; no se necesitan sus valores en el repositorio. La base vacía se inicializa sin borrar datos. Los errores de MySQL impiden arrancar: no hay fallback local.
+
 ## Datos y respaldos
 
-La base SQLite guarda clientes, permisos, registros, adjuntos PDF, sesiones y configuración. El almacenamiento mantiene separación por laboratorio y escrituras condicionales para detectar conflictos de edición.
+La base seleccionada (MySQL o SQLite) guarda clientes, permisos, registros, adjuntos PDF, sesiones y configuración. El almacenamiento mantiene separación por laboratorio y escrituras condicionales para detectar conflictos de edición.
 
 ```bash
 npm run backup
