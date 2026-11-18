@@ -1,18 +1,22 @@
+import {setMysqlProvider,mysqlProviderSession,mysqlProviderAuth} from './mysql-auth.mjs';
 import {randomBytes,randomUUID,scryptSync,timingSafeEqual,createHash} from 'node:crypto';
 const digest=value=>createHash('sha256').update(value).digest('hex');
 const passwordHash=(password,salt)=>scryptSync(password,salt,64).toString('hex');
 export function setProvider(db,{username,name='Administrador del servicio',password,mustChangePassword=false},reset=false){
+ if(db.dialect==='mysql')return setMysqlProvider(db,{username,name,password,mustChangePassword},reset);
  username=String(username||'').trim().toLowerCase();if(!/^[a-z0-9_.@-]{3,80}$/.test(username))throw Error('Usuario: 3 a 80 letras, números, puntos, @ o guiones.');if(typeof password!=='string'||password.length<12||password.length>128)throw Error('La contraseña debe tener entre 12 y 128 caracteres.');
  const old=db.prepare('SELECT * FROM provider WHERE slot=1').get();if(old&&!reset)throw Error('El administrador ya existe. Usa npm run setup -- --reset para restablecerlo.');const salt=randomBytes(32).toString('hex'),hash=passwordHash(password,salt);
  db.exec('BEGIN IMMEDIATE');try{db.prepare('INSERT INTO provider(slot,id,username,name,salt,password_hash,version,must_change_password) VALUES(1,?,?,?,?,?,?,?) ON CONFLICT(slot) DO UPDATE SET username=excluded.username,name=excluded.name,salt=excluded.salt,password_hash=excluded.password_hash,version=excluded.version,must_change_password=excluded.must_change_password').run(old?.id||randomUUID(),username,String(name).slice(0,160),salt,hash,(old?.version||0)+1,mustChangePassword?1:0);db.exec('DELETE FROM provider_sessions');db.exec('COMMIT');}catch(e){db.exec('ROLLBACK');throw e;}
 }
 export function providerSession(db,cookie=''){
+ if(db.dialect==='mysql')return mysqlProviderSession(db,cookie);
  const token=cookie.match(/(?:^|;\s*)cubolabs_provider=([a-f0-9]{64})(?:;|$)/)?.[1];if(!token)return null;
  const r=db.prepare('SELECT p.id,p.username,p.name,p.must_change_password AS mustChangePassword FROM provider p JOIN provider_sessions s ON s.provider_id=p.id AND s.version=p.version WHERE s.token_hash=? AND s.expires>?').get(digest(token),Date.now());return r||null;
 }
 const json=(v,status=200,headers={})=>new Response(JSON.stringify(v),{status,headers:{'content-type':'application/json','cache-control':'no-store',...headers}});
 export async function providerAuth(req,db,{origin,ip,secure}){
  const path=new URL(req.url).pathname;if(!path.startsWith('/api/provider/'))return null;
+ if(db.dialect==='mysql')return mysqlProviderAuth(req,db,{origin,ip,secure});
  if(path==='/api/provider/session'&&req.method==='GET'){const user=providerSession(db,req.headers.get('cookie')||'');return user?json({username:user.username,name:user.name,mustChangePassword:!!user.mustChangePassword}):json({error:'Inicia sesión'},401);}
  if(req.method!=='POST')return json({error:'Método no permitido'},405);
  if(req.headers.get('origin')!==origin)return json({error:'Origen no autorizado'},403);
