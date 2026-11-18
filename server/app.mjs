@@ -1,3 +1,4 @@
+import {stripeRoutes} from './stripe.mjs';
 import {offlineAssets,offlineRoutes} from './offline/routes.mjs';
 import {PublicTrialStore,validateTrialLocation} from './public-trial/store.mjs';
 import {publicTrialRoutes} from './public-trial/routes.mjs';
@@ -16,12 +17,14 @@ export function createApp({db,publicUrl,env={}}){
  let trialStore=null;
  if(env.PUBLIC_TRIAL_ENABLED==='true')try{trialStore=new PublicTrialStore({file:validateTrialLocation(env.PUBLIC_TRIAL_DB,{dataDir:env.DATA_DIR,backupDir:env.BACKUP_DIR,root:fileURLToPath(new URL('../',import.meta.url))})});}catch{console.error('Prueba pública desactivada: revisa su base dedicada, rutas, permisos y política de respaldos. El sistema principal sigue disponible.');}
  const trialRoutes=publicTrialRoutes(trialStore,{origin});
+ const stripeHandler=stripeRoutes({env,origin});
  const bindings={BUCKET:bucket,PUBLIC_TRIAL_AVAILABLE:String(!!trialStore),...Object.fromEntries(['SALES_ENABLED','SALES_CHANNEL','SALES_TO','RESEND_API_KEY','EMAIL_FROM','OPENAI_API_KEY','OPENAI_MODEL','QUBITO_TENANT_HOURLY_LIMIT','QUBITO_TENANT_MONTHLY_LIMIT','TENANT_SUBDOMAINS_ENABLED'].filter(k=>env[k]).map(k=>[k,env[k]]))};
  let offlineEnabled=env.OFFLINE_DOCUMENTS_ENABLED==='true',offlineHandler;
  try{offlineHandler=offlineRoutes({db,origin,worker,bindings,enabled:offlineEnabled});}catch{offlineEnabled=false;offlineHandler=async req=>/^\/laboratorio\/[a-z0-9-]+\/api\/offline\//.test(new URL(req.url).pathname)?new Response(JSON.stringify({error:'La consulta offline está temporalmente indisponible; conserva las copias existentes.',code:'OFFLINE_TEMPORARILY_UNAVAILABLE'}),{status:503,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}}):null;console.error('Consulta offline desactivada: revisa permisos de las tablas de dispositivos. El sistema principal sigue disponible.');}
  async function handle(req,{ip='local',waitUntil=p=>p.catch(()=>{})}={}){
   let url=new URL(req.url);const physicalPath=url.pathname+url.search;const externalOrigin=url.origin,slug=tenantSlugForHost(url,origin);
   if(externalOrigin!==origin&&!slug)return new Response('Origen no autorizado',{status:400});
+  const stripeResponse=stripeHandler(req);if(stripeResponse)return stripeResponse;
   if((slug&&(/^\/api\/trial(?:\/|$)|^\/prueba-documental(?:\/|$)/.test(url.pathname)))||/^\/laboratorio\/[a-z0-9-]+\/(?:api\/trial|prueba-documental)(?:\/|$)/.test(url.pathname))return new Response('Prueba pública no disponible en este espacio',{status:404,headers:{'Cache-Control':'no-store'}});
   if(!slug){const trial=await trialRoutes(req,{ip});if(trial)return trial;}
   if(slug&&['GET','HEAD'].includes(req.method)&&/^\/(?:preguntas-frecuentes|privacidad|terminos|blog)(?:\/|$)/.test(url.pathname))return Response.redirect(origin+url.pathname+url.search+url.hash,302);
