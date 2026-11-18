@@ -1,15 +1,15 @@
 # Validación MySQL — 2026-11-18
 
-Base revisada: `00b5c9d`, Node 24.19.0, MySQL 8.4.13 en Docker aislado local. Sin credenciales ni acceso productivo. No se publicó a main.
+Base inicial: `00b5c9d`; correcciones posteriores a `b494afb`. Node 24.19.0, MySQL 8.4.13 y MariaDB 11.8.9-ubu2404 en contenedores aislados locales. Sin credenciales ni acceso productivo. No se publicó a main.
 
 | Verificación | Resultado |
 |---|---|
 | Build y validación raíz | PASS |
 | `npm test`: 34 suites históricas | 34/34 PASS (detalle abajo) |
 | Standalone SQLite/HTTP, respaldo cifrado y restauración | PASS |
-| Pruebas Node de landing/primer login/SaaS/trial/offline | 47/47 PASS |
+| Pruebas Node de landing/primer login/SaaS/trial/offline (repetidas tras corrección) | 48/48 PASS |
 | `npm run test:mysql`: integración HTTP y almacenamiento MySQL | PASS; detalle abajo |
-| Flujos compartidos con MySQL (landing/SaaS/trial/offline) | 41/41 PASS; dos comprobaciones de archivos SQLite usan explícitamente SQLite |
+| Flujos compartidos con MySQL (landing/SaaS/trial/offline) | 42/42 PASS; dos comprobaciones de archivos SQLite usan explícitamente SQLite |
 | Offline después de añadir concurrencia | 9/9 PASS SQLite y 9/9 PASS MySQL |
 | Chromium real, principal MySQL, trial separado | 16/16 PASS |
 | MySQL con max_allowed_packet=32 MiB | Arranque rechazado; restaurado a 64 MiB en servidor aislado |
@@ -62,6 +62,33 @@ La primera ejecución del navegador detectó una espera insuficiente del test: c
 
 ## Límites de lo verificado
 
-No se verificaron la conexión, permisos, versión, TLS/CA o max_allowed_packet del MySQL de Hostinger; no hay credenciales productivas en este entorno. No se ejecutó despliegue, migración, borrado, respaldo o restauración de producción. No se comprobó restauración de dump MySQL ni pérdida de energía del servidor de base. La persistencia probada incluye reinicios del proceso web y de sus conexiones. Chromium se ejecutó en Linux; instalación PWA nativa en Windows no disponible. No es una prueba de carga.
+El agente del panel informó MariaDB 11.8.9-MariaDB-log, max_allowed_packet de 1 GiB, ALL PRIVILEGES sobre la base asignada y variables DB_*/administrador presentes. No se comprobó desde este entorno la conexión Node, credenciales o TLS/CA de Hostinger; no hay credenciales productivas aquí. No se ejecutó despliegue, migración, borrado, respaldo o restauración de producción. No se comprobó restauración de dump MySQL ni pérdida de energía del servidor de base. La persistencia probada incluye reinicios del proceso web y de sus conexiones. Chromium se ejecutó en Linux; instalación PWA nativa en Windows no disponible. No es una prueba de carga.
 
 La prueba pública requiere su archivo temporal independiente y limpieza externa antes de habilitarla en Hostinger. Los comandos backup/restore existentes sólo son SQLite y se bloquean cuando hay DB_*; usar respaldos MySQL del proveedor/dump consistente. Ver `docs/mysql.md` para activación y reproducción.
+
+
+## Corrección tras revisión independiente
+
+`reset=false` usa únicamente INSERT exclusivo. Un duplicado produce `PROVIDER_EXISTS`; no ejecuta UPDATE ni DELETE de sesiones. El arranque `ensureProvider` recupera la identidad ganadora después del rollback y continúa; el CLI setup continúa rechazando sobrescribir sin --reset. El reset explícito usa UPDATE separado y conserva ID.
+
+La validación previa consulta information_schema y rechaza motor no InnoDB, tipos/longitudes/nulabilidad incorrectos, columnas ausentes/adicionales/desordenadas, collation incorrecta y claves primarias/índices únicos incompatibles. Se ejecuta antes de cualquier CREATE, y otra vez tras crear sólo las tablas faltantes. No realiza ALTER ni corrige datos.
+
+| Prueba nueva o repetida | MySQL 8.4.13 | MariaDB 11.8.9 |
+|---|---|---|
+| Dos pools, READ COMMITTED, perdedor conserva hash/ID/sesiones | PASS | PASS |
+| Dos procesos HTTP, READ COMMITTED, ambos arrancan con cuenta ganadora | PASS | PASS |
+| Dos pools, REPEATABLE READ, perdedor conserva hash/ID/sesiones | PASS | PASS |
+| Dos procesos HTTP, REPEATABLE READ, ambos arrancan con cuenta ganadora | PASS | PASS |
+| Rechazo de MyISAM, BLOB corto, PK incorrecta, columna ausente, clave no binaria, expiración nullable e índice único extra | 7/7 PASS | 7/7 PASS |
+| Esquema válido reabre sin modificar filas | PASS | PASS |
+| Integración HTTP, objetos/ETags, rollback, 50 MiB, PDF, sesiones y reinicios | PASS | PASS |
+| Flujos compartidos SaaS/comerciales/trial/offline | 42/42 PASS | 42/42 PASS |
+| Chromium real sobre MariaDB (offline cifrado, revocación, trial, comercial) | No repetido en esta corrección | 16/16 PASS |
+
+La prueba de dos procesos fuerza que ambos hayan observado la ausencia de proveedor antes de liberar el INSERT ganador. Después inserta una sesión sintética y libera al perdedor, comprobando que éste no cambió ninguna columna de la cuenta ni esa sesión. Los casos de esquema dejan una tabla faltante deliberadamente: el rechazo no la vuelve a crear ni cambia las filas testigo. Todas las alteraciones de fixtures afectan exclusivamente bases aleatorias de contenedores locales.
+
+La primera construcción del fixture MyISAM intentó convertir la tabla objects, cuya clave de 1024 bytes excede el máximo MyISAM de 1000. Se corrigió el fixture para convertir provider; las 12 comprobaciones pasaron después en ambos motores. No fue un fallo de ejecución de la aplicación.
+
+Revisión independiente de sólo lectura posterior: ambos hallazgos anteriores resueltos y ningún nuevo bloqueo de código. Observó que el validador es deliberadamente estricto y que los rechazos específicos por collation/orden no tienen casos dedicados (sí son comprobados por el código).
+
+Después de las correcciones se repitieron build, validate y npm test completo: 34 suites históricas, standalone SQLite/HTTP/respaldo/restauración y 48 pruebas Node, todas PASS. Sincronización de 226 archivos y git diff --check aprobados.

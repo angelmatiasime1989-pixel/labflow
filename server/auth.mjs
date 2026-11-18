@@ -42,3 +42,17 @@ export async function providerAuth(req,db,{origin,ip,secure}){
  }
  db.prepare('DELETE FROM login_attempts WHERE client=?').run(client);const token=randomBytes(32).toString('hex');db.prepare('INSERT INTO provider_sessions(token_hash,provider_id,version,expires) VALUES(?,?,?,?)').run(digest(token),p.id,p.version,now+43200000);return json({ok:true,mustChangePassword:!!p.must_change_password,redirect:p.must_change_password?'/administrador/cambiar-contrasena':'/admin/'},200,{'set-cookie':cookie(token)});
 }
+
+// Startup is idempotent, while the setup CLI still reports an existing account.
+export async function ensureProvider(db,options){
+ const existing=await db.prepare('SELECT id FROM provider WHERE slot=1').get();
+ if(existing)return existing;
+ if(!options.password)throw Error('Falta administrador. Ejecuta npm run setup o configura CUBOLABS_ADMIN_PASSWORD en el .env privado.');
+ try{await setProvider(db,options);}catch(error){
+  if(error.code!=='PROVIDER_EXISTS')throw error;
+  const winner=await db.prepare('SELECT id FROM provider WHERE slot=1').get();
+  if(!winner)throw error;
+  return winner;
+ }
+ return db.prepare('SELECT id FROM provider WHERE slot=1').get();
+}

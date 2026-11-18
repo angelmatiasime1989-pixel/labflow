@@ -16,7 +16,7 @@
     "restore": "node --env-file-if-exists=.env scripts/restore.mjs",
     "sync:hostinger": "node scripts/sync-hostinger.mjs",
     "check:hostinger-source": "node scripts/sync-hostinger.mjs --check",
-    "test:mysql": "node scripts/mysql-integration-test.mjs && node scripts/mysql-flows-test.mjs"
+    "test:mysql": "node --test scripts/mysql-safety-test.mjs && node scripts/mysql-integration-test.mjs && node scripts/mysql-flows-test.mjs"
   },
   "version": "1.0.0",
   "engines": {

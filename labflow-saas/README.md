@@ -16,7 +16,7 @@ Descomprime el ZIP y publica la carpeta `cubolabs` completa mediante GitHub Desk
 - Node.js **24 o superior**, con el módulo incorporado `node:sqlite`.
 - La compilación de producción solo necesita Node. Python 3 se conserva como referencia de ensamblado y para comprobaciones opcionales.
 - npm e Internet para instalar dependencias de producción (mysql2) y de pruebas.
-- MySQL 8.x con paquete mínimo de 64 MiB para hosting; o disco persistente y permisos para `DATA_DIR` y `BACKUP_DIR` si se usa SQLite.
+- MySQL 8.x o MariaDB 11.8 con paquete mínimo de 64 MiB para hosting; o disco persistente y permisos para `DATA_DIR` y `BACKUP_DIR` si se usa SQLite.
 
 ## Arranque con el administrador entregado
 

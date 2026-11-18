@@ -5,8 +5,15 @@ const digest=value=>createHash('sha256').update(value).digest('hex');
 const passwordHash=(password,salt)=>scryptSync(password,salt,64).toString('hex');
 async function setProvider(db,{username,name='Administrador del servicio',password,mustChangePassword=false},reset=false){
  username=String(username||'').trim().toLowerCase();if(!/^[a-z0-9_.@-]{3,80}$/.test(username))throw Error('Usuario: 3 a 80 letras, números, puntos, @ o guiones.');if(typeof password!=='string'||password.length<12||password.length>128)throw Error('La contraseña debe tener entre 12 y 128 caracteres.');
- const old=await db.prepare('SELECT * FROM provider WHERE slot=1 FOR UPDATE').get();if(old&&!reset)throw Error('El administrador ya existe. Usa npm run setup -- --reset para restablecerlo.');const salt=randomBytes(32).toString('hex'),hash=passwordHash(password,salt);
- await db.prepare('INSERT INTO provider(slot,id,username,name,salt,password_hash,version,must_change_password) VALUES(1,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE username=VALUES(username),name=VALUES(name),salt=VALUES(salt),password_hash=VALUES(password_hash),version=VALUES(version),must_change_password=VALUES(must_change_password)').run(old?.id||randomUUID(),username,String(name).slice(0,160),salt,hash,(old?.version||0)+1,mustChangePassword?1:0);await db.prepare('DELETE FROM provider_sessions').run();
+ const salt=randomBytes(32).toString('hex'),hash=passwordHash(password,salt);
+ // Provisioning never uses upsert: a competing INSERT can only win or conflict.
+ const insert=async()=>{try{const id=randomUUID();await db.prepare('INSERT INTO provider(slot,id,username,name,salt,password_hash,version,must_change_password) VALUES(1,?,?,?,?,?,1,?)').run(id,username,String(name).slice(0,160),salt,hash,mustChangePassword?1:0);return {id};}catch(error){if(error.code==='ER_DUP_ENTRY')throw Object.assign(Error('El administrador ya existe. Usa npm run setup -- --reset para restablecerlo.'),{code:'PROVIDER_EXISTS'});throw error;}};
+ if(!reset)return insert();
+ const old=await db.prepare('SELECT * FROM provider WHERE slot=1 FOR UPDATE').get();
+ if(!old)return insert();
+ await db.prepare('UPDATE provider SET username=?,name=?,salt=?,password_hash=?,version=version+1,must_change_password=? WHERE slot=1').run(username,String(name).slice(0,160),salt,hash,mustChangePassword?1:0);
+ await db.prepare('DELETE FROM provider_sessions').run();
+ return {id:old.id};
 }
 async function providerSession(db,cookie=''){
  const token=cookie.match(/(?:^|;\s*)cubolabs_provider=([a-f0-9]{64})(?:;|$)/)?.[1];if(!token)return null;

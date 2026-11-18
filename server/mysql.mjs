@@ -1,3 +1,4 @@
+import {validateMysqlSchema} from './mysql-schema.mjs';
 import mysql from 'mysql2/promise';
 import {randomUUID} from 'node:crypto';
 import {readFileSync} from 'node:fs';
@@ -24,7 +25,7 @@ export async function openMysql(env){
  const port=Number(env.DB_PORT||3306);if(!Number.isInteger(port)||port<1||port>65535)throw Error('DB_PORT no válido.');
  const pool=mysql.createPool({host:env.DB_HOST,port,database:env.DB_NAME,user:env.DB_USER,password:env.DB_PASSWORD,charset:'utf8mb4_bin',connectionLimit:5,waitForConnections:true,queueLimit:100,connectTimeout:10000,...(env.DB_SSL_CA?{ssl:{ca:readFileSync(env.DB_SSL_CA,'utf8'),rejectUnauthorized:true}}:{})});
  const db=new MysqlDatabase(pool);
- try{const packet=await db.prepare('SELECT @@max_allowed_packet AS size').get();if(Number(packet.size)<64*1024*1024)throw Error('MySQL requiere max_allowed_packet >= 67108864 (64 MiB) para adjuntos.');for(const sql of schema)await pool.query(sql);await db.prepare('SELECT must_change_password FROM provider LIMIT 1').all();return db;}catch(error){await pool.end();throw Error('No se pudo inicializar MySQL: '+(error.message.startsWith('MySQL requiere')?error.message:(error.code||'esquema o conexión no disponible')));}
+ try{const packet=await db.prepare('SELECT @@max_allowed_packet AS size').get();if(Number(packet.size)<64*1024*1024)throw Error('MySQL requiere max_allowed_packet >= 67108864 (64 MiB) para adjuntos.');await validateMysqlSchema(db,{allowMissing:true});for(const sql of schema)await pool.query(sql);await validateMysqlSchema(db);return db;}catch(error){await pool.end();throw Error('No se pudo inicializar MySQL: '+(error.message.startsWith('MySQL requiere')||error.code==='MYSQL_SCHEMA_INCOMPATIBLE'?error.message:(error.code||'esquema o conexión no disponible')));}
 }
 const keyBytes=key=>{const bytes=Buffer.from(String(key));if(!bytes.length||bytes.length>1024)throw Error('Clave de objeto inválida (1–1024 bytes).');return bytes;};
 export class MysqlBucket {
