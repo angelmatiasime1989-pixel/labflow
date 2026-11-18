@@ -1,0 +1,94 @@
+[
+  {
+    "id": "contratacion",
+    "title": "Contratación y pagos",
+    "items": [
+      [
+        "¿Consultar un plan ya me contrata?",
+        "No. La consulta envía tu interés y modalidad mensual o anual al equipo comercial. La contratación, los importes con IVA y el alcance se confirman en una propuesta aceptada. Enterprise Custom requiere cotización."
+      ],
+      [
+        "¿Qubo Labs emite facturas electrónicas?",
+        "No incluye emisión de CFDI ni conexión con un PAC. El registro administrativo de ventas y pagos no equivale a facturación electrónica. Las condiciones de comprobación del servicio SaaS deben confirmarse con el proveedor."
+      ]
+    ]
+  },
+  {
+    "id": "migracion",
+    "title": "Implementación y migración",
+    "items": [
+      [
+        "¿Puedo empezar desde Excel?",
+        "Puedes preparar tus catálogos para los mecanismos de importación disponibles en cada módulo. La limpieza, correspondencia de columnas y validación requieren revisión; no se promete migración automática de cualquier archivo. El alcance de acompañamiento se acuerda antes de contratar."
+      ],
+      [
+        "¿Cambiar de membresía elimina mis registros?",
+        "Cambiar la membresía modifica las herramientas habilitadas, no es una orden de eliminar registros. Antes de cambiar, revisa el alcance con el proveedor y conserva respaldos. La persistencia entre despliegues depende también de que el alojamiento tenga almacenamiento correctamente configurado."
+      ]
+    ]
+  },
+  {
+    "id": "recuperacion",
+    "title": "Acceso y soporte",
+    "items": [
+      [
+        "¿Cómo entro a mi laboratorio?",
+        "Usa el enlace entregado por tu proveedor o escribe el identificador en Entrar al sistema. Cada laboratorio tiene su propio espacio y usuarios."
+      ],
+      [
+        "¿Qué hago si olvidé mi contraseña?",
+        "Solicita al administrador de tu laboratorio que revise tu acceso. El administrador del servicio puede restablecer el acceso del administrador del cliente. No hay recuperación automática por correo habilitada para todas las cuentas."
+      ],
+      [
+        "¿Qué soporte está incluido?",
+        "Canales, horarios, implementación y tiempos de atención se confirman en tu propuesta. No se anuncia un plazo de respuesta que todavía no esté acordado."
+      ]
+    ]
+  },
+  {
+    "id": "datos",
+    "title": "Privacidad, exportación y cancelación",
+    "items": [
+      [
+        "¿Otros laboratorios pueden consultar mis archivos?",
+        "El servidor separa los espacios por laboratorio y comprueba sesión, rol y módulos habilitados. Comparte credenciales sólo con personas autorizadas y consulta el aviso de privacidad."
+      ],
+      [
+        "¿Cómo exporto mi información y qué pasa al cancelar?",
+        "Hay exportaciones CSV, PDFs y mecanismos de respaldo según módulo y permiso. Un JSON no sustituye los adjuntos. El procedimiento de entrega, formato, plazo de conservación y eliminación al cancelar deben pactarse con el proveedor; no se presume un plazo sin confirmar."
+      ]
+    ]
+  },
+  {
+    "id": "qubito",
+    "title": "Qubito y permisos",
+    "items": [
+      [
+        "¿Qué puede ver Qubito?",
+        "Sólo está disponible cuando el plan y la configuración lo habilitan, con autorización individual de acceso. Sus respuestas apoyan el trabajo; no sustituyen revisión técnica ni autorizan o emiten informes por su cuenta. La demostración animada de la portada es una simulación."
+      ]
+    ]
+  },
+  {
+    "id": "instalacion",
+    "title": "Instalación y uso sin internet",
+    "items": [
+      [
+        "¿Se instala en Windows, iPhone y Android?",
+        "La guía de instalación explica Chrome o Edge en Windows, Safari en iOS y Chrome en Android. La primera instalación y el inicio de sesión necesitan internet."
+      ],
+      [
+        "¿Qué documentos podré consultar sin conexión?",
+        "Si el administrador habilita la función y autoriza tu dispositivo, se preparan únicamente documentos que abriste con permisos y terminaron de descargarse. Las copias locales están cifradas y requieren desbloqueo. Se conservan hasta borrarlas, cerrar sesión, cambiar de cuenta o laboratorio, o recibir una revocación al reconectar; no vencen por tiempo."
+      ],
+      [
+        "¿Se actualizan solas las copias?",
+        "Con la app abierta se comprueban al recuperar internet y al retomar su uso. Si estaba completamente cerrada, la comprobación ocurre al abrirla con conexión. La edición y aprobación requieren internet. Una revocación remota no puede conocerse mientras el equipo permanezca desconectado."
+      ],
+      [
+        "¿La prueba pública guarda documentos sin conexión?",
+        "No. Cuando está habilitada, la prueba usa datos ficticios, una sesión privada y un vencimiento de 24 horas desde el primer guardado. No publica ni aprueba documentos reales y queda fuera del almacenamiento offline."
+      ]
+    ]
+  }
+]

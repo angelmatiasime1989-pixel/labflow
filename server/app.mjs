@@ -1,3 +1,7 @@
+import {offlineAssets,offlineRoutes} from './offline/routes.mjs';
+import {PublicTrialStore,validateTrialLocation} from './public-trial/store.mjs';
+import {publicTrialRoutes} from './public-trial/routes.mjs';
+import {fileURLToPath} from 'node:url';
 import {finalizeSeo} from './seo.mjs';
 import {pwaResponse,pwaHead,pwaRegistration} from './pwa.mjs';
 import {tenantSlugForHost} from './tenant-hosts.mjs';
@@ -9,10 +13,20 @@ const changePassword=readFileSync(new URL('./change-password.html',import.meta.u
 const login=readFileSync(new URL('./login.html',import.meta.url),'utf8');
 export function createApp({db,publicUrl,env={}}){
  const origin=new URL(publicUrl).origin,secure=origin.startsWith('https:'),bucket=new SqliteBucket(db);
- const bindings={BUCKET:bucket,...Object.fromEntries(['RESEND_API_KEY','EMAIL_FROM','OPENAI_API_KEY','OPENAI_MODEL','QUBITO_TENANT_HOURLY_LIMIT','QUBITO_TENANT_MONTHLY_LIMIT','TENANT_SUBDOMAINS_ENABLED'].filter(k=>env[k]).map(k=>[k,env[k]]))};
+ let trialStore=null;
+ if(env.PUBLIC_TRIAL_ENABLED==='true')try{trialStore=new PublicTrialStore({file:validateTrialLocation(env.PUBLIC_TRIAL_DB,{dataDir:env.DATA_DIR,backupDir:env.BACKUP_DIR,root:fileURLToPath(new URL('../',import.meta.url))})});}catch{console.error('Prueba pública desactivada: revisa su base dedicada, rutas, permisos y política de respaldos. El sistema principal sigue disponible.');}
+ const trialRoutes=publicTrialRoutes(trialStore,{origin});
+ const bindings={BUCKET:bucket,PUBLIC_TRIAL_AVAILABLE:String(!!trialStore),...Object.fromEntries(['SALES_ENABLED','SALES_CHANNEL','SALES_TO','RESEND_API_KEY','EMAIL_FROM','OPENAI_API_KEY','OPENAI_MODEL','QUBITO_TENANT_HOURLY_LIMIT','QUBITO_TENANT_MONTHLY_LIMIT','TENANT_SUBDOMAINS_ENABLED'].filter(k=>env[k]).map(k=>[k,env[k]]))};
+ let offlineEnabled=env.OFFLINE_DOCUMENTS_ENABLED==='true',offlineHandler;
+ try{offlineHandler=offlineRoutes({db,origin,worker,bindings,enabled:offlineEnabled});}catch{offlineEnabled=false;offlineHandler=async req=>/^\/laboratorio\/[a-z0-9-]+\/api\/offline\//.test(new URL(req.url).pathname)?new Response(JSON.stringify({error:'La consulta offline está temporalmente indisponible; conserva las copias existentes.',code:'OFFLINE_TEMPORARILY_UNAVAILABLE'}),{status:503,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}}):null;console.error('Consulta offline desactivada: revisa permisos de las tablas de dispositivos. El sistema principal sigue disponible.');}
  async function handle(req,{ip='local',waitUntil=p=>p.catch(()=>{})}={}){
-  let url=new URL(req.url);const externalOrigin=url.origin,slug=tenantSlugForHost(url,origin);
+  let url=new URL(req.url);const physicalPath=url.pathname+url.search;const externalOrigin=url.origin,slug=tenantSlugForHost(url,origin);
   if(externalOrigin!==origin&&!slug)return new Response('Origen no autorizado',{status:400});
+  if((slug&&(/^\/api\/trial(?:\/|$)|^\/prueba-documental(?:\/|$)/.test(url.pathname)))||/^\/laboratorio\/[a-z0-9-]+\/(?:api\/trial|prueba-documental)(?:\/|$)/.test(url.pathname))return new Response('Prueba pública no disponible en este espacio',{status:404,headers:{'Cache-Control':'no-store'}});
+  if(!slug){const trial=await trialRoutes(req,{ip});if(trial)return trial;}
+  if(slug&&['GET','HEAD'].includes(req.method)&&/^\/(?:preguntas-frecuentes|privacidad|terminos|blog)(?:\/|$)/.test(url.pathname))return Response.redirect(origin+url.pathname+url.search+url.hash,302);
+  if(slug&&url.pathname.startsWith('/assets/')&&['GET','HEAD'].includes(req.method))return worker.fetch(new Request(origin+url.pathname,{method:req.method}),bindings,{});
+  const offlineAsset=offlineAssets(url.pathname,req.method);if(offlineAsset)return offlineAsset;
   const publicPwa=pwaResponse(url.pathname,{tenant:!!slug,method:req.method});if(publicPwa)return publicPwa;
   if(slug){
    if(/^\/(?:admin(?:istrador)?|api\/(?:saas|provider)|laboratorio)(?:\/|$)/.test(url.pathname))return new Response('Ruta no disponible',{status:404});
@@ -27,6 +41,7 @@ export function createApp({db,publicUrl,env={}}){
    const object=await bucket.get('saas/platform-v1.json'),platform=object?await object.json():null;
    if(platform?.customers.some(c=>c.slug===entryPath[1]&&c.status==='Activo')){const target=new URL(origin);target.hostname=entryPath[1]+'.'+target.hostname;target.pathname='/';if(tenantSlugForHost(target.origin,origin))return new Response(null,{status:302,headers:{location:target.origin+'/'+url.search,'cache-control':'no-store'}});}
   }
+  const offlineResponse=await offlineHandler(req,{physicalPath});if(offlineResponse)return offlineResponse;
   const auth=await providerAuth(req,db,{origin,ip,secure});if(auth)return auth;
   const user=slug?null:providerSession(db,req.headers.get('cookie')||'');
   if(url.pathname==='/administrador/cambiar-contrasena'){if(!user)return Response.redirect(origin+'/administrador/ingresar',303);if(!['GET','HEAD'].includes(req.method))return new Response('Método no permitido',{status:405});return new Response(changePassword,{headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store','content-security-policy':"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'"}});}
@@ -38,6 +53,7 @@ export function createApp({db,publicUrl,env={}}){
   const headers=new Headers(req.headers);for(const key of [...headers.keys()])if(/^(oai-|x-forwarded-|x-authenticated-)/i.test(key))headers.delete(key);
   headers.set('cf-connecting-ip',String(ip));
   if(user&&!user.mustChangePassword){headers.set('oai-authenticated-user-id',user.id);headers.set('oai-authenticated-user-full-name',encodeURIComponent(user.name));headers.set('oai-authenticated-user-full-name-encoding','percent-encoded-utf-8');}
+  const tenantPrefix=!slug?url.pathname.match(/^(\/laboratorio\/[a-z0-9-]+)/)?.[1]||'':'';const responsePwaHead=pwaHead.replace('/manifest.webmanifest',tenantPrefix+'/manifest.webmanifest');
   const response=await worker.fetch(new Request(req,{headers}),bindings,{waitUntil});const outputHeaders=new Headers(response.headers);
   if(!secure&&outputHeaders.has('set-cookie'))outputHeaders.set('set-cookie',outputHeaders.get('set-cookie').replace(/;\s*Secure/gi,''));
   outputHeaders.set('x-content-type-options','nosniff');outputHeaders.set('referrer-policy','same-origin');outputHeaders.set('x-frame-options','SAMEORIGIN');
@@ -46,10 +62,11 @@ export function createApp({db,publicUrl,env={}}){
    const prefix='/laboratorio/'+slug;
    if(outputHeaders.has('set-cookie'))outputHeaders.set('set-cookie',outputHeaders.get('set-cookie').replace('Path='+prefix+'/','Path=/'));
    if(outputHeaders.has('location')){const target=new URL(outputHeaders.get('location'),origin);if(target.origin===origin&&target.pathname.startsWith(prefix+'/')){target.pathname=target.pathname.slice(prefix.length);outputHeaders.set('location',externalOrigin+target.pathname+target.search+target.hash);}}
-   if((outputHeaders.get('content-type')||'').includes('text/html'))return new Response((await response.text()).replaceAll(prefix+'/', '/').replace('</head>',pwaHead+'</head>').replace(/<\/body>(?=\s*<\/html>\s*$)/,pwaRegistration+'</body>'),{status:response.status,headers:outputHeaders});
+   if((outputHeaders.get('content-type')||'').includes('text/html'))return new Response((await response.text()).replaceAll(prefix+'/', '/').replace('</head>',responsePwaHead+'<script>window.QUBO_OFFLINE_ENABLED='+String(offlineEnabled)+';</script></head>').replace(/<\/body>(?=\s*<\/html>\s*$)/,pwaRegistration+'</body>'),{status:response.status,headers:outputHeaders});
   }
-  if((outputHeaders.get('content-type')||'').includes('text/html'))return new Response((await response.text()).replace('</head>',pwaHead+'</head>').replace(/<\/body>(?=\s*<\/html>\s*$)/,pwaRegistration+'</body>'),{status:response.status,headers:outputHeaders});
+  if((outputHeaders.get('content-type')||'').includes('text/html'))return new Response((await response.text()).replace('</head>',responsePwaHead+'<script>window.QUBO_OFFLINE_ENABLED='+String(offlineEnabled)+';</script></head>').replace(/<\/body>(?=\s*<\/html>\s*$)/,pwaRegistration+'</body>'),{status:response.status,headers:outputHeaders});
   return new Response(response.body,{status:response.status,headers:outputHeaders});
  };
- return async function(req,context){const response=await handle(req,context);return finalizeSeo(response,req,{origin,bucket,verification:env.GOOGLE_SITE_VERIFICATION||''});};
+ const application=async function(req,context){const response=await handle(req,context);return finalizeSeo(response,req,{origin,bucket,verification:env.GOOGLE_SITE_VERIFICATION||''});};
+ application.close=()=>trialStore?.close();application.featureStatus={publicTrial:!!trialStore,offlineDocuments:offlineEnabled};return application;
 }

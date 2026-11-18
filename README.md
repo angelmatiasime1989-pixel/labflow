@@ -102,3 +102,7 @@ No se exportan datos reales del alojamiento anterior, sus sesiones, adjuntos rem
 - `.openai/hosting.json`: referencia histórica; no se utiliza para arrancar en Node.
 
 La documentación histórica en `docs/` describe la edición original. Este README y DEPLOYMENT.md son las instrucciones vigentes para la edición independiente.
+
+## Cambios en revisión: comercio, prueba y PWA
+
+Consulta [el informe técnico y pasos de validación](docs/reviews/comercial-prueba-pwa.md). Las funciones de envío comercial, prueba pública y copias offline requieren configuración explícita y están desactivadas por defecto. Los archivos offline no vencen por tiempo; se actualizan al recuperar conexión, con autorización del dispositivo y desbloqueo local. No activar producción antes de revisar el almacenamiento persistente del alojamiento y completar los ensayos indicados.

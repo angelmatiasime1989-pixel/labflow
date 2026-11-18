@@ -1,0 +1,4 @@
+const PUBLIC_FAQ=/*PUBLIC_FAQ_DATA*/;
+function publicFaqRoute(req){const body='<h1>Preguntas frecuentes</h1><p>Respuestas claras antes de elegir y al empezar a trabajar.</p><nav aria-label="Temas de ayuda">'+PUBLIC_FAQ.map(s=>'<a href="#'+s.id+'">'+blogEscape(s.title)+'</a>').join(' · ')+'</nav>'+PUBLIC_FAQ.map(section=>'<section id="'+section.id+'"><h2>'+blogEscape(section.title)+'</h2>'+section.items.map(([q,a])=>'<details><summary>'+blogEscape(q)+'</summary><p>'+blogEscape(a)+'</p></details>').join('')+'</section>').join('')+'<p><a href="/instalar">Guía de instalación →</a> · <a href="/#demo">Agendar demo</a> · <a href="/#membresias">Consultar planes</a></p>';
+ return new Response(req.method==='HEAD'?null:blogLayout('Preguntas frecuentes',body),{headers:{...saasSecurity,'Content-Type':'text/html; charset=utf-8'}});
+}

@@ -15,7 +15,8 @@ if(!db.prepare('SELECT id FROM provider WHERE slot=1').get()){
 }
 const handle=createApp({db,publicUrl,env:process.env}),pending=new Set();
 const server=createServer(async(req,res)=>{try{
- const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>50*1024*1024){res.writeHead(413);res.end('Solicitud demasiado grande');return;}chunks.push(chunk);}
+ const requestPath=(req.url||'').split('?')[0],bodyLimit=requestPath.startsWith('/api/trial/')?12000:requestPath==='/api/public/lead'?16000:requestPath.includes('/api/offline/')?4000:50*1024*1024;
+ const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>bodyLimit){res.writeHead(413);res.end('Solicitud demasiado grande');return;}chunks.push(chunk);}
  const host=req.headers.host||parsed.host;let requestOrigin;try{const incoming=new URL(parsed.protocol+'//'+host);if(incoming.host!==host||incoming.username||incoming.password)throw Error();requestOrigin=incoming.origin;}catch{res.writeHead(400);res.end();return;}
  const url=new URL(req.url,requestOrigin);if(url.origin!==requestOrigin){res.writeHead(400);res.end();return;}
  const headers=new Headers();for(const[k,v]of Object.entries(req.headers))if(v!==undefined)headers.set(k,Array.isArray(v)?v.join(', '):v);
@@ -26,4 +27,4 @@ const server=createServer(async(req,res)=>{try{
  }catch(error){console.error('Solicitud fallida:',error.message);if(!res.headersSent)res.writeHead(500,{'content-type':'application/json'});res.end(JSON.stringify({error:'No se pudo completar la solicitud.'}));}});
 server.requestTimeout=120000;server.headersTimeout=30000;
 server.listen(port,process.env.HOST||'127.0.0.1',()=>console.log('cubolabs iniciado en '+publicUrl));
-let closing=false;async function shutdown(){if(closing)return;closing=true;server.close(async()=>{await Promise.allSettled([...pending]);db.close();process.exit(0);});setTimeout(()=>process.exit(1),15000).unref();}process.on('SIGINT',shutdown);process.on('SIGTERM',shutdown);
+let closing=false;async function shutdown(){if(closing)return;closing=true;server.close(async()=>{await Promise.allSettled([...pending]);handle.close?.();db.close();process.exit(0);});setTimeout(()=>process.exit(1),15000).unref();}process.on('SIGINT',shutdown);process.on('SIGTERM',shutdown);

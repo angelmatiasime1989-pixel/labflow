@@ -1,4 +1,4 @@
-name: Validación de cubolabs
+name: Validación de Qubo Labs
 on: [push, pull_request]
 permissions:
   contents: read
@@ -19,3 +19,16 @@ jobs:
       - run: npm run build
       - run: npm run validate
       - run: npm test
+      - name: Probar PWA en Chromium Linux
+        env:
+          PWA_REPORT_DIR: ${{ runner.temp }}/qubo-pwa-report
+        run: |
+          export CHROMIUM_BIN="$(command -v google-chrome || command -v chromium)"
+          test -n "$CHROMIUM_BIN"
+          npm run test:pwa-browser
+      - name: Conservar informe de navegador
+        uses: actions/upload-artifact@v4
+        with:
+          name: pwa-linux-results
+          path: ${{ runner.temp }}/qubo-pwa-report
+          if-no-files-found: warn

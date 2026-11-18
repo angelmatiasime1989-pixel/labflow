@@ -17,7 +17,8 @@
       "Control de acreditaciones y aprobaciones",
       "Inventario básico de equipos",
       "Alertas y notificaciones"
-    ]
+    ],
+    "audience": "Para laboratorios que empiezan a ordenar clientes, cotizaciones y documentos."
   },
   {
     "id": "gold",
@@ -43,7 +44,8 @@
       "Expedientes, competencia y capacitación del personal",
       "Solicitudes de compra, proveedores y órdenes de compra",
       "Herramientas de cumplimiento LIC"
-    ]
+    ],
+    "audience": "Para equipos que necesitan conectar programación, trabajo técnico y calidad."
   },
   {
     "id": "platinum",
@@ -65,7 +67,8 @@
       "Indicadores financieros y EBITDA",
       "Portal de clientes",
       "Dashboard gerencial"
-    ]
+    ],
+    "audience": "Para organizaciones que también quieren controlar almacén, gastos y administración."
   },
   {
     "id": "diamond",
@@ -89,7 +92,8 @@
       "Desglose de ventas y gastos por servicio, ubicación y unidad de negocio",
       "Productividad por persona y tableros financieros configurables",
       "Qubito con autorización individual de acceso"
-    ]
+    ],
+    "audience": "Para organizaciones que necesitan analítica avanzada y Qubito con permisos individuales."
   },
   {
     "id": "enterprise-custom",
@@ -110,6 +114,7 @@
       "Tableros personalizados",
       "Soporte especializado",
       "Acuerdo de nivel de servicio (SLA)"
-    ]
+    ],
+    "audience": "Para organizaciones que requieren un alcance e infraestructura acordados a medida."
   }
 ]
