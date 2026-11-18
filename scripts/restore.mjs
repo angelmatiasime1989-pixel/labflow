@@ -1,5 +1,3 @@
-import {mysqlConfigured} from '../server/mysql.mjs';
-if(mysqlConfigured())throw Error('Este comando sólo respalda/restaura SQLite. Para MySQL usa un respaldo consistente del servidor (ver docs/mysql.md).');
 import {createDecipheriv} from 'node:crypto';
 import {DatabaseSync} from 'node:sqlite';
 import {readFile,writeFile,rename,access,rm,mkdir} from 'node:fs/promises';

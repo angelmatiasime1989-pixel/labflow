@@ -1,5 +1,3 @@
-> **MySQL en Hostinger:** seguir [docs/mysql.md](docs/mysql.md). Las instrucciones de DATA_DIR y respaldos SQLite de este documento sólo aplican cuando todas las DB_* están vacías. La prueba pública requiere su archivo temporal independiente aunque la base principal sea MySQL.
-
 # Despliegue de cubolabs independiente
 
 ## Variables del servidor
