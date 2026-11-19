@@ -1,3 +1,5 @@
+import {mailService} from './mail/service.mjs';
+import {recoveryRoutes} from './mail/recovery.mjs';
 import {financeRoutes} from './finance/routes.mjs';
 import {onboardingRoutes,onboardingGate} from './onboarding.mjs';
 import {stripeRoutes,stripeAccessGate} from './stripe.mjs';
@@ -14,14 +16,17 @@ import {storageBucket} from './storage.mjs';
 import {providerAuth,providerSession} from './auth.mjs';
 const changePassword=readFileSync(new URL('./change-password.html',import.meta.url),'utf8');
 const login=readFileSync(new URL('./login.html',import.meta.url),'utf8');
-export function createApp({db,publicUrl,env={},stripeTransport,financeTransport,financeClock}){
+export function createApp({db,publicUrl,env={},stripeTransport,financeTransport,financeClock,mailTransport,mailClock}){
  const origin=new URL(publicUrl).origin,secure=origin.startsWith('https:'),bucket=storageBucket(db);
  let trialStore=null;
  if(env.PUBLIC_TRIAL_ENABLED==='true')try{trialStore=new PublicTrialStore({file:validateTrialLocation(env.PUBLIC_TRIAL_DB,{dataDir:env.DATA_DIR,backupDir:env.BACKUP_DIR,root:fileURLToPath(new URL('../',import.meta.url))})});}catch{console.error('Prueba pública desactivada: revisa su base dedicada, rutas, permisos y política de respaldos. El sistema principal sigue disponible.');}
  const trialRoutes=publicTrialRoutes(trialStore,{origin});
  const finance=financeRoutes({bucket,env,origin,transport:financeTransport,clock:financeClock});
+ const mail=mailService({bucket,env,origin,transport:mailTransport,clock:mailClock}),recovery=recoveryRoutes({bucket,mail,origin,clock:mailClock});
  const stripeHandler=stripeRoutes({env,origin,bucket,resolveContract:membershipSaas,transport:stripeTransport});
- const bindings={BUCKET:bucket,PUBLIC_TRIAL_AVAILABLE:String(!!trialStore),...Object.fromEntries(['SALES_ENABLED','SALES_CHANNEL','SALES_TO','RESEND_API_KEY','EMAIL_FROM','OPENAI_API_KEY','OPENAI_MODEL','QUBITO_TENANT_HOURLY_LIMIT','QUBITO_TENANT_MONTHLY_LIMIT','TENANT_SUBDOMAINS_ENABLED'].filter(k=>env[k]).map(k=>[k,env[k]]))};
+ const bindings={BUCKET:bucket,PUBLIC_TRIAL_AVAILABLE:String(!!trialStore),...Object.fromEntries(['SALES_ENABLED','SALES_CHANNEL','SALES_TO','OPENAI_API_KEY','OPENAI_MODEL','QUBITO_TENANT_HOURLY_LIMIT','QUBITO_TENANT_MONTHLY_LIMIT','TENANT_SUBDOMAINS_ENABLED'].filter(k=>env[k]).map(k=>[k,env[k]]))};
+ if(mail.enabled){bindings.SEND_MAIL=mail.workerSend;bindings.EMAIL_FROM=mail.from;bindings.SITE_URL=origin+'/entrar';}
+ if(env.SALES_CHANNEL==='resend'&&!mail.canSendTo(env.SALES_TO))bindings.SALES_ENABLED='false';
  const onboarding=onboardingRoutes({env,origin,bucket,resolveContract:membershipSaas,seedTenant:emptyTenantSaas,initialize:()=>platformLoadSaas(bindings)});
  let offlineEnabled=env.OFFLINE_DOCUMENTS_ENABLED==='true',offlineHandler;
  try{offlineHandler=offlineRoutes({db,origin,worker,bindings,enabled:offlineEnabled});}catch{offlineEnabled=false;offlineHandler=async req=>/^\/laboratorio\/[a-z0-9-]+\/api\/offline\//.test(new URL(req.url).pathname)?new Response(JSON.stringify({error:'La consulta offline está temporalmente indisponible; conserva las copias existentes.',code:'OFFLINE_TEMPORARILY_UNAVAILABLE'}),{status:503,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}}):null;console.error('Consulta offline desactivada: revisa permisos de las tablas de dispositivos. El sistema principal sigue disponible.');}
@@ -42,8 +47,9 @@ export function createApp({db,publicUrl,env={},stripeTransport,financeTransport,
    if(requestOrigin===externalOrigin)incomingHeaders.set('origin',origin);
    url=new URL(origin+'/laboratorio/'+slug+url.pathname+url.search);req=new Request(url, new Request(req,{headers:incomingHeaders}));
   }
+  const recoveryResponse=await recovery(req,{ip,waitUntil});if(recoveryResponse)return recoveryResponse;
   const onboardingResponse=await onboarding(req);if(onboardingResponse)return onboardingResponse;
-  const stripeResponse=await stripeHandler(req);if(stripeResponse)return stripeResponse;
+  const stripeResponse=await stripeHandler(req);if(stripeResponse){if(stripeResponse.ok&&url.pathname==='/api/billing/stripe/webhook')waitUntil(mail.welcome().catch(()=>{}));return stripeResponse;}
   const signupAccess=await onboardingGate(bucket,req);if(signupAccess)return signupAccess;
   const billingAccess=await stripeAccessGate(bucket,req);if(billingAccess)return billingAccess;
   // Path links work on the main domain until the operator explicitly enables verified subdomains.
@@ -66,7 +72,7 @@ export function createApp({db,publicUrl,env={},stripeTransport,financeTransport,
   headers.set('cf-connecting-ip',String(ip));
   if(user&&!user.mustChangePassword){headers.set('oai-authenticated-user-id',user.id);headers.set('oai-authenticated-user-full-name',encodeURIComponent(user.name));headers.set('oai-authenticated-user-full-name-encoding','percent-encoded-utf-8');}
   const tenantPrefix=!slug?url.pathname.match(/^(\/laboratorio\/[a-z0-9-]+)/)?.[1]||'':'';const responsePwaHead=pwaHead.replace('/manifest.webmanifest',tenantPrefix+'/manifest.webmanifest');
-  const response=await worker.fetch(new Request(req,{headers}),bindings,{waitUntil});const outputHeaders=new Headers(response.headers);
+  const response=await worker.fetch(new Request(req,{headers}),bindings,{waitUntil});const outputHeaders=new Headers(response.headers);if(response.ok&&req.method==='POST'&&url.pathname==='/api/saas/customer')waitUntil(response.clone().json().then(customer=>mail.welcome(customer.id)).catch(()=>{}));
   if(!secure&&outputHeaders.has('set-cookie'))outputHeaders.set('set-cookie',outputHeaders.get('set-cookie').replace(/;\s*Secure/gi,''));
   outputHeaders.set('x-content-type-options','nosniff');outputHeaders.set('referrer-policy','same-origin');outputHeaders.set('x-frame-options','SAMEORIGIN');
   if(secure)outputHeaders.set('strict-transport-security','max-age=31536000');
@@ -74,9 +80,9 @@ export function createApp({db,publicUrl,env={},stripeTransport,financeTransport,
    const prefix='/laboratorio/'+slug;
    if(outputHeaders.has('set-cookie'))outputHeaders.set('set-cookie',outputHeaders.get('set-cookie').replace('Path='+prefix+'/','Path=/'));
    if(outputHeaders.has('location')){const target=new URL(outputHeaders.get('location'),origin);if(target.origin===origin&&target.pathname.startsWith(prefix+'/')){target.pathname=target.pathname.slice(prefix.length);outputHeaders.set('location',externalOrigin+target.pathname+target.search+target.hash);}}
-   if((outputHeaders.get('content-type')||'').includes('text/html'))return new Response((await response.text()).replaceAll(prefix+'/', '/').replace('</head>',responsePwaHead+'<script>window.QUBO_BILLING_ORIGIN='+JSON.stringify(origin)+';window.QUBO_OFFLINE_ENABLED='+String(offlineEnabled)+';</script></head>').replace(/<\/body>(?=\s*<\/html>\s*$)/,pwaRegistration+'</body>'),{status:response.status,headers:outputHeaders});
+   if((outputHeaders.get('content-type')||'').includes('text/html'))return new Response((await response.text()).replaceAll(prefix+'/', '/').replace('</head>',responsePwaHead+'<script>window.QUBO_RECOVERY_URL='+JSON.stringify(mail.enabled?origin+'/recuperar':null)+';window.QUBO_BILLING_ORIGIN='+JSON.stringify(origin)+';window.QUBO_OFFLINE_ENABLED='+String(offlineEnabled)+';</script></head>').replace(/<\/body>(?=\s*<\/html>\s*$)/,pwaRegistration+'</body>'),{status:response.status,headers:outputHeaders});
   }
-  if((outputHeaders.get('content-type')||'').includes('text/html'))return new Response((await response.text()).replace('</head>',responsePwaHead+'<script>window.QUBO_BILLING_ORIGIN='+JSON.stringify(origin)+';window.QUBO_OFFLINE_ENABLED='+String(offlineEnabled)+';</script></head>').replace(/<\/body>(?=\s*<\/html>\s*$)/,pwaRegistration+'</body>'),{status:response.status,headers:outputHeaders});
+  if((outputHeaders.get('content-type')||'').includes('text/html'))return new Response((await response.text()).replace('</head>',responsePwaHead+'<script>window.QUBO_RECOVERY_URL='+JSON.stringify(mail.enabled?origin+'/recuperar':null)+';window.QUBO_BILLING_ORIGIN='+JSON.stringify(origin)+';window.QUBO_OFFLINE_ENABLED='+String(offlineEnabled)+';</script></head>').replace(/<\/body>(?=\s*<\/html>\s*$)/,pwaRegistration+'</body>'),{status:response.status,headers:outputHeaders});
   return new Response(response.body,{status:response.status,headers:outputHeaders});
  };
  const application=async function(req,context){const response=await handle(req,context);return finalizeSeo(response,req,{origin,bucket,verification:env.GOOGLE_SITE_VERIFICATION||''});};
