@@ -18,12 +18,12 @@ async function screenshot(name){assert.equal(await cdp.js('document.documentElem
 async function fill(slug){await cdp.js(`(()=>{const f=document.querySelector('#signup');f.elements.name.value='Laboratorio sintético';f.email.value='${slug}@example.test';f.slug.value='${slug}';f.username.value='lab-admin';f.password.value='Synthetic-Lab-2026!';f.consent.checked=true;f.requestSubmit();})()`);}
 for(const width of [1440,390]){
  await cdp.call('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width<600});
- await navigate('/',`[...document.querySelectorAll('[data-onboarding]')].length===6&&[...document.querySelectorAll('[data-onboarding]')].every(a=>!a.hidden)`);
+ await navigate('/',`[...document.querySelectorAll('[data-onboarding]')].length===4&&[...document.querySelectorAll('[data-onboarding]')].every(a=>!a.hidden)`);
  await cdp.until(`[...document.querySelectorAll('[data-trial-scope]')].length===4&&[...document.querySelectorAll('[data-trial-scope]')].every(p=>p.textContent.includes('15 días del plan elegido'))`);
  assert.equal(await cdp.js(`[...document.querySelectorAll('[data-trial-membership]')].every(a=>a.pathname==='/contratar'&&new URL(a.href).searchParams.get('intent')==='trial')`),true);
  await screenshot('landing-'+width);
- for(const label of ['Iniciar prueba gratuita','Registrarse','Solicitar demo','Contratar membresía'])assert.equal(await cdp.js(`[...document.querySelectorAll('.hero .ctas a,.closing .ctas a')].filter(a=>a.textContent.includes('${label}')&&!a.hidden).length`),2,label);
- await cdp.js(`document.querySelector('a[data-registration]').click()`);await cdp.until(`location.pathname==='/registrarse'&&document.querySelector('#signup')`);await navigate('/',`[...document.querySelectorAll('[data-onboarding]')].every(a=>!a.hidden)`);
+ for(const label of ['Iniciar prueba gratuita','Solicitar demo','Contratar membresía'])assert.equal(await cdp.js(`[...document.querySelectorAll('.hero .ctas a,.closing .ctas a')].filter(a=>a.textContent.includes('${label}')&&!a.hidden).length`),2,label);
+ assert.equal(await cdp.js(`document.querySelectorAll('a[href="/registrarse"],[data-registration]').length`),0);await navigate('/registrarse',`document.querySelector('#signup')`);await navigate('/',`[...document.querySelectorAll('[data-onboarding]')].every(a=>!a.hidden)`);
  assert.equal(await cdp.js(`document.querySelectorAll('header a[href="/blog"],header a[href="/preguntas-frecuentes"]').length`),0);
  if(width===390){await cdp.js(`document.querySelector('.commercial-mobile summary').click()`);assert.equal(await cdp.js(`document.querySelector('.commercial-mobile').open`),true);await cdp.js(`document.querySelector('.commercial-mobile summary').click()`);}
  await cdp.js(`document.querySelector('.membership-card.gold').scrollIntoView({block:'center',inline:'start'});`);await screenshot('gold-membership-'+width);
