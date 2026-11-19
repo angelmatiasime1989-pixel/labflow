@@ -26,6 +26,7 @@ jobs:
           export CHROMIUM_BIN="$(command -v google-chrome || command -v chromium)"
           test -n "$CHROMIUM_BIN"
           npm run test:pwa-browser
+          npm run test:finance-browser
       - name: Conservar informe de navegador
         uses: actions/upload-artifact@v4
         with:

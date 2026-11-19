@@ -1,3 +1,4 @@
+import {financeRoutes} from './finance/routes.mjs';
 import {onboardingRoutes,onboardingGate} from './onboarding.mjs';
 import {stripeRoutes,stripeAccessGate} from './stripe.mjs';
 import {offlineAssets,offlineRoutes} from './offline/routes.mjs';
@@ -13,11 +14,12 @@ import {storageBucket} from './storage.mjs';
 import {providerAuth,providerSession} from './auth.mjs';
 const changePassword=readFileSync(new URL('./change-password.html',import.meta.url),'utf8');
 const login=readFileSync(new URL('./login.html',import.meta.url),'utf8');
-export function createApp({db,publicUrl,env={},stripeTransport}){
+export function createApp({db,publicUrl,env={},stripeTransport,financeTransport,financeClock}){
  const origin=new URL(publicUrl).origin,secure=origin.startsWith('https:'),bucket=storageBucket(db);
  let trialStore=null;
  if(env.PUBLIC_TRIAL_ENABLED==='true')try{trialStore=new PublicTrialStore({file:validateTrialLocation(env.PUBLIC_TRIAL_DB,{dataDir:env.DATA_DIR,backupDir:env.BACKUP_DIR,root:fileURLToPath(new URL('../',import.meta.url))})});}catch{console.error('Prueba pública desactivada: revisa su base dedicada, rutas, permisos y política de respaldos. El sistema principal sigue disponible.');}
  const trialRoutes=publicTrialRoutes(trialStore,{origin});
+ const finance=financeRoutes({bucket,env,origin,transport:financeTransport,clock:financeClock});
  const stripeHandler=stripeRoutes({env,origin,bucket,resolveContract:membershipSaas,transport:stripeTransport});
  const bindings={BUCKET:bucket,PUBLIC_TRIAL_AVAILABLE:String(!!trialStore),...Object.fromEntries(['SALES_ENABLED','SALES_CHANNEL','SALES_TO','RESEND_API_KEY','EMAIL_FROM','OPENAI_API_KEY','OPENAI_MODEL','QUBITO_TENANT_HOURLY_LIMIT','QUBITO_TENANT_MONTHLY_LIMIT','TENANT_SUBDOMAINS_ENABLED'].filter(k=>env[k]).map(k=>[k,env[k]]))};
  const onboarding=onboardingRoutes({env,origin,bucket,resolveContract:membershipSaas,seedTenant:emptyTenantSaas,initialize:()=>platformLoadSaas(bindings)});
@@ -51,8 +53,9 @@ export function createApp({db,publicUrl,env={},stripeTransport}){
    if(platform?.customers.some(c=>c.slug===entryPath[1]&&c.status==='Activo')){const target=new URL(origin);target.hostname=entryPath[1]+'.'+target.hostname;target.pathname='/';if(tenantSlugForHost(target.origin,origin))return new Response(null,{status:302,headers:{location:target.origin+'/'+url.search,'cache-control':'no-store'}});}
   }
   const offlineResponse=await offlineHandler(req,{physicalPath});if(offlineResponse)return offlineResponse;
-  const auth=await providerAuth(req,db,{origin,ip,secure});if(auth)return auth;
   const user=slug?null:await providerSession(db,req.headers.get('cookie')||'');
+  const financeResponse=await finance(req,user);if(financeResponse)return financeResponse;
+  const auth=await providerAuth(req,db,{origin,ip,secure});if(auth)return auth;
   if(url.pathname==='/administrador/cambiar-contrasena'){if(!user)return Response.redirect(origin+'/administrador/ingresar',303);if(!['GET','HEAD'].includes(req.method))return new Response('Método no permitido',{status:405});return new Response(changePassword,{headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store','content-security-policy':"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'"}});}
   if(user?.mustChangePassword){if(url.pathname.startsWith('/api/saas/'))return new Response(JSON.stringify({error:'Cambia la contraseña temporal antes de acceder al panel.',code:'PASSWORD_CHANGE_REQUIRED',redirect:'/administrador/cambiar-contrasena'}),{status:403,headers:{'content-type':'application/json','cache-control':'no-store'}});if(['/admin','/admin/','/administrador/ingresar'].includes(url.pathname))return Response.redirect(origin+'/administrador/cambiar-contrasena',303);}
   if(url.pathname==='/admin/'&&!user)return Response.redirect(origin+'/admin',303);
