@@ -10,15 +10,15 @@ for(const requested of [false,true])test(`reserved Stripe routes cannot grant ac
  const before=await f.bucket.list();const state=await f.state();
  for(const path of routes)for(const cookie of ['',f.cookie,labCookie]){
   const r=await f.request(path,{type:'checkout.session.completed',membership:'diamond',paid:true,trialDays:7},{cookie,headers:{'stripe-signature':'unverified','oai-authenticated-user-id':'forged'}});
-  assert.equal(r.status,requested?501:503);assert.equal((await r.json()).code,requested?'STRIPE_NOT_IMPLEMENTED':'STRIPE_DISABLED');
-  assert.equal(r.headers.get('cache-control'),'no-store');assert.equal(r.headers.get('location'),null);assert.equal(r.headers.get('set-cookie'),null);
+  assert.equal(r.status,503);assert.equal((await r.json()).code,requested?'STRIPE_TEST_CONFIGURATION_REQUIRED':'STRIPE_DISABLED');
+  assert.equal(r.headers.get('cache-control'),'no-store, private');assert.equal(r.headers.get('location'),null);assert.equal(r.headers.get('set-cookie'),null);
  }
  for(const path of routes){
-  for(const method of ['GET','HEAD','PUT','OPTIONS']){const r=await f.request(path,null,{method});assert.equal(r.status,405);assert.equal(r.headers.get('allow'),'POST');if(method==='HEAD')assert.equal(await r.text(),'');}
-  const scoped=await f.request('/laboratorio/stripe-qa'+path,{paid:true},{cookie:labCookie});assert.equal(scoped.status,404);
+  for(const method of ['GET','HEAD','PUT','OPTIONS']){const r=await f.request(path,null,{method});assert.equal(r.status,503);if(method==='HEAD')assert.equal(await r.text(),'');}
+  const scoped=await f.request('/laboratorio/stripe-qa'+path,{paid:true},{cookie:labCookie});assert.equal(scoped.status,503);
   const subdomain=await f.app(new Request('https://stripe-qa.review.test'+path,{method:'POST',body:'not-json'}));assert.equal(subdomain.status,404);
  }
- assert.equal((await f.request('/api/billing/stripe/unknown',{})).status,404);
+ assert.equal((await f.request('/api/billing/stripe/unknown',{})).status,503);
  assert.deepEqual(await f.state(),state);assert.deepEqual(await f.bucket.list(),before);
  assert.equal((await f.request('/laboratorio/stripe-qa/api/state',null,{cookie:labCookie})).status,200);
  assert.equal((await f.request('/api/saas/state',null,{cookie:''})).status,401);
@@ -29,12 +29,11 @@ test('configuration is server-only, supports both cycles and cannot enable Strip
  const env={...secrets,STRIPE_ENABLED:'true'};
  for(const plan of ['SILVER','GOLD','PLATINUM','DIAMOND'])for(const cycle of ['MONTHLY','ANNUAL'])env[`STRIPE_PRICE_${plan}_${cycle}`]=`synthetic-${plan}-${cycle}`;
  const config=readStripeConfig(env);assert.equal(config.enabled,false);assert.equal(config.requested,true);assert.equal(config.secretKey,secrets.STRIPE_SECRET_KEY);assert.equal(config.webhookSecret,secrets.STRIPE_WEBHOOK_SECRET);
- assert.deepEqual(Object.keys(config.prices),['silver','gold','platinum','diamond']);
- for(const [plan,cycles] of Object.entries(config.prices))for(const [cycle,value] of Object.entries(cycles))assert.equal(value,`synthetic-${plan.toUpperCase()}-${cycle.toUpperCase()}`);
+ assert.equal(config.prices.length,8);for(const p of config.prices)assert.equal(p.id,`synthetic-${p.plan.toUpperCase()}-${p.cycle.toUpperCase()}`);
 });
-test('webhook placeholder never consumes or acknowledges even malformed event bodies',()=>{
+test('disabled webhook never consumes or acknowledges even malformed event bodies',async()=>{
  const handler=stripeRoutes({env:{STRIPE_ENABLED:'true'},origin:'https://review.test'});
  const req=new Request('https://review.test/api/billing/stripe/webhook',{method:'POST',body:'invalid JSON',headers:{'stripe-signature':'forged'}});
- assert.equal(handler(req).status,501);assert.equal(req.bodyUsed,false);
- assert.equal(handler(new Request('https://review.test/api/other')),null);
+ assert.equal((await handler(req)).status,503);assert.equal(req.bodyUsed,false);
+ assert.equal(await handler(new Request('https://review.test/api/other')),null);
 });

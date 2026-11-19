@@ -95,3 +95,5 @@ function submissionReceipt33(s,m,row,b){
 }
 /*SAAS_GATEWAY*/
 export default saasGateway;
+
+export {membershipSaas};
