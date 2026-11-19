@@ -6,7 +6,7 @@
     "build": "node scripts/build-portable.mjs",
     "validate": "node scripts/validate-artifact.mjs",
     "dev": "node scripts/dev.mjs",
-    "test": "node scripts/audit-tests.mjs && node scripts/standalone-test.mjs && node --test scripts/landing-experience-test.mjs scripts/first-login-test.mjs scripts/saas-release-test.mjs scripts/commercial-trial-test.mjs scripts/offline-documents-test.mjs scripts/pwa-navigation-test.mjs scripts/site-links-test.mjs scripts/stripe-preparation-test.mjs scripts/stripe-integration-test.mjs scripts/onboarding-test.mjs scripts/stripe-trial-test.mjs scripts/finance-test.mjs scripts/workspace-test.mjs scripts/mail-test.mjs scripts/membership-copy-test.mjs scripts/account-catalog-test.mjs scripts/client-test/boundary-test.mjs",
+    "test": "node scripts/audit-tests.mjs && node scripts/standalone-test.mjs && node --test scripts/landing-experience-test.mjs scripts/first-login-test.mjs scripts/saas-release-test.mjs scripts/commercial-trial-test.mjs scripts/offline-documents-test.mjs scripts/pwa-navigation-test.mjs scripts/site-links-test.mjs scripts/stripe-preparation-test.mjs scripts/stripe-integration-test.mjs scripts/onboarding-test.mjs scripts/stripe-trial-test.mjs scripts/finance-test.mjs scripts/workspace-test.mjs scripts/mail-test.mjs scripts/membership-copy-test.mjs scripts/account-catalog-test.mjs scripts/client-test/boundary-test.mjs scripts/sales-intake-test.mjs",
     "start": "node --env-file-if-exists=.env server/index.mjs",
     "setup": "node --env-file-if-exists=.env scripts/setup.mjs",
     "backup": "node --env-file-if-exists=.env scripts/backup.mjs",
@@ -21,7 +21,8 @@
     "test:mysql": "node --test scripts/mysql-safety-test.mjs && node scripts/mysql-integration-test.mjs && node scripts/mysql-flows-test.mjs",
     "test:finance-browser": "node scripts/finance-browser-test.mjs",
     "test:workspace-browser": "node scripts/workspace-browser-test.mjs",
-    "test:public-browser": "node scripts/public-browser-test.mjs"
+    "test:public-browser": "node scripts/public-browser-test.mjs",
+    "test:sales-browser": "node scripts/sales-intake-browser-test.mjs"
   },
   "version": "1.0.0",
   "engines": {

@@ -1,0 +1,20 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {fixture} from './helpers/saas-fixture.mjs';import {createApp} from '../server/app.mjs';
+const legal={name:'Responsable ficticio',address:'Domicilio ficticio de pruebas, México',email:'privacy@example.test',retentionMonths:12,confirmed:true,textsApproved:true};
+const lead=(version,type='contact')=>({type,name:'Persona ficticia',company:'Laboratorio ficticio',email:'recipient@example.test',message:'Solicitud sintética para validar el formulario',privacy:true,privacyVersion:version,marketing:false,requestId:crypto.randomUUID()});
+test('global admin enables an internal inbox only after legal approval; forms capture without email and persist without duplicates',async t=>{
+ let sent=0;const f=await fixture(t,{SALES_ENABLED:'false'},undefined,{mailTransport:async()=>{sent++;throw Error('No external mail');}});
+ assert.equal((await f.request('/api/saas/intake',{revision:f.platform.revision,mode:'inbox'})).status,409);
+ await f.post('/api/saas/legal',legal);assert.equal(f.platform.legal.ready,true);assert.equal(f.platform.legal.channelReady,false);assert.equal((await(await f.request('/api/public/forms')).json()).legal.ready,false);
+ await f.customer('sales-control');const cookie=await f.tenantLogin('sales-control');for(const c of ['',cookie])assert.equal((await f.request('/api/saas/intake',{revision:f.platform.revision,mode:'inbox'},{cookie:c})).status,401);assert.equal((await f.request('/api/saas/intake',{revision:f.platform.revision,mode:'inbox'},{origin:'https://evil.test'})).status,403);
+ assert.equal((await f.request('/api/saas/intake',{revision:f.platform.revision,mode:'unknown'})).status,400);await f.post('/api/saas/intake',{mode:'inbox'});const config=await(await f.request('/api/public/forms')).json();assert.equal(config.legal.ready,true);assert.equal(config.channel,'inbox');
+ for(const type of ['contact','demo']){const body=lead(config.legal.version,type),r=await f.request('/api/public/lead',body,{cookie:''});assert.equal(r.status,200);assert.deepEqual(await(await f.request('/api/public/lead',body,{cookie:''})).json(),await r.json());}
+ await f.state();assert.equal(f.platform.leads.length,2);assert.ok(f.platform.leads.every(l=>l.deliveryChannel==='inbox'&&l.deliveryStatus==='accepted'));assert.equal(sent,0);
+ const app=createApp({db:f.db,env:{SALES_ENABLED:'false'},publicUrl:f.origin});assert.equal((await(await app(new Request(f.origin+'/api/public/forms'))).json()).legal.ready,true);
+ await f.post('/api/saas/intake',{mode:'paused'});assert.equal((await f.request('/api/public/lead',lead(config.legal.version))).status,503);assert.equal((await(await f.request('/api/public/forms')).json()).legal.ready,false);await f.post('/api/saas/intake',{mode:'server'});assert.equal(f.platform.legal.channelReady,false);assert.equal(sent,0);
+});
+test('server delivery remains unchanged unless admin explicitly chooses inbox or pauses it',async t=>{
+ let sent=0;const env={SALES_ENABLED:'true',SALES_CHANNEL:'resend',SALES_TO:'recipient@example.test',TRANSACTIONAL_EMAIL_ENABLED:'true',RESEND_DOMAIN_VERIFIED:'true',RESEND_API_VERIFIED:'true',RESEND_API_KEY:'re_SyntheticOnly',EMAIL_FROM:'sender@example.test',RESEND_ALLOWED_RECIPIENTS:'recipient@example.test'};
+ const f=await fixture(t,env,undefined,{mailTransport:async()=>{sent++;return Response.json({id:'simulated-'+sent});}});await f.post('/api/saas/legal',legal);let config=await(await f.request('/api/public/forms')).json();assert.equal(config.channel,'resend');assert.equal((await f.request('/api/public/lead',lead(config.legal.version))).status,200);assert.equal(sent,1);
+ await f.post('/api/saas/intake',{mode:'inbox'});assert.equal((await f.request('/api/public/lead',lead(config.legal.version))).status,200);assert.equal(sent,1);
+ await f.post('/api/saas/intake',{mode:'server'});assert.equal((await f.request('/api/public/lead',lead(config.legal.version))).status,200);assert.equal(sent,2);await f.state();assert.equal(f.platform.leads.length,3);
+});
