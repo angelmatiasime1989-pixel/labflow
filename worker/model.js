@@ -2842,3 +2842,5 @@ modules18Model.tariffLists={title:'Listados y envío de tarifas',group:'Comercia
 META.labSettings.fields.push(['headerBackground','Fondo del encabezado de documentos','select:Blanco|Azul',0]);
 
 for(const m of Object.keys(META))if(META[m].group==='Administración')META[m].group='Configuración';
+// Operational cost-center references remain available to purchasing without granting accounting access.
+META.costCenters.group='Compras';

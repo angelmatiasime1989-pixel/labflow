@@ -50,3 +50,20 @@ async function demoRoute30(req,url,s,u,env,etag){if(url.pathname!=='/api/demo30/
  state.demoCases30=[{id:1,name:'Almacenadora del Golfo · Calibración de 2 termómetros',createdAt:now(),steps}];state.backups=s.backups||[];for(const [key,x]of sandbox){if(/^(attachments|reports|issued|compliance|fiscal30)\//.test(key))await env.BUCKET.put(key,x.bytes);}state.revision=s.revision;for(const m of Object.keys(META)){const beforeIds=new Set((s[m]||[]).map(r=>r.id));for(const r of state[m]||[])if(!beforeIds.has(r.id))r.demo30=true;}audit(state,u,'demo30',1,'Ejemplo completo creado',null,{steps},'Datos ficticios; sin CFDI real ni validez metrológica');await save(env,state,etag);return json({ok:true,id:1,steps:steps.length});}
 
 const sendBefore30=sendForReview;sendForReview=async function(s,u,m,r,env){if(m==='taxObligations30'){if(r.status!=='Borrador')fail('Obligación ya enviada');return nextAction(s,u,m,r,'advance',env);}return sendBefore30(s,u,m,r,env);};
+
+// Catalog changes preserve journal references and automatic posting roles.
+function deleteAccountCatalog(s,u,row,b){
+ if(!row)fail('Selecciona una cuenta');
+ const reason=String(b.reason||'').trim();if(!reason||reason.length>1000)fail('Indica un motivo de hasta 1000 caracteres');
+ if((s.closedPeriods30||[]).some(p=>p.status==='Cerrado'))fail('Reabre los periodos cerrados antes de modificar el catálogo');
+ for(const [module,meta] of Object.entries(META))for(const field of meta.fields||[])if(field[2]==='ref:accounts'&&(s[module]||[]).some(r=>Number(r[field[0]])===row.id))fail('La cuenta tiene registros vinculados. Conserva su historial; no se puede eliminar');
+ if(s.accounts.some(a=>a.id!==row.id&&a.parent===row.code))fail('Reasigna las subcuentas antes de eliminar esta cuenta');
+ if((s.files||[]).some(f=>f.module==='accounts'&&Number(f.recordId)===row.id))fail('La cuenta tiene evidencia vinculada; conserva su historial');
+ if(row.systemKey){
+  const replacement=s.accounts.find(a=>a.id===Number(b.replacementId)&&a.id!==row.id);
+  if(!replacement||replacement.systemKey||replacement.type!==row.type||replacement.status!=='Activo')fail('Selecciona una cuenta activa del mismo tipo y sin otra función automática para sustituirla');
+  for(const [module,meta] of Object.entries(META))for(const field of meta.fields||[])if(field[2]==='ref:accounts'&&(s[module]||[]).some(r=>Number(r[field[0]])===replacement.id))fail('La cuenta sustituta debe estar sin movimientos para conservar la conciliación histórica');
+  const before=clone(replacement);replacement.systemKey=row.systemKey;if(row.isCash)replacement.isCash=true;stamp(replacement,u);audit(s,u,'accounts',replacement.id,'Asignación de función automática',before,replacement,reason);
+ }
+ s.deletedAccountIds=[...new Set([...(s.deletedAccountIds||[]),row.id])];s.accounts=s.accounts.filter(a=>a.id!==row.id);audit(s,u,'accounts',row.id,'Eliminación de cuenta sin movimientos',row,null,reason);
+}

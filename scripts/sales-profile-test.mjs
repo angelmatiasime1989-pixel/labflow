@@ -13,4 +13,4 @@ const salesObject=await env.BUCKET.get('saas/sales-v1.json'),sales=await salesOb
 
 await state();await post('/api/saas/profile',{revision:platform.revision,nickname:'Proveedor',avatar:''});await state();assert.equal(platform.operator.nickname,'Proveedor');assert.equal(platform.operator.name,'Administrador del servicio');await post('/api/saas/profile',{revision:platform.revision,nickname:'Otro'},403,'visitor');await post('/api/saas/profile',{revision:platform.revision,nickname:'Otro',ownerUserId:'visitor'},403);console.log('PASS provider self-profile without operator identity or ownership changes');
 
-await state();for(const id of ['operations','purchasing','hr'])assert.ok(platform.catalog.find(m=>m.id===id).requires.includes('accounting'));console.log('PASS financial dependencies retained in customized operational memberships');
+await state();for(const id of ['operations','purchasing','hr'])assert.ok(!platform.catalog.find(m=>m.id===id).requires.includes('accounting'));console.log('PASS operational memberships do not implicitly license premium accounting');

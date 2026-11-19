@@ -27,7 +27,7 @@ try{await platformSaveSaas(env,s,loaded.etag);}catch(error){if(!previous)await e
 if(path==='/api/saas/membership-plan'){
  if(!COMMERCIAL_MEMBERSHIPS.some(p=>p.id===b.planId))fail('Selecciona uno de los cinco niveles comerciales');
  if(!Array.isArray(b.modules))fail('Selecciona los módulos del nivel');
- if(!['diamond','enterprise-custom'].includes(b.planId)&&b.modules.some(id=>['finance','assistant'].includes(id)))fail('Finanzas y Qubito sólo están disponibles en Diamond y Enterprise Custom');
+ if(!['diamond','enterprise-custom'].includes(b.planId)&&b.modules.some(id=>['finance','accounting','assistant'].includes(id)))fail('Contabilidad, Finanzas y Qubito sólo están disponibles en Diamond y Enterprise Custom');
  const modules=selectedModulesSaas(b.modules,s.catalog),tools=selectedToolsSaas(b.tools||toolCatalogSaas().filter(t=>modules.includes(t.moduleId)).map(t=>t.id),modules,s.catalog),before=s.membershipPlans?.[b.planId]||null;
  s.membershipPlans={...(s.membershipPlans||{}),[b.planId]:{modules,tools,updatedAt:now()}};
  // Higher levels inherit the configured scope of lower levels; customer contracts remain snapshots.
