@@ -71,9 +71,9 @@ export function createApp({db,publicUrl,env={},stripeTransport}){
    const prefix='/laboratorio/'+slug;
    if(outputHeaders.has('set-cookie'))outputHeaders.set('set-cookie',outputHeaders.get('set-cookie').replace('Path='+prefix+'/','Path=/'));
    if(outputHeaders.has('location')){const target=new URL(outputHeaders.get('location'),origin);if(target.origin===origin&&target.pathname.startsWith(prefix+'/')){target.pathname=target.pathname.slice(prefix.length);outputHeaders.set('location',externalOrigin+target.pathname+target.search+target.hash);}}
-   if((outputHeaders.get('content-type')||'').includes('text/html'))return new Response((await response.text()).replaceAll(prefix+'/', '/').replace('</head>',responsePwaHead+'<script>window.QUBO_OFFLINE_ENABLED='+String(offlineEnabled)+';</script></head>').replace(/<\/body>(?=\s*<\/html>\s*$)/,pwaRegistration+'</body>'),{status:response.status,headers:outputHeaders});
+   if((outputHeaders.get('content-type')||'').includes('text/html'))return new Response((await response.text()).replaceAll(prefix+'/', '/').replace('</head>',responsePwaHead+'<script>window.QUBO_BILLING_ORIGIN='+JSON.stringify(origin)+';window.QUBO_OFFLINE_ENABLED='+String(offlineEnabled)+';</script></head>').replace(/<\/body>(?=\s*<\/html>\s*$)/,pwaRegistration+'</body>'),{status:response.status,headers:outputHeaders});
   }
-  if((outputHeaders.get('content-type')||'').includes('text/html'))return new Response((await response.text()).replace('</head>',responsePwaHead+'<script>window.QUBO_OFFLINE_ENABLED='+String(offlineEnabled)+';</script></head>').replace(/<\/body>(?=\s*<\/html>\s*$)/,pwaRegistration+'</body>'),{status:response.status,headers:outputHeaders});
+  if((outputHeaders.get('content-type')||'').includes('text/html'))return new Response((await response.text()).replace('</head>',responsePwaHead+'<script>window.QUBO_BILLING_ORIGIN='+JSON.stringify(origin)+';window.QUBO_OFFLINE_ENABLED='+String(offlineEnabled)+';</script></head>').replace(/<\/body>(?=\s*<\/html>\s*$)/,pwaRegistration+'</body>'),{status:response.status,headers:outputHeaders});
   return new Response(response.body,{status:response.status,headers:outputHeaders});
  };
  const application=async function(req,context){const response=await handle(req,context);return finalizeSeo(response,req,{origin,bucket,verification:env.GOOGLE_SITE_VERIFICATION||''});};

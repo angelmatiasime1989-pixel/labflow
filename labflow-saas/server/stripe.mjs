@@ -1,3 +1,4 @@
+import {billingUnavailablePage} from './onboarding-page.mjs';
 import {readStripeConfig} from './stripe/config.mjs';
 import {stripeClient,verifyEvent,billingError} from './stripe/client.mjs';
 import {billingService} from './stripe/service.mjs';
@@ -16,6 +17,7 @@ export function stripeRoutes({env={},origin,bucket,resolveContract,transport}){
   const reply=(data,status,extra)=>req.method==='HEAD'?new Response(null,{status,headers:{...headers,...extra}}):json(data,status,extra);
   try{
    if(url.origin!==origin)throw billingError(404,'NOT_FOUND','Ruta no disponible.');
+   if(!config.enabled&&scoped&&path.endsWith('/suscripcion')&&req.method==='GET'){const {customer}=await laboratoryAdmin(bucket,req,scoped[1]);return new Response(billingUnavailablePage(customer),{headers:{...headers,'Content-Type':'text/html; charset=utf-8'}});}
    if(!config.enabled)throw billingError(503,config.requested?'STRIPE_TEST_CONFIGURATION_REQUIRED':'STRIPE_DISABLED','Stripe de pruebas no está configurado o está desactivado.');
    if(path==='/api/billing/stripe/webhook'){
     if(req.method!=='POST')return reply({error:'Método no permitido.'},405,{Allow:'POST'});
@@ -27,9 +29,9 @@ export function stripeRoutes({env={},origin,bucket,resolveContract,transport}){
    if(method==='POST'&&(req.headers.get('origin')!==origin||!/^application\/json(?:;|$)/i.test(req.headers.get('content-type')||'')))throw billingError(403,'CSRF','Origen o formato no autorizado.');
    const {customer}=await laboratoryAdmin(bucket,req,scoped[1]);
    if(page)return new Response(billingPage('/laboratorio/'+customer.slug,config.prices),{headers:{...headers,'Content-Type':'text/html; charset=utf-8','Content-Security-Policy':"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"}});
-   if(action==='status'){const b=customer.stripeBilling||{};return json({status:b.status||'sin suscripción Stripe',canCheckout:!b.subscriptionId||['canceled','incomplete_expired'].includes(b.status),hasCustomer:!!b.customerId,managed:!!b.managed,access:!!b.access&&b.accessUntil>Date.now(),accessUntil:b.accessUntil||null,plan:b.plan||null,cycle:b.cycle||null,pending:b.pending?{requestId:b.pending.requestId,plan:b.pending.plan,cycle:b.pending.cycle}:null});}
+   if(action==='status'){const b=customer.stripeBilling||{};return json({planAmount:b.planAmount??null,currency:b.currency||null,nextChargeAt:b.nextChargeAt>Date.now()?b.nextChargeAt:null,nextChargeAmount:b.nextChargeAmount??null,endedAt:b.endedAt||null,syncedAt:b.syncedAt||null,serverNow:Date.now(),trialUsed:!!b.trialUsedAt,trialEndsAt:b.trialEndsAt||null,cancelAtPeriodEnd:!!b.cancelAtPeriodEnd,status:b.status||'sin suscripción Stripe',canCheckout:!b.subscriptionId||['canceled','incomplete_expired'].includes(b.status),hasCustomer:!!b.customerId,managed:!!b.managed,access:!!b.access&&b.accessUntil>Date.now(),accessUntil:b.accessUntil||null,plan:b.plan||null,cycle:b.cycle||null,pending:b.pending?{requestId:b.pending.requestId,plan:b.pending.plan,cycle:b.pending.cycle,intent:b.pending.intent||'paid'}:null});}
    let body;try{body=JSON.parse((await bodyBytes(req,4096)).toString());}catch(e){if(e.status)throw e;throw billingError(400,'INVALID_BODY','Solicitud inválida.');}
-   const allowed=action==='checkout'?['requestId','plan','cycle']:[];if(!body||typeof body!=='object'||Array.isArray(body)||Object.keys(body).some(k=>!allowed.includes(k)))throw billingError(400,'INVALID_BODY','Solo se admiten los campos de esta operación.');
+   const allowed=action==='checkout'?['requestId','plan','cycle','intent','trialConsent']:[];if(!body||typeof body!=='object'||Array.isArray(body)||Object.keys(body).some(k=>!allowed.includes(k)))throw billingError(400,'INVALID_BODY','Solo se admiten los campos de esta operación.');
    if(action==='checkout'&&!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(body.requestId||''))throw billingError(400,'INVALID_REQUEST_ID','Identificador de operación inválido.');
    return json(await service[action](customer,body));
   }catch(error){return reply({error:error.status?error.message:'No se pudo completar la operación de suscripción.',code:error.code||'BILLING_UNAVAILABLE'},error.status||503);}

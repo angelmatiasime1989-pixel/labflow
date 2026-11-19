@@ -15,7 +15,7 @@ function form(value,params=new URLSearchParams(),prefix=''){
 }
 export function stripeClient(secret,transport=fetch){
  return async(method,path,body,key)=>{
-  if(!/^\/(?:customers|prices|subscriptions|invoices|checkout\/sessions|billing_portal\/sessions)(?:\/[A-Za-z0-9_]+)?$/.test(path))throw billingError(500,'STRIPE_PATH','Operación no disponible.');
+  if(!/^\/(?:customers|payment_methods|prices|subscriptions|invoices|checkout\/sessions|billing_portal\/sessions|billing_portal\/configurations)(?:\/[A-Za-z0-9_]+)?$/.test(path))throw billingError(500,'STRIPE_PATH','Operación no disponible.');
   let response;try{response=await transport('https://api.stripe.com/v1'+path,{method,redirect:'error',signal:AbortSignal.timeout(10000),headers:{Authorization:'Bearer '+secret,'Stripe-Version':API_VERSION,...(body?{'Content-Type':'application/x-www-form-urlencoded'}:{}),...(key?{'Idempotency-Key':key}:{})},...(body?{body:form(body).toString()}:{})});}catch{throw billingError(502,'STRIPE_UNAVAILABLE','Stripe no respondió; reintenta la misma operación.');}
   if(!response.ok)throw billingError(502,'STRIPE_REJECTED','Stripe rechazó la operación; revisa la configuración de pruebas.');
   let data;try{data=await response.json();}catch{throw billingError(502,'STRIPE_RESPONSE','Respuesta de Stripe inválida.');}
