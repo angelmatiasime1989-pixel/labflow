@@ -1,14 +1,14 @@
 # Stripe: rama de integración para pruebas
 
-Esta implementación funciona **solo en modo de pruebas**. No está autorizada para producción ni activa pruebas comerciales gratuitas. Checkout alojado y portal se abren únicamente para el administrador autenticado del propio laboratorio. La landing, Enterprise Custom por cotización y la demo documental aislada de 24 horas no cambian.
+Esta implementación funciona **solo en modo de pruebas**. No está autorizada para producción. El registro opcional de un espacio de prueba aislado se documenta en [self-service-test.md](self-service-test.md). Checkout alojado y portal se abren únicamente para el administrador autenticado del propio laboratorio. Enterprise Custom sigue por cotización y la demo documental aislada de 24 horas no cambia.
 
 ## Límites deliberados
 
 - `STRIPE_ENABLED=false` y `STRIPE_TEST_MODE=false` por defecto. Se requiere toda la configuración de pruebas; `NODE_ENV=production` o una clave que no empiece por `sk_test_` bloquean las rutas con 503. Configuración incorrecta no impide arrancar la aplicación.
 - Solo claves privadas del servidor. No se usa clave publicable, SDK en navegador ni formularios de tarjetas propios. No configurar ninguna clave en Git ni enviarla por chat.
-- La integración usa REST de Stripe con `Stripe-Version: 2026-10-28.endive`, HTTPS fijo a `api.stripe.com`, tiempo límite y redirecciones HTTP deshabilitadas. El transporte simulado solo se inyecta desde código de pruebas, nunca mediante HTTP o variables de entorno.
+- Checkout utiliza métodos de pago dinámicos configurados en el Dashboard e identifica el flujo como `qubolabs_sandbox_kpvrnzta`. La integración usa REST de Stripe con `Stripe-Version: 2026-10-28.endive`, HTTPS fijo a `api.stripe.com`, tiempo límite y redirecciones HTTP deshabilitadas. El transporte simulado solo se inyecta desde código de pruebas, nunca mediante HTTP o variables de entorno.
 - Billing se gestiona desde el dominio principal y la ruta del laboratorio; los subdominios no exponen estas rutas. El administrador debe iniciar sesión en la ruta principal. Los usuarios normales y las sesiones del proveedor no sirven para gestionar la suscripción del laboratorio.
-- No se crean laboratorios, usuarios, productos o precios automáticamente. La prueba comienza con un laboratorio sintético previamente preparado por el proveedor. No se envían parámetros de trial a Stripe; un webhook de una suscripción con prueba comercial se rechaza.
+- Stripe no crea productos o precios automáticamente. El laboratorio sintético puede prepararlo el proveedor o registrarse mediante el autoservicio aislado; este último no se habilita por activar Stripe. No se envían parámetros de trial a Stripe; un webhook de una suscripción con prueba comercial se rechaza.
 
 ## Catálogo exacto a configurar en el sandbox de Stripe
 
@@ -68,7 +68,7 @@ Los POST del laboratorio requieren cookie vigente de ese laboratorio, rol actual
 - Para otorgar el plan se exige suscripción test activa, un solo ítem/cantidad 1, precio permitido y exacto, ausencia de trial/pausa, factura vinculada al mismo cliente/suscripción y pagada con importe positivo. Debe haber una línea positiva en MXN para ese precio y período. El acceso termina como máximo en el menor de los períodos de suscripción y factura pagada. Una factura de un plan anterior no autoriza una subida sin pagar.
 - Antes del primer pago verificado, el contrato manual conserva sus permisos, sin mejoras. Después, el contrato queda administrado por Stripe: `past_due`, `unpaid`, `canceled`, pausa o falta de cobertura pagada retienen el acceso operacional. Cancelación al final del período conserva el acceso pagado hasta el corte. Inicio/cierre de sesión y la pantalla de suscripción permiten recuperar el pago.
 - Se actualizan módulos y herramientas usando el resolver existente de membresías. Renovar el mismo plan no reinterpreta los permisos configurados del contrato. Nunca se cambia una suspensión manual a `Activo`. Los registros y adjuntos no se borran por falta de pago.
-- La demo pública de `server/public-trial/` y sus 24 horas siguen independientes. No existe prueba comercial de siete días. Las copias offline ya descargadas no se borran por este cambio; los endpoints operacionales nuevos quedan sujetos al control de suscripción.
+- La demo pública de `server/public-trial/` y sus 24 horas siguen independientes. El periodo gratuito de autoservicio solo existe bajo su propia bandera de sandbox, nunca como trial de Stripe ni en producción. Las copias offline ya descargadas no se borran por este cambio; los endpoints operacionales nuevos quedan sujetos al control de suscripción.
 
 ## Recuperación y límites antes de producción
 

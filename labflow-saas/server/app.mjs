@@ -1,3 +1,4 @@
+import {onboardingRoutes,onboardingGate} from './onboarding.mjs';
 import {stripeRoutes,stripeAccessGate} from './stripe.mjs';
 import {offlineAssets,offlineRoutes} from './offline/routes.mjs';
 import {PublicTrialStore,validateTrialLocation} from './public-trial/store.mjs';
@@ -6,7 +7,7 @@ import {fileURLToPath} from 'node:url';
 import {finalizeSeo} from './seo.mjs';
 import {pwaResponse,pwaHead,pwaRegistration} from './pwa.mjs';
 import {tenantSlugForHost} from './tenant-hosts.mjs';
-import worker,{membershipSaas} from '../worker/index.js';
+import worker,{membershipSaas,emptyTenantSaas,platformLoadSaas} from '../worker/index.js';
 import {readFileSync} from 'node:fs';
 import {storageBucket} from './storage.mjs';
 import {providerAuth,providerSession} from './auth.mjs';
@@ -19,6 +20,7 @@ export function createApp({db,publicUrl,env={},stripeTransport}){
  const trialRoutes=publicTrialRoutes(trialStore,{origin});
  const stripeHandler=stripeRoutes({env,origin,bucket,resolveContract:membershipSaas,transport:stripeTransport});
  const bindings={BUCKET:bucket,PUBLIC_TRIAL_AVAILABLE:String(!!trialStore),...Object.fromEntries(['SALES_ENABLED','SALES_CHANNEL','SALES_TO','RESEND_API_KEY','EMAIL_FROM','OPENAI_API_KEY','OPENAI_MODEL','QUBITO_TENANT_HOURLY_LIMIT','QUBITO_TENANT_MONTHLY_LIMIT','TENANT_SUBDOMAINS_ENABLED'].filter(k=>env[k]).map(k=>[k,env[k]]))};
+ const onboarding=onboardingRoutes({env,origin,bucket,resolveContract:membershipSaas,seedTenant:emptyTenantSaas,initialize:()=>platformLoadSaas(bindings)});
  let offlineEnabled=env.OFFLINE_DOCUMENTS_ENABLED==='true',offlineHandler;
  try{offlineHandler=offlineRoutes({db,origin,worker,bindings,enabled:offlineEnabled});}catch{offlineEnabled=false;offlineHandler=async req=>/^\/laboratorio\/[a-z0-9-]+\/api\/offline\//.test(new URL(req.url).pathname)?new Response(JSON.stringify({error:'La consulta offline está temporalmente indisponible; conserva las copias existentes.',code:'OFFLINE_TEMPORARILY_UNAVAILABLE'}),{status:503,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}}):null;console.error('Consulta offline desactivada: revisa permisos de las tablas de dispositivos. El sistema principal sigue disponible.');}
  async function handle(req,{ip='local',waitUntil=p=>p.catch(()=>{})}={}){
@@ -38,7 +40,9 @@ export function createApp({db,publicUrl,env={},stripeTransport}){
    if(requestOrigin===externalOrigin)incomingHeaders.set('origin',origin);
    url=new URL(origin+'/laboratorio/'+slug+url.pathname+url.search);req=new Request(url, new Request(req,{headers:incomingHeaders}));
   }
+  const onboardingResponse=await onboarding(req);if(onboardingResponse)return onboardingResponse;
   const stripeResponse=await stripeHandler(req);if(stripeResponse)return stripeResponse;
+  const signupAccess=await onboardingGate(bucket,req);if(signupAccess)return signupAccess;
   const billingAccess=await stripeAccessGate(bucket,req);if(billingAccess)return billingAccess;
   // Path links work on the main domain until the operator explicitly enables verified subdomains.
   const entryPath=!slug&&url.pathname.match(/^\/laboratorio\/([a-z0-9](?:[a-z0-9-]{1,48}[a-z0-9]))\/?$/);

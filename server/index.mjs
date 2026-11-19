@@ -11,7 +11,7 @@ const db=await openStorage(process.env);
 await ensureProvider(db,{username:process.env.CUBOLABS_ADMIN_USERNAME||'admin',name:process.env.CUBOLABS_ADMIN_NAME||'Administrador del servicio',password:process.env.CUBOLABS_ADMIN_PASSWORD,mustChangePassword:process.env.CUBOLABS_ADMIN_FORCE_PASSWORD_CHANGE==='true'});
 const handle=createApp({db,publicUrl,env:process.env}),pending=new Set();
 const server=createServer(async(req,res)=>{try{
- const requestPath=(req.url||'').split('?')[0],bodyLimit=requestPath.includes('/api/billing/stripe')?262144:requestPath.startsWith('/api/trial/')?12000:requestPath==='/api/public/lead'?16000:requestPath.includes('/api/offline/')?4000:50*1024*1024;
+ const requestPath=(req.url||'').split('?')[0],bodyLimit=requestPath.startsWith('/api/onboarding/')?8192:requestPath.includes('/api/billing/stripe')?262144:requestPath.startsWith('/api/trial/')?12000:requestPath==='/api/public/lead'?16000:requestPath.includes('/api/offline/')?4000:50*1024*1024;
  const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>bodyLimit){res.writeHead(413);res.end('Solicitud demasiado grande');return;}chunks.push(chunk);}
  const host=req.headers.host||parsed.host;let requestOrigin;try{const incoming=new URL(parsed.protocol+'//'+host);if(incoming.host!==host||incoming.username||incoming.password)throw Error();requestOrigin=incoming.origin;}catch{res.writeHead(400);res.end();return;}
  const url=new URL(req.url,requestOrigin);if(url.origin!==requestOrigin){res.writeHead(400);res.end();return;}
