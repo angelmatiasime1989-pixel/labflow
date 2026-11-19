@@ -2,7 +2,7 @@ import {randomUUID,createHash} from 'node:crypto';
 import {readStripeConfig,priceCatalog} from './stripe/config.mjs';
 import {mutatePlatform,laboratoryAdmin} from './stripe/store.mjs';
 import {billingError} from './stripe/client.mjs';
-import {onboardingPage,welcomePage,billingUnavailablePage} from './onboarding-page.mjs';
+import {onboardingPage,welcomePage,billingUnavailablePage,purchaseUnavailablePage} from './onboarding-page.mjs';
 const headers={'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store, private','X-Content-Type-Options':'nosniff','X-Robots-Tag':'noindex, nofollow'};
 const json=(value,status=200)=>new Response(JSON.stringify(value),{status,headers});
 const html=value=>new Response(value,{headers:{...headers,'Content-Type':'text/html; charset=utf-8','Content-Security-Policy':"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"}});
@@ -16,7 +16,7 @@ export function onboardingRoutes({env,origin,bucket,resolveContract,seedTenant,i
    if(url.origin!==origin)throw billingError(404,'NOT_FOUND','Ruta no disponible.');
    if(path==='/registro-prueba'&&req.method==='GET')return Response.redirect(origin+'/contratar?intent=trial',303);
    if(path==='/api/onboarding/config'&&req.method==='GET')return json(config.enabled?config:{enabled:false});
-   if(!config.enabled){if(req.method==='GET'&&!path.startsWith('/api/'))return html(onboardingPage({enabled:false}));throw billingError(503,'ONBOARDING_DISABLED','El registro de pruebas no está habilitado.');}
+   if(!config.enabled){if(path==='/contratar'&&req.method==='GET'&&url.searchParams.get('intent')!=='trial')return html(purchaseUnavailablePage(priceCatalog,url.searchParams.get('plan'),url.searchParams.get('cycle')));if(req.method==='GET'&&!path.startsWith('/api/'))return html(onboardingPage({enabled:false}));throw billingError(503,'ONBOARDING_DISABLED','El registro de pruebas no está habilitado.');}
    if(unavailable){if(req.method!=='GET')throw billingError(405,'METHOD_NOT_ALLOWED','Método no permitido.');const {customer}=await laboratoryAdmin(bucket,req,unavailable[1]);return html(billingUnavailablePage(customer,priceCatalog.find(p=>p.plan===url.searchParams.get('plan')&&p.cycle===url.searchParams.get('cycle'))));}
    if(match){if(req.method!=='GET')throw billingError(405,'METHOD_NOT_ALLOWED','Método no permitido.');const {customer}=await laboratoryAdmin(bucket,req,match[1]);if(!customer.selfService)throw billingError(404,'NOT_FOUND','Este espacio no procede del registro de pruebas.');return html(welcomePage(customer));}
    if(['/registro-prueba','/registrarse','/contratar'].includes(path)&&req.method==='GET')return html(onboardingPage({...config,trial:url.searchParams.get('intent')==='trial',registration:path==='/registrarse',prices:priceCatalog}));
