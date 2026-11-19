@@ -28,5 +28,5 @@ export function mailService({bucket,env={},origin,transport=fetch,clock=Date.now
   for(const customer of customers.filter(c=>c.status==='Activo'&&(!customerId||c.id===customerId))){if(customer.selfService&&!(customer.stripeBilling?.managed&&customer.stripeBilling.access&&customer.stripeBilling.accessUntil>clock()))continue;if(!customerId&&!customer.selfService)continue;await send({to:customer.email,subject:'Qubo Labs · Tu espacio está confirmado',text:'Tu espacio de laboratorio está confirmado. Ingresa con tus credenciales en '+origin+'/laboratorio/'+encodeURIComponent(customer.slug)+'/\nEste correo no incluye contraseñas ni modifica tu membresía.'},'welcome:'+customer.id);}
  }
  const workerSend=async(message,eventKey)=>{const result=await send({...message,to:Array.isArray(message.to)?message.to[0]:message.to},eventKey);return new Response(JSON.stringify(result.sent?{id:result.id||'already-accepted'}:{error:'Correo no enviado'}),{status:result.sent?200:503,headers:{'Content-Type':'application/json'}});};
- return {enabled:config.enabled,from:config.from,send,welcome,workerSend};
+ return {enabled:config.enabled,from:config.from,canSendTo:address=>config.enabled&&config.recipients.includes(String(address||'').trim().toLowerCase()),send,welcome,workerSend};
 }

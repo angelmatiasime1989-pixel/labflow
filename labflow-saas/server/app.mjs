@@ -26,6 +26,7 @@ export function createApp({db,publicUrl,env={},stripeTransport,financeTransport,
  const stripeHandler=stripeRoutes({env,origin,bucket,resolveContract:membershipSaas,transport:stripeTransport});
  const bindings={BUCKET:bucket,PUBLIC_TRIAL_AVAILABLE:String(!!trialStore),...Object.fromEntries(['SALES_ENABLED','SALES_CHANNEL','SALES_TO','OPENAI_API_KEY','OPENAI_MODEL','QUBITO_TENANT_HOURLY_LIMIT','QUBITO_TENANT_MONTHLY_LIMIT','TENANT_SUBDOMAINS_ENABLED'].filter(k=>env[k]).map(k=>[k,env[k]]))};
  if(mail.enabled){bindings.SEND_MAIL=mail.workerSend;bindings.EMAIL_FROM=mail.from;bindings.SITE_URL=origin+'/entrar';}
+ if(env.SALES_CHANNEL==='resend'&&!mail.canSendTo(env.SALES_TO))bindings.SALES_ENABLED='false';
  const onboarding=onboardingRoutes({env,origin,bucket,resolveContract:membershipSaas,seedTenant:emptyTenantSaas,initialize:()=>platformLoadSaas(bindings)});
  let offlineEnabled=env.OFFLINE_DOCUMENTS_ENABLED==='true',offlineHandler;
  try{offlineHandler=offlineRoutes({db,origin,worker,bindings,enabled:offlineEnabled});}catch{offlineEnabled=false;offlineHandler=async req=>/^\/laboratorio\/[a-z0-9-]+\/api\/offline\//.test(new URL(req.url).pathname)?new Response(JSON.stringify({error:'La consulta offline está temporalmente indisponible; conserva las copias existentes.',code:'OFFLINE_TEMPORARILY_UNAVAILABLE'}),{status:503,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}}):null;console.error('Consulta offline desactivada: revisa permisos de las tablas de dispositivos. El sistema principal sigue disponible.');}
