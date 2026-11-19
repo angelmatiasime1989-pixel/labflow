@@ -10,7 +10,7 @@ async function complete(f,stripe){const c=await state(f);return stripe.complete(
 async function webhook(f,event,opts){return f.app(signedRequest(event,opts));}
 test('test-only configuration and exact prices; missing/live/production configurations cannot call Stripe',async t=>{
  assert.deepEqual(priceCatalog.map(p=>p.amount),[79000,853200,149000,1609200,249000,2689200,449000,4849200]);
- for(const override of [{STRIPE_ENABLED:'false'},{STRIPE_TEST_MODE:'false'},{STRIPE_SECRET_KEY:'sk_live_forbidden'},{NODE_ENV:'production'},{STRIPE_PRICE_GOLD_MONTHLY:''}]){const stripe=fakeStripe(),f=await fixture(t,{...stripe.env,...override},'https://review.test',{stripeTransport:stripe.transport});assert.equal(readStripeConfig({...stripe.env,...override}).enabled,false);assert.equal((await f.request('/api/billing/stripe/webhook',{})).status,503);assert.equal(stripe.calls.length,0);assert.equal((await f.request('/')).status,200);}
+ for(const override of [{STRIPE_ENABLED:'false'},{STRIPE_TEST_MODE:'false'},{STRIPE_SECRET_KEY:'sk_live_forbidden'},{STRIPE_SECRET_KEY:'rk_live_forbidden'},{NODE_ENV:'production'},{STRIPE_PRICE_GOLD_MONTHLY:''}]){const stripe=fakeStripe(),f=await fixture(t,{...stripe.env,...override},'https://review.test',{stripeTransport:stripe.transport});assert.equal(readStripeConfig({...stripe.env,...override}).enabled,false);assert.equal((await f.request('/api/billing/stripe/webhook',{})).status,503);assert.equal(stripe.calls.length,0);assert.equal((await f.request('/')).status,200);}
 });
 test('only current lab administrator; no provider/cross-tenant/forged identity, CSRF, arbitrary prices or trials',async t=>{
  const {f,stripe,cookie}=await setup(t);

@@ -1,6 +1,6 @@
 # Stripe: rama de integración para pruebas
 
-Esta implementación funciona **solo en modo de pruebas**. No está autorizada para producción. El registro opcional de un espacio de prueba aislado se documenta en [self-service-test.md](self-service-test.md). Checkout alojado y portal se abren únicamente para el administrador autenticado del propio laboratorio. Enterprise Custom sigue por cotización y la demo documental aislada de 24 horas no cambia.
+Esta implementación funciona **solo en modo de pruebas**. El código puede publicarse con sus funciones deshabilitadas; no está autorizado activar cobros ni el registro de pruebas en producción. El registro opcional de un espacio de prueba aislado se documenta en [self-service-test.md](self-service-test.md). Checkout alojado y portal se abren únicamente para el administrador autenticado del propio laboratorio. Enterprise Custom sigue por cotización y la demo documental aislada de 24 horas no cambia.
 
 ## Límites deliberados
 
@@ -72,7 +72,7 @@ Los POST del laboratorio requieren cookie vigente de ese laboratorio, rol actual
 
 ## Recuperación y límites antes de producción
 
-Esta rama no debe fusionarse o desplegarse a producción sin revisión adicional. El bloqueo de modo producción es intencional.
+La publicación del código en main no habilita Stripe. El bloqueo de modo producción y el rechazo de claves live son intencionales y permanecen activos.
 
 - Si se pierde la respuesta de un checkout, reintentar con el `requestId` pendiente que muestra el estado. Tras más de 23 horas con resultado desconocido, se bloquea la recreación: un operador debe conciliar en el sandbox la sesión/cliente antes de liberar la reserva. No borrar reservas para forzar un nuevo cobro.
 - Si se pierde un webhook, el administrador dispone de «Consultar estado en Stripe». No hay conciliador periódico todavía; al expirar la cobertura pagada se deniega acceso hasta verificarla de nuevo.

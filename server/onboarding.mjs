@@ -6,7 +6,7 @@ import {onboardingPage,welcomePage,billingUnavailablePage} from './onboarding-pa
 const headers={'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store, private','X-Content-Type-Options':'nosniff','X-Robots-Tag':'noindex, nofollow'};
 const json=(value,status=200)=>new Response(JSON.stringify(value),{status,headers});
 const html=value=>new Response(value,{headers:{...headers,'Content-Type':'text/html; charset=utf-8','Content-Security-Policy':"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"}});
-export function onboardingConfig(env={}){const days=Number(env.COMMERCIAL_TRIAL_DAYS||7);return {enabled:env.SELF_SERVICE_TEST_ENABLED==='true'&&env.NODE_ENV!=='production'&&env.STRIPE_TEST_MODE==='true'&&Number.isInteger(days)&&days>=1&&days<=30,days,stripeAvailable:readStripeConfig(env).enabled};}
+export function onboardingConfig(env={}){const days=Number(env.COMMERCIAL_TRIAL_DAYS||15);return {enabled:env.SELF_SERVICE_TEST_ENABLED==='true'&&env.NODE_ENV!=='production'&&env.STRIPE_TEST_MODE==='true'&&Number.isInteger(days)&&days>=1&&days<=30,days,stripeAvailable:readStripeConfig(env).enabled};}
 export function onboardingRoutes({env,origin,bucket,resolveContract,seedTenant,initialize}){
  const config=onboardingConfig(env);
  return async req=>{

@@ -1,6 +1,6 @@
 # Registro y contratación en entorno de pruebas
 
-Implementado en `stripe-test-integration`. No desplegar esta rama en producción. No se han cambiado hPanel, claves, productos, precios, impuestos ni datos productivos.
+Implementado en `stripe-test-integration`. Publicar el código no habilita el registro: no activar las banderas de sandbox en producción. No se han cambiado hPanel, claves, productos, precios, impuestos ni datos productivos.
 
 ## Activación aislada
 
@@ -10,7 +10,7 @@ En un entorno local/sandbox con base exclusiva de datos sintéticos:
 NODE_ENV=development
 SELF_SERVICE_TEST_ENABLED=true
 STRIPE_TEST_MODE=true
-COMMERCIAL_TRIAL_DAYS=7
+COMMERCIAL_TRIAL_DAYS=15
 ```
 
 Las dos banderas son obligatorias. `NODE_ENV=production` bloquea el registro aunque estén activadas; `SELF_SERVICE_TEST_ENABLED=false` es el valor de ejemplo. La duración admite enteros de 1 a 30 días y solo se revela cuando el registro está habilitado. No conectar este entorno a la base de producción.
@@ -21,13 +21,13 @@ Stripe es opcional para registrar: sin su configuración, la prueba funciona y l
 
 | Entrada | Resultado |
 | --- | --- |
-| Landing → Iniciar periodo de prueba | `/registro-prueba`, registro de laboratorio real de pruebas y administrador, login y `/laboratorio/:slug/prueba` con vencimiento exacto. |
+| Landing → Iniciar prueba gratuita / Registrarse | `/registro-prueba`, registro de laboratorio real de pruebas y administrador, login y `/laboratorio/:slug/prueba` con vencimiento exacto. |
 | Landing → Contratar membresía | `/contratar`, elección de plan y periodicidad, registro o ingreso con credenciales del laboratorio, selección conservada en `/laboratorio/:slug/suscripcion`. |
-| Tarjeta de membresía | Conserva el plan y el interruptor mensual/anual. Enterprise continúa en cotización. |
+| Tarjeta de membresía | La prueba de todas las tarjetas tiene alcance Silver, indicado en cada tarjeta. Contratar conserva su propio plan y el interruptor mensual/anual. Enterprise continúa en cotización. |
 | Demo documental | `/prueba-documental`, conserva su flujo separado de 24 horas y su propia bandera. |
 | Blog y FAQ | Desaparecen de ambos menús de cabecera; sus páginas y artículos siguen accesibles desde el pie. Se conservan los enlaces contextuales de ayuda en el contenido. |
 
-La prueba tiene alcance Silver, sin tarjeta, sin contacto con Stripe y sin renovación automática. El vencimiento se fija una sola vez al registrar y se comprueba en cada solicitud operacional, antes del acceso offline en servidor y también en el gateway. Al vencer se conserva la información y se bloquea el acceso operacional. Las copias previamente descargadas no se borran remotamente cuando el equipo está sin conexión.
+La prueba usa 15 días por defecto (configurable), tiene alcance Silver, sin tarjeta, sin contacto con Stripe y sin renovación automática. El vencimiento se fija una sola vez al registrar y se comprueba en cada solicitud operacional, antes del acceso offline en servidor y también en el gateway. Al vencer se conserva la información y se bloquea el acceso operacional. Las copias previamente descargadas no se borran remotamente cuando el equipo está sin conexión.
 
 Un registro para contratar no recibe acceso operacional hasta una suscripción pagada y verificada. La página de retorno no cambia permisos. Una suscripción verificada sustituye el periodo de prueba para determinar el acceso; una suspensión manual del proveedor continúa teniendo prioridad.
 
@@ -56,3 +56,16 @@ npm run check:hostinger-source
 ```
 
 Los tests usan bases temporales SQLite o bases sintéticas en MariaDB 11.8.9 local. Stripe se simula, incluyendo su firma de webhook; Chromium bloquea cualquier navegación externa a Stripe. Se verifican escritorio 1440 px y móvil 390 px, registro, sesión, vencimiento, plan y periodicidad al registrar o ingresar, Checkout simulado y funcionamiento sin claves. No constituye un ensayo extremo a extremo con Stripe ni una validación de producción.
+
+## Publicación del piloto con Stripe bloqueado
+
+- Rama de trabajo: `stripe-test-integration`; integración base `540303d`, registro inicial `8e18b6d` (entonces 7 días). El ajuste posterior cambia el valor predeterminado a 15; no existía previamente un piloto de 15 días desplegado desde esta rama.
+- Los botones permanecen visibles; si el registro está deshabilitado, el mensaje de disponibilidad y la página de destino lo indican, sin prometer duración ni crear espacios.
+- Añadir `STRIPE_SECRET_KEY` y `STRIPE_PRICE_GOLD_MONTHLY` no habilita esta implementación. Incluso con todas las banderas activadas, `sk_live_…`, `rk_live_…` y `NODE_ENV=production` son rechazados. Los tests prueban que no se llama al transporte Stripe en esos casos.
+- No se han modificado productos, precios, claves ni configuración fiscal. No se enviarán eventos al webhook de producción para validarlo.
+- URL prevista para el dominio público: `https://qubolabs.tech/api/billing/stripe/webhook`. Una instancia de pruebas debe usar SU propio origen HTTPS y esta misma ruta. El endpoint publicado continúa respondiendo como deshabilitado mientras no exista una configuración de pruebas admisible.
+- Eventos snapshot, versión `2026-10-28.endive`: `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `invoice.paid`, `invoice.payment_failed`.
+
+Para ensayar Gold mensual con **el código actual** se requieren `STRIPE_ENABLED=true`, `STRIPE_TEST_MODE=true`, `NODE_ENV` distinto de `production`, `STRIPE_SECRET_KEY` de pruebas, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PORTAL_CONFIGURATION` y **los ocho** IDs únicos de precios: `STRIPE_PRICE_SILVER_MONTHLY`, `STRIPE_PRICE_SILVER_ANNUAL`, `STRIPE_PRICE_GOLD_MONTHLY`, `STRIPE_PRICE_GOLD_ANNUAL`, `STRIPE_PRICE_PLATINUM_MONTHLY`, `STRIPE_PRICE_PLATINUM_ANNUAL`, `STRIPE_PRICE_DIAMOND_MONTHLY`, `STRIPE_PRICE_DIAMOND_ANNUAL`. No existe aún un modo reducido de solo Gold mensual. Gold mensual corresponde a MXN 1,490 antes de IVA; no se han creado ni cambiado precios.
+
+Para registrar espacios además se requiere `SELF_SERVICE_TEST_ENABLED=true`; `COMMERCIAL_TRIAL_DAYS` puede sobrescribir los 15 días predeterminados. Estas instrucciones son para un entorno aislado, no para activar las variables en Hostinger productivo.
