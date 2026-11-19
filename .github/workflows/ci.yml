@@ -27,6 +27,7 @@ jobs:
           test -n "$CHROMIUM_BIN"
           npm run test:pwa-browser
           npm run test:finance-browser
+          npm run test:workspace-browser
       - name: Conservar informe de navegador
         uses: actions/upload-artifact@v4
         with:
