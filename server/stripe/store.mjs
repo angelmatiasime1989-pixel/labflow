@@ -18,5 +18,5 @@ export async function laboratoryAdmin(bucket,req,slug){
  if(!user?.active||!(session.expires>Date.now())||(user.authVersion||1)!==session.authVersion)throw billingError(401,'SESSION_REVOKED','Sesión vencida o revocada.');
  if(user.role!=='Administrador')throw billingError(403,'ADMIN_REQUIRED','Solo el administrador del laboratorio gestiona su suscripción.');
  if(customer.status!=='Activo')throw billingError(403,'LAB_UNAVAILABLE','El proveedor debe habilitar este laboratorio.');
- return {customer,user};
+ if(customer.internalTest===true)throw billingError(403,'INTERNAL_TEST','Laboratorio interno de pruebas: facturación externa bloqueada.');return {customer,user};
 }

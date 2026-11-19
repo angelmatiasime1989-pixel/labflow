@@ -8,7 +8,7 @@ export function validatePrice(price,expected,{checkout=false}={}){
 }
 export function billingService({bucket,config,api,origin,resolveContract}){
  async function ensureCustomer(tenant){
-  const key=await mutatePlatform(bucket,state=>{const c=state.customers.find(c=>c.id===tenant);if(!c)reject('LAB_NOT_FOUND','Laboratorio no encontrado.',404);c.stripeBilling??={};if(c.stripeBilling.customerId)return {unchanged:true,value:c.stripeBilling};c.stripeBilling.customerCreateKey??=randomUUID();return {value:{...c.stripeBilling}};});
+  const key=await mutatePlatform(bucket,state=>{const c=state.customers.find(c=>c.id===tenant);if(!c)reject('LAB_NOT_FOUND','Laboratorio no encontrado.',404);if(c.internalTest===true)reject('INTERNAL_TEST','Facturación bloqueada para pruebas internas.',403);c.stripeBilling??={};if(c.stripeBilling.customerId)return {unchanged:true,value:c.stripeBilling};c.stripeBilling.customerCreateKey??=randomUUID();return {value:{...c.stripeBilling}};});
   if(key.customerId)return key.customerId;
   const remote=await api('POST','/customers',{metadata:{qubo_tenant:tenant}},'qubo-customer-'+key.customerCreateKey);
   if(remote.livemode!==false||!/^cus_[A-Za-z0-9_]+$/.test(remote.id)||remote.metadata?.qubo_tenant!==tenant)reject('CUSTOMER_MISMATCH','Cliente de Stripe inválido.',502);
@@ -48,7 +48,7 @@ export function billingService({bucket,config,api,origin,resolveContract}){
  async function applySubscription(state,subscriptionId){
   const sub=await api('GET','/subscriptions/'+subscriptionId);
   if(sub.id!==subscriptionId||sub.livemode!==false)reject('SUBSCRIPTION_MISMATCH','Suscripción inválida.',400);
-  const c=state.customers.find(c=>c.stripeBilling?.customerId===idOf(sub.customer));if(!c)return 'unrelated-customer';const b=c.stripeBilling;
+  const c=state.customers.find(c=>c.stripeBilling?.customerId===idOf(sub.customer));if(!c)return 'unrelated-customer';if(c.internalTest===true)return 'internal-test-ignored';const b=c.stripeBilling;
   if(sub.metadata?.qubo_tenant!==c.id)reject('TENANT_MISMATCH','Suscripción no vinculada al laboratorio.',400);
   if(b.subscriptionId!==sub.id){
    if(!b.pending||sub.metadata.qubo_checkout_request!==b.pending.requestId)return 'unrelated-subscription';

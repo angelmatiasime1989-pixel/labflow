@@ -3,6 +3,9 @@ import {localDate} from './model.mjs';
 export async function readStripe({env,start,end,timezone,customers=[],transport}){
  const mode=env.STRIPE_FINANCE_MODE||'live',secret=env.STRIPE_SECRET_KEY||'',unavailable={available:false,mode,transactions:[],payouts:[],reason:'No disponible: revisa configuración y permisos de lectura.'};
  if(env.STRIPE_FINANCE_ENABLED!=='true'||!['live','test'].includes(mode)||!new RegExp('^(sk|rk)_'+mode+'_[A-Za-z0-9]+$').test(secret))return unavailable;
+ // A test space must never be linked to Stripe. Fail closed for legacy/corrupt links:
+ // unallocated fees/refunds/payouts cannot be reliably separated by customer.
+ if(customers.some(c=>c.internalTest===true&&c.stripeBilling?.customerId))return {...unavailable,reason:'No disponible: un laboratorio interno de pruebas está vinculado a Stripe; requiere revisión.'};
  async function list(path,range){let cursor,rows=[];for(let n=0;n<100;n++){const q=new URLSearchParams({limit:'100',...range,...(cursor?{starting_after:cursor}:{})});if(path==='/balance_transactions')q.append('expand[]','data.source');const url='https://api.stripe.com/v1'+path+'?'+q;
  const response=await (transport||fetch)(url,{method:'GET',headers:{Authorization:'Bearer '+secret,'Stripe-Version':'2026-10-28.endive'},signal:AbortSignal.timeout(15000)});if(!response.ok)throw Error('read unavailable');const data=await response.json();if(!Array.isArray(data.data)||typeof data.has_more!=='boolean')throw Error('invalid list');rows.push(...data.data);if(!data.has_more)return rows;const next=data.data.at(-1)?.id;if(!next||next===cursor)throw Error('invalid pagination');cursor=next;}throw Error('pagination limit');}
  try{const [balances,payouts]=await Promise.all([list('/balance_transactions',{'created[gte]':String(start),'created[lt]':String(end)}),list('/payouts',{'arrival_date[gte]':String(start),'arrival_date[lt]':String(end)})]);const ids=new Set();
