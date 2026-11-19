@@ -10,5 +10,5 @@ export function financeAdminPage(){
  const html='<div class="finance-view">'+content+'</div>';
  return admin.replace("page=adminPageFromUrl()","page='finance'")
   .replace('</style>','\n'+styles+'</style>')
-  .replace('\nstart();','\nfunction financePage(){$(\'#content\').innerHTML=head(\'Finanzas\',\'Resultado de flujo, ingresos, gastos y movimientos.\')+'+JSON.stringify(html)+';\n(function(){'+script+'})();}\nstart();');
+  .replace('\nstart();','\nfunction financePage(){$(\'#content\').innerHTML=head(\'Finanzas\',\'Control de ingresos y gastos.\')+'+JSON.stringify(html)+';\n(function(){'+script+'})();}\nstart();');
 }

@@ -33,3 +33,13 @@ Referencias oficiales: [transacciones de saldo](https://docs.stripe.com/api/bala
 ## Pruebas
 
 `node --test scripts/finance-test.mjs`; repetir con `MYSQL_TEST=true MYSQL_TEST_PORT=3308` para servidor aislado local. `npm run test:finance-browser` verifica Chromium escritorio y móvil, uno/tres años, barras positivas/negativas, detalle por teclado/clic, registro y corrección, estados parciales y ausencia de desbordamiento de página. Todos los datos, claves y respuestas son sintéticos; no son pruebas contra cuentas Stripe reales. `financeTransport` y `financeClock` son dependencias de código de las pruebas, no variables habilitables desde HTTP.
+
+## Resumen manual y medio de pago
+
+La vista global de Finanzas muestra ingresos manuales cobrados, gastos manuales pagados y resultado manual del mes aun cuando Stripe no esté disponible. El total completo con Stripe conserva su estado parcial/no disponible: no se sustituye por cero. Los pendientes no se suman y los depósitos no son ingresos adicionales.
+
+El mes del detalle se consulta explícitamente (`month=AAAA-MM`), independiente de hasta tres años del gráfico. Al guardar o corregir se abre el periodo efectivo del movimiento y se limpian rubro/proyecto para evitar ocultarlo. El formulario queda plegado y los filtros secundarios permanecen en «Más filtros». El historial rayado muestra únicamente el resultado manual cuando el total completo es parcial.
+
+Medios de pago manuales: efectivo, transferencia, tarjeta de débito/crédito, cheque, otro y sin especificar. Solo registra el medio; no procesa pagos. Los registros anteriores conservan sus datos y se muestran como «Sin especificar»; no hay migración destructiva. La corrección conserva auditoría, revisión e idempotencia. Los permisos siguen limitados al administrador global.
+
+Pruebas específicas: mes noviembre de 2025 con gráfico de 2026; ingresos/gastos manuales visibles sin Stripe; guardar, corregir y recargar; filtros y medios de pago válidos/inválidos; registros anteriores sin campo; SQLite y MariaDB 11.8.9; Chromium 1440 y 390 px con comparación de hasta tres años, teclado y sin desbordamiento. Los registros y proveedores son simulados. No se consultaron movimientos reales del usuario.

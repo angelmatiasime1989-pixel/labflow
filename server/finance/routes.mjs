@@ -1,4 +1,4 @@
-import {categories,zone,localDate,monthStart,ledger,saveEntry,monthly,fail} from './model.mjs';
+import {categories,paymentMethods,zone,localDate,monthStart,ledger,saveEntry,monthly,fail} from './model.mjs';
 import {readStripe} from './stripe-read.mjs';
 import {financeAdminPage} from './shell.mjs';
 const page=financeAdminPage();
@@ -13,9 +13,11 @@ export function financeRoutes({bucket,env,origin,transport,clock=()=>Date.now()}
  if(req.method!=='GET')return json({error:'Método no permitido.'},405);
  const years=(url.searchParams.get('years')||today.slice(0,4)).split(',').map(Number);if(!years.length||years.length>3||new Set(years).size!==years.length||years.some(y=>!Number.isInteger(y)||y<2000||y>Number(today.slice(0,4))))fail('Selecciona de uno a tres años, hasta el año actual.');
  const category=url.searchParams.get('category')||'',project=url.searchParams.get('project')||'';if(category.length>100||project.length>100)fail('Filtro inválido.');
+ const selectedMonth=url.searchParams.get('month')||today.slice(0,7);if(!/^(?:20\d{2})-(?:0[1-9]|1[0-2])$/.test(selectedMonth)||Number(selectedMonth.slice(0,4))>Number(today.slice(0,4)))fail('Mes inválido.');const selectedYear=Number(selectedMonth.slice(0,4));
  const {state}=await ledger(bucket),platformObject=await bucket.get('saas/platform-v1.json'),platform=platformObject?await platformObject.json():{};
- const stripe=await readStripe({env,start:monthStart(Math.min(...years)+'-01',timezone),end:monthStart((Math.max(...years)+1)+'-01',timezone),timezone,customers:platform.customers,transport});
+ const stripe=await readStripe({env,start:monthStart(Math.min(...years,selectedYear)+'-01',timezone),end:monthStart((Math.max(...years,selectedYear)+1)+'-01',timezone),timezone,customers:platform.customers,transport});
  const months=years.flatMap(y=>Array.from({length:12},(_,i)=>monthly({month:`${y}-${String(i+1).padStart(2,'0')}`,entries:state.entries,transactions:stripe.transactions,stripe,timezone,today,category,project})));
- return json({today,timezone,years,categories,months,entries:state.entries.filter(e=>years.includes(Number(e.date.slice(0,4)))&&(!category||e.category===category)&&(!project||e.project===project)),stripe:{...stripe,transactions:stripe.transactions.filter(e=>years.includes(Number(e.date.slice(0,4)))&&(!category||e.category===category)&&(!project||e.project===project)),payouts:stripe.payouts.filter(e=>years.includes(Number(e.date.slice(0,4))))}});
+ const detail=months.find(m=>m.month===selectedMonth)||monthly({month:selectedMonth,entries:state.entries,transactions:stripe.transactions,stripe,timezone,today,category,project});
+ return json({today,timezone,years,categories,paymentMethods,months,detail,entries:state.entries.filter(e=>(years.includes(Number(e.date.slice(0,4)))||e.date.startsWith(selectedMonth))&&(!category||e.category===category)&&(!project||e.project===project)),stripe:{...stripe,transactions:stripe.transactions.filter(e=>(years.includes(Number(e.date.slice(0,4)))||e.date.startsWith(selectedMonth))&&(!category||e.category===category)&&(!project||e.project===project)),payouts:stripe.payouts.filter(e=>(years.includes(Number(e.date.slice(0,4)))||e.date.startsWith(selectedMonth)))}});
  }catch(e){return json({error:e.status?e.message:'No se pudo consultar Finanzas.'},e.status||503);}
 };}

@@ -19,6 +19,19 @@ test('finance deep link uses the provider shell and rejects laboratory sessions'
  for(const path of ['/admin/finanzas','/admin/finanzas/']){
   assert.equal((await f.request(path,null,{cookie:lab})).status,303);
   const response=await f.request(path);assert.equal(response.status,200);const html=await response.text();
-  assert.match(html,/function financePage/);assert.match(html,/class="layout"/);assert.match(html,/Administración SaaS/);assert.doesNotMatch(html,/← Administración/);assert.match(html,/Resultado mensual/);assert.match(html,/page='finance'/);
+  assert.match(html,/function financePage/);assert.match(html,/class="layout"/);assert.match(html,/Administración SaaS/);assert.doesNotMatch(html,/← Administración/);assert.match(html,/Resumen mensual/);assert.match(html,/page='finance'/);
  }
+});
+test('selected month is independent of comparison years and manual totals remain visible without Stripe',async t=>{
+ const f=await fixture(t,{},undefined,{financeClock:clock});await f.request(endpoint,input({date:'2025-11-12',amount:'1234.56',paymentMethod:'transfer'}));await f.request(endpoint,input({kind:'expense',date:'2025-11-13',amount:'234.56',category:'Operación',paymentMethod:'cash'}));await f.request(endpoint,input({date:'2025-11-14',amount:'900.00',status:'pending'}));
+ const r=await f.request(endpoint+'?years=2026&month=2025-11');assert.equal(r.status,200);const d=await r.json();assert.deepEqual(d.years,[2026]);assert.equal(d.months.length,12);assert.equal(d.detail.month,'2025-11');assert.equal(d.detail.manualIncome,123456);assert.equal(d.detail.expenses,23456);assert.equal(d.detail.manualSubtotal,100000);assert.equal(d.detail.result,null);assert.equal(d.detail.partial,true);assert.equal(d.entries.length,3);
+ const filtered=await(await f.request(endpoint+'?years=2026&month=2025-11&category=Consultor%C3%ADa')).json();assert.equal(filtered.detail.manualIncome,123456);assert.equal(filtered.detail.expenses,0);
+ for(const month of ['2025-00','2025-13','1999-11','2027-01'])assert.equal((await f.request(endpoint+'?month='+month)).status,400);
+});
+test('payment methods validate, persist, correct with audit and retain legacy records and retries',async t=>{
+ const f=await fixture(t,{},undefined,{financeClock:clock});const old=input(),saved=await(await f.request(endpoint,old)).json();assert.deepEqual(await(await f.request(endpoint,old)).json(),saved);
+ for(const paymentMethod of ['cash','transfer','debit_card','credit_card','check','other','unspecified'])assert.equal((await f.request(endpoint,input({paymentMethod}))).status,200);
+ for(const paymentMethod of ['unknown','',null,{},['cash']])assert.equal((await f.request(endpoint,input({paymentMethod}))).status,400);
+ const body=input({paymentMethod:'cash'}),a=await(await f.request(endpoint,body)).json();await f.request(endpoint,input({id:a.id,revision:1,paymentMethod:'transfer'}));
+ const app=createApp({db:f.db,publicUrl:f.origin,financeClock:clock});const d=await(await app(new Request(f.origin+endpoint+'?month=2026-01',{headers:{cookie:f.cookie}}))).json();assert.equal(d.entries.find(e=>e.id===saved.id).paymentMethod,undefined);const edited=d.entries.find(e=>e.id===a.id);assert.equal(edited.paymentMethod,'transfer');assert.equal(edited.audit.at(-1).before.paymentMethod,'cash');assert.equal(d.paymentMethods.unspecified,'Sin especificar');
 });
