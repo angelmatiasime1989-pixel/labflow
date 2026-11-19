@@ -13,7 +13,7 @@ try{
  browser=spawn(process.env.CHROMIUM_BIN||'/usr/bin/chromium',['--headless=new','--no-sandbox','--disable-dev-shm-usage','--remote-debugging-port=0','--user-data-dir='+dir,'about:blank'],{stdio:'ignore'});let port;for(let i=0;i<150;i++){try{port=(await readFile(join(dir,'DevToolsActivePort'),'utf8')).split('\n')[0];break;}catch{await new Promise(r=>setTimeout(r,100));}}assert.ok(port);const targets=await(await fetch('http://127.0.0.1:'+port+'/json/list')).json();cdp=new Cdp(targets[0].webSocketDebuggerUrl);await cdp.call('Page.enable');await cdp.call('Runtime.enable');await cdp.call('Network.enable');await cdp.call('Network.setBlockedURLs',{urls:['https://api.stripe.com/*','https://checkout.stripe.com/*']});await mkdir(report,{recursive:true});
  async function shot(name){assert.equal(await cdp.js('document.documentElement.scrollWidth>innerWidth'),false);const image=await cdp.call('Page.captureScreenshot',{format:'png'});await writeFile(join(report,name+'.png'),Buffer.from(image.data,'base64'));}
  for(const width of [1440,390]){
- await cdp.call('Emulation.setDeviceMetricsOverride',{width,height:900,deviceScaleFactor:1,mobile:width<600});
+ await cdp.call('Emulation.setDeviceMetricsOverride',{width,height:width>600?768:900,deviceScaleFactor:1,mobile:width<600});
  await cdp.call('Page.navigate',{url:origin+'/#recorrido'});
  await cdp.until(`document.querySelector('#sales-carousel-track img')?.complete&&document.querySelector('#sales-carousel-track img').naturalWidth>0`);
  await cdp.js(`document.querySelector('#recorrido').scrollIntoView()`);

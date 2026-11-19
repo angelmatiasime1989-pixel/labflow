@@ -8,4 +8,4 @@
 
 @media(min-width:1101px){.membership-card{padding:14px}}
 
-.membership-inheritance{font-size:12px;line-height:1.5;font-weight:650;color:#173757;margin:8px 0}.membership-scope-note{font-size:11px;line-height:1.5;color:#526982;margin:0 0 8px}
+.membership-card .membership-inheritance{font-size:12px;line-height:1.5;font-weight:650;color:#173757;margin:8px 0}.membership-card .membership-scope-note{font-size:11px;line-height:1.5;color:#526982;margin:0 0 8px}
