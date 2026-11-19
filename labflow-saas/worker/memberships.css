@@ -7,3 +7,5 @@
 #membresias{padding-top:12px;padding-bottom:24px}#membresias h2{font-size:28px;margin:4px 0}#membresias .intro{font-size:14px;margin:4px 0}.membership-benefits{margin:6px 0}.membership-card h3{min-height:24px}.membership-card .membership-price{margin:6px 0 0}.membership-saving:empty{display:none}.membership-actions .membership-purchase{font-weight:700}@media(min-width:1101px){.membership-controls{display:none}.membership-grid{margin-top:0}.billing-switch{margin:10px 0 0}.billing-switch .btn{padding:10px 16px}}
 
 @media(min-width:1101px){.membership-card{padding:14px}}
+
+.membership-inheritance{font-size:12px;line-height:1.5;font-weight:650;color:#173757;margin:8px 0}.membership-scope-note{font-size:11px;line-height:1.5;color:#526982;margin:0 0 8px}

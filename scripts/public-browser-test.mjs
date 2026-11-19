@@ -26,6 +26,11 @@ try{
  await cdp.until(`(()=>{const t=document.querySelector('#sales-carousel-track'),img=t.children[${i}].querySelector('img');return img.complete&&img.naturalWidth>0&&Math.abs(t.scrollLeft-t.children[${i}].offsetLeft)<3})()`);
  }
  await shot('tour-last-'+width);
+ await cdp.js(`document.querySelector('#membresias').scrollIntoView()`);
+ assert.equal(await cdp.js(`document.querySelectorAll('.membership-card').length`),5);
+ const labels=['Base de Silver:','Incluye todo lo de Silver, más:','Incluye todo lo de Gold, más:','Incluye todo lo de Platinum, más:','Incluye todo lo de Diamond, más:'];
+ for(let i=0;i<5;i++){assert.equal(await cdp.js(`document.querySelectorAll('.membership-inheritance')[${i}].textContent`),labels[i]);await cdp.js(`document.querySelectorAll('.membership-card')[${i}].scrollIntoView({block:'nearest',inline:'nearest'})`);assert.ok(await cdp.js(`(()=>{const c=document.querySelectorAll('.membership-card')[${i}],b=c.querySelector('.membership-actions a:last-child').getBoundingClientRect();return b.width>100&&b.height>=40})()`));}
+ await shot('memberships-last-'+width);await cdp.js(`document.querySelectorAll('.membership-card')[0].scrollIntoView({block:'nearest',inline:'nearest'})`);await shot('memberships-first-'+width);
  await cdp.call('Page.navigate',{url:origin+'/instalar'});
  await cdp.until(`document.querySelector('.commercial-header .commercial-logo')?.complete&&document.querySelector('.commercial-header .commercial-logo').naturalWidth>0`);
  assert.equal(await cdp.js(`document.querySelectorAll('.commercial-header').length`),1);
