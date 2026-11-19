@@ -39,12 +39,13 @@ async function dashboardPreferencesRouteSaas(req,url,s,u,env,etag){
  if(!configurableDashboardSaas(s))fail('El tablero configurable requiere Platinum, Diamond o Enterprise Custom',403);
  if(!see(u,'kpis'))fail('Sin permiso para consultar indicadores',403);
  const raw=await req.text();if(raw.length>5000)fail('Solicitud demasiado grande',413);let b;try{b=JSON.parse(raw)}catch{fail('Solicitud inválida')}
- if(!b||Object.keys(b).some(k=>!['revision','widgets','sections','period'].includes(k)))fail('Sólo puedes configurar tu propio tablero',403);
+ if(!b||Object.keys(b).some(k=>!['revision','widgets','sections','metrics','period'].includes(k)))fail('Sólo puedes configurar tu propio tablero',403);
  if(b.revision!==s.revision)fail('Actualiza antes de guardar el tablero',409);
- if(b.widgets===undefined&&b.sections===undefined&&b.period===undefined)fail('Selecciona una preferencia');
+ if(b.widgets===undefined&&b.sections===undefined&&b.metrics===undefined&&b.period===undefined)fail('Selecciona una preferencia');
  const visible=visibleState(s,u),allowed=new Set((visible.kpiDashboard||[]).flatMap(p=>p.items.map(i=>String(i.id)))),person=s.users.find(p=>p.id===u.id),changes={};
  if(b.widgets!==undefined){if(!Array.isArray(b.widgets)||b.widgets.length>50||b.widgets.some(id=>typeof id!=='string'||!allowed.has(id))||new Set(b.widgets).size!==b.widgets.length)fail('Selecciona hasta 50 indicadores disponibles sin repetir');changes.dashboardWidgets=b.widgets;}
  if(b.sections!==undefined){const boards=WORKSPACE_BOARDS.filter(b=>b.metrics.some(m=>see(u,m.module))).map(b=>b.id);if(!Array.isArray(b.sections)||b.sections.length>4||new Set(b.sections).size!==b.sections.length)fail('Selecciona hasta cuatro tableros autorizados sin repetir');if(b.sections.some(id=>!boards.includes(id)))fail('Sin permiso para ese tablero',403);changes.dashboardSections=b.sections;}
+ if(b.metrics!==undefined){const allowedMetrics=WORKSPACE_BOARDS.flatMap(board=>board.metrics.filter(m=>see(u,m.module)).map(m=>board.id+'.'+m.module));if(!Array.isArray(b.metrics)||b.metrics.length>12||new Set(b.metrics).size!==b.metrics.length)fail('Selecciona indicadores sin repetir');if(b.metrics.some(id=>typeof id!=='string'||!allowedMetrics.includes(id)))fail('Indicador no autorizado',403);changes.dashboardMetrics=b.metrics;}
  if(b.period!==undefined){const p=b.period;if(!p||typeof p!=='object'||Object.keys(p).some(k=>!['from','to','key'].includes(k))||!['createdAt','date','updatedAt'].includes(p.key))fail('Filtro de fechas inválido');for(const d of [p.from,p.to])if(typeof d!=='string'||d!==''&&(!/^\d{4}-\d{2}-\d{2}$/.test(d)||!Number.isFinite(Date.parse(d))||new Date(d).toISOString().slice(0,10)!==d))fail('Fecha inválida');if(p.from&&p.to&&p.from>p.to)fail('Rango de fechas inválido');changes.dashboardPeriod={from:p.from,to:p.to,key:p.key};}
  Object.assign(person,changes);person.updatedAt=now();audit(s,u,'users',u.id,'Configuración personal del tablero',null,changes);await save(env,s,etag);return json({ok:true});
 }
