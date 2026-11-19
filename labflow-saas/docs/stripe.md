@@ -12,7 +12,7 @@ Esta implementación funciona **solo en modo de pruebas**. El código puede publ
 
 ## Catálogo exacto a configurar en el sandbox de Stripe
 
-Fuente: `worker/commercial-memberships.json` y `worker/commercial-terms.json`. Moneda MXN; importes **antes de IVA**. Anual: mensual × 12 × 0.90. No son doce cargos mensuales: el precio anual se cobra una vez por año.
+Fuente: `worker/commercial-memberships.json` y `worker/commercial-terms.json`. Moneda MXN; importes **totales al cliente, IVA incluido**. Anual: mensual × 12 × 0.90. No son doce cargos mensuales: el precio anual se cobra una vez por año.
 
 | Producto | Ciclo | Importe MXN | `unit_amount` (centavos) | Variable privada |
 | --- | --- | ---: | ---: | --- |
@@ -25,9 +25,9 @@ Fuente: `worker/commercial-memberships.json` y `worker/commercial-terms.json`. M
 | Diamond | Mensual, `month`, 1 | 4,490.00 | 449000 | `STRIPE_PRICE_DIAMOND_MONTHLY` |
 | Diamond | Anual, `year`, 1 | 48,492.00 | 4849200 | `STRIPE_PRICE_DIAMOND_ANNUAL` |
 
-Crear cuatro productos y dos precios recurrentes por producto, con `billing_scheme=per_unit`, `recurring.usage_type=licensed`, cantidad fija 1, moneda `mxn` y `tax_behavior=exclusive`. Los ocho IDs deben ser distintos. El servidor recupera y valida cada precio antes del checkout y al sincronizar la suscripción. Enterprise Custom permanece por cotización (el catálogo muestra desde 7,990 MXN/mes y anual personalizado); no se crea un checkout para Enterprise.
+Crear cuatro productos y dos precios recurrentes por producto, con `billing_scheme=per_unit`, `recurring.usage_type=licensed`, cantidad fija 1, moneda `mxn` y `tax_behavior=inclusive`. Los ocho IDs deben ser distintos. El servidor recupera y valida cada precio antes del checkout y al sincronizar la suscripción. Enterprise Custom permanece por cotización (el catálogo muestra desde 7,990 MXN/mes y anual personalizado); no se crea un checkout para Enterprise.
 
-Checkout solicita cálculo automático de impuestos y domicilio de facturación. Configurar **Stripe Tax en el sandbox** con los datos fiscales que correspondan antes del ensayo; el código no fija una tasa de IVA ni promete un total fiscal. El catálogo conserva sus importes base.
+Checkout solicita cálculo automático de impuestos y domicilio de facturación. Configurar **Stripe Tax en el sandbox** con los datos fiscales que correspondan antes del ensayo; el código no fija una tasa de IVA. Los importes publicados son totales con IVA incluido; un precio exclusivo o sin comportamiento definido se rechaza. No se ha verificado el precio live ni el estado fiscal de Stripe. El total del Checkout de Gold mensual debe verificarse como 1,490 MXN, sin sumar IVA encima.
 
 ## Configuración del sandbox por el operador
 
@@ -101,3 +101,9 @@ Los tests MariaDB usan exclusivamente un servidor loopback aislado y bases sint�
 Falta para ese ensayo: sandbox configurado, ocho precios e impuestos, portal, secretos privados, origen HTTPS/CLI y webhook real; pagar con los medios de prueba oficiales, comprobar factura y eventos, repetir/alterar eventos, probar cambio de plan/cancelación/fallo de pago, y verificar persistencia tras reiniciar el entorno de pruebas. Conservar únicamente registros sintéticos identificables y no introducir tarjetas reales.
 
 Referencias oficiales usadas para el contrato de API: [Checkout](https://docs.stripe.com/api/checkout/sessions/create), [portal](https://docs.stripe.com/api/customer_portal/sessions/create), [webhooks](https://docs.stripe.com/webhooks), [versionado](https://docs.stripe.com/api/versioning), [líneas de factura](https://docs.stripe.com/api/invoice-line-item/object).
+
+## Pendientes fiscales antes de habilitar cobros
+
+Para Gold mensual, verificar en el entorno correspondiente el Price real con importe 149000 centavos MXN, recurrencia mensual y `tax_behavior=inclusive`; no inferirlo por el nombre de la variable. Verificar también Tax Settings activo, registro de recaudación activo en la jurisdicción aplicable, categoría fiscal del producto confirmada por el responsable (sin adivinar un código), domicilio del cliente y resultado fiscal aplicable. Comprobar en sandbox el total de Checkout y de la factura: **1,490 MXN IVA incluido**, nunca más IVA. No se han cambiado impuestos, productos ni precios en Stripe ni realizado cálculos fiscales live.
+
+El cobro automático live sigue bloqueado por código. Además de los parámetros y los siete eventos de ciclo de vida documentados, falta acordar e implementar políticas para reembolsos, disputas y alertas de fraude (`charge.refunded`, `charge.dispute.created`, `radar.early_fraud_warning.created`), conciliación periódica, monitorización y autorización explícita de lanzamiento. No suscribir esos tres eventos adicionales hasta implementar sus manejadores; hoy no conceden ni revocan acceso. Una clave live y un solo precio no bastan para habilitar la integración.

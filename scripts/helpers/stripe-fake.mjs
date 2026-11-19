@@ -4,7 +4,7 @@ import {priceCatalog} from '../../server/stripe/config.mjs';
 export function fakeStripe(){
  const env={STRIPE_ENABLED:'true',STRIPE_TEST_MODE:'true',NODE_ENV:'test',STRIPE_SECRET_KEY:'sk_test_synthetic',STRIPE_WEBHOOK_SECRET:'whsec_synthetic',STRIPE_PORTAL_CONFIGURATION:'bpc_synthetic'};
  const objects=new Map(),calls=[],cache=new Map();let sequence=0,hook=null;
- for(const p of priceCatalog){const id='price_'+p.plan+'_'+p.cycle;env[p.env]=id;objects.set('/prices/'+id,{id,object:'price',livemode:false,active:true,currency:p.currency,unit_amount:p.amount,type:'recurring',billing_scheme:'per_unit',tax_behavior:'exclusive',recurring:{interval:p.interval,interval_count:1,usage_type:'licensed'}});}
+ for(const p of priceCatalog){const id='price_'+p.plan+'_'+p.cycle;env[p.env]=id;objects.set('/prices/'+id,{id,object:'price',livemode:false,active:true,currency:p.currency,unit_amount:p.amount,type:'recurring',billing_scheme:'per_unit',tax_behavior:'inclusive',recurring:{interval:p.interval,interval_count:1,usage_type:'licensed'}});}
  const response=data=>new Response(JSON.stringify(data),{status:200,headers:{'Content-Type':'application/json'}});
  async function transport(url,options){const path=new URL(url).pathname.replace('/v1',''),params=Object.fromEntries(new URLSearchParams(options.body)),key=options.headers['Idempotency-Key'];calls.push({path,method:options.method,params,key,version:options.headers['Stripe-Version']});if(hook){const override=await hook({path,options,params});if(override)return override;}if(key&&cache.has(key))return response(cache.get(key));let data;
   if(options.method==='GET'){data=objects.get(path);if(!data)return new Response('{}',{status:404});}

@@ -4,7 +4,7 @@ import {mutatePlatform,readPlatform} from './store.mjs';
 const idOf=value=>typeof value==='string'?value:value?.id;
 const reject=(code,message,status=409)=>{throw billingError(status,code,message);};
 export function validatePrice(price,expected,{checkout=false}={}){
- if(!expected||price?.id!==expected.id||price.livemode!==false||price.currency!==expected.currency||price.unit_amount!==expected.amount||price.type!=='recurring'||price.recurring?.interval!==expected.interval||price.recurring.interval_count!==1||price.recurring.usage_type!=='licensed'||price.billing_scheme!=='per_unit'||price.tax_behavior!=='exclusive'||price.transform_quantity||price.tiers_mode||(checkout&&!price.active))reject('PRICE_MISMATCH','El precio de Stripe no coincide con el catálogo de Qubo Labs.',422);
+ if(!expected||price?.id!==expected.id||price.livemode!==false||price.currency!==expected.currency||price.unit_amount!==expected.amount||price.type!=='recurring'||price.recurring?.interval!==expected.interval||price.recurring.interval_count!==1||price.recurring.usage_type!=='licensed'||price.billing_scheme!=='per_unit'||price.tax_behavior!=='inclusive'||price.transform_quantity||price.tiers_mode||(checkout&&!price.active))reject('PRICE_MISMATCH','El precio de Stripe no coincide con el catálogo de Qubo Labs.',422);
 }
 export function billingService({bucket,config,api,origin,resolveContract}){
  async function ensureCustomer(tenant){
