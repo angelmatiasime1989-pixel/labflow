@@ -35,7 +35,7 @@ export function createApp({db,publicUrl,env={},stripeTransport,financeTransport,
   if(externalOrigin!==origin&&!slug)return new Response('Origen no autorizado',{status:400});
   if((slug&&(/^\/api\/trial(?:\/|$)|^\/prueba-documental(?:\/|$)/.test(url.pathname)))||/^\/laboratorio\/[a-z0-9-]+\/(?:api\/trial|prueba-documental)(?:\/|$)/.test(url.pathname))return new Response('Prueba pública no disponible en este espacio',{status:404,headers:{'Cache-Control':'no-store'}});
   if(!slug){const trial=await trialRoutes(req,{ip});if(trial)return trial;}
-  if(slug&&['GET','HEAD'].includes(req.method)&&/^\/(?:preguntas-frecuentes|privacidad|terminos|blog)(?:\/|$)/.test(url.pathname))return Response.redirect(origin+url.pathname+url.search+url.hash,302);
+  if(slug&&['GET','HEAD'].includes(req.method)&&/^\/(?:cursos|preguntas-frecuentes|privacidad|terminos|blog)(?:\/|$)/.test(url.pathname))return Response.redirect(origin+url.pathname+url.search+url.hash,302);
   if(slug&&url.pathname.startsWith('/assets/')&&['GET','HEAD'].includes(req.method))return worker.fetch(new Request(origin+url.pathname,{method:req.method}),bindings,{});
   const offlineAsset=offlineAssets(url.pathname,req.method);if(offlineAsset)return offlineAsset;
   const publicPwa=pwaResponse(url.pathname,{tenant:!!slug,method:req.method});if(publicPwa)return publicPwa;
