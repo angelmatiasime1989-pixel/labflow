@@ -25,7 +25,8 @@ export function createApp({db,publicUrl,env={},stripeTransport,financeTransport,
  const mail=mailService({bucket,env,origin,transport:mailTransport,clock:mailClock}),recovery=recoveryRoutes({bucket,mail,origin,clock:mailClock});
  const stripeHandler=stripeRoutes({env,origin,bucket,resolveContract:membershipSaas,transport:stripeTransport});
  const bindings={BUCKET:bucket,PUBLIC_TRIAL_AVAILABLE:String(!!trialStore),...Object.fromEntries(['SALES_ENABLED','SALES_CHANNEL','SALES_TO','OPENAI_API_KEY','OPENAI_MODEL','QUBITO_TENANT_HOURLY_LIMIT','QUBITO_TENANT_MONTHLY_LIMIT','TENANT_SUBDOMAINS_ENABLED'].filter(k=>env[k]).map(k=>[k,env[k]]))};
- if(mail.enabled){bindings.SEND_MAIL=mail.workerSend;bindings.EMAIL_FROM=mail.from;bindings.SITE_URL=origin+'/entrar';}
+ bindings.LAB_ACTIVITY_MANAGED35=true;
+ if(mail.enabled){bindings.SEND_MAIL=mail.workerSend;bindings.EMAIL_FROM=mail.from;bindings.SITE_URL=origin+'/entrar';bindings.LAB_ACTIVITY_EMAIL_ENABLED=env.LAB_ACTIVITY_EMAIL_ENABLED==='true';bindings.CAN_SEND_LAB_ACTIVITY35=mail.canSendTo;}
  if(env.SALES_CHANNEL==='resend'&&!mail.canSendTo(env.SALES_TO))bindings.SALES_ENABLED='false';
  const onboarding=onboardingRoutes({env,origin,bucket,resolveContract:membershipSaas,seedTenant:emptyTenantSaas,initialize:()=>platformLoadSaas(bindings)});
  let offlineEnabled=env.OFFLINE_DOCUMENTS_ENABLED==='true',offlineHandler;

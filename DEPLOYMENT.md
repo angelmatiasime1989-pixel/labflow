@@ -53,3 +53,10 @@ Los avisos legales requieren completar la identidad y datos del responsable en e
 ## Contraseña temporal del proveedor
 
 Configurar `CUBOLABS_ADMIN_FORCE_PASSWORD_CHANGE=true` junto con las credenciales iniciales. Tras validar la contraseña temporal, el acceso al panel y sus API se bloquea hasta cambiarla en `/administrador/cambiar-contrasena`. El cambio revoca todas las sesiones anteriores y crea una sesión nueva; reiniciar no vuelve a aplicar la contraseña temporal. Si ya existe un administrador, las variables no lo sobrescriben. Para un restablecimiento expresamente autorizado, ejecutar `npm run setup -- --reset` desde el entorno configurado. No cambiar claves de respaldo existentes ni rutas de datos al restablecer credenciales.
+
+
+## Correo de actividad de los laboratorios
+
+El correo transaccional y los avisos automáticos se desactivan de forma predeterminada. Configura `RESEND_API_KEY` como secreto del servidor y `EMAIL_FROM` dentro del dominio de envío verificado. Tras verificar el dominio y la clave, activa `TRANSACTIONAL_EMAIL_ENABLED=true`, `RESEND_DOMAIN_VERIFIED=true`, `RESEND_API_VERIFIED=true` y `LAB_ACTIVITY_EMAIL_ENABLED=true`. La lista `RESEND_ALLOWED_RECIPIENTS` admite direcciones exactas separadas por coma y no admite comodines. Puede empezar con una única cuenta controlada.
+
+En cada panel que participará, un administrador activa **Notificaciones por correo**. La cuenta de prueba debe ser un usuario activo de ese laboratorio y tener permiso sobre el registro y participación o una revisión pendiente. Usa otro usuario para generar la actividad y confirma la recepción por la cuenta controlada. No se envía al autor, ni en laboratorios internos de prueba. No se reenvían avisos históricos. Los mensajes omiten datos de registros y enlazan al acceso de ese laboratorio. La etiqueta «Aceptado por proveedor» no confirma entrega en la bandeja de entrada.
