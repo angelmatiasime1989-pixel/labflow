@@ -45,3 +45,5 @@ test('changed email or suspended tenant invalidates outstanding recovery links',
  const before=await(await f.bucket.get(customer.key)).text();assert.equal((await call('reset',{token:secret,password:'Synthetic-New-2026!'})).status,400);assert.equal(await(await f.bucket.get(customer.key)).text(),before);
  }
 });
+
+test('laboratory recovery remains reachable without mail and explains administrator assistance',async t=>{const f=await fixture(t);await f.customer('recovery-help');const login=await(await f.request('/laboratorio/recovery-help/',null,{cookie:''})).text();assert.ok(login.includes('QUBO_RECOVERY_URL="'+f.origin+'/recuperar"'));assert.ok(login.includes('¿Olvidaste tu contraseña?'));const page=await(await f.request('/recuperar?laboratorio=recovery-help',null,{cookie:''})).text();assert.ok(page.includes('const recoveryEnabled=false'));assert.ok(page.includes('Pide al administrador de tu laboratorio'));assert.ok(!page.includes('/*RECOVERY_ENABLED*/'));});
